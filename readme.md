@@ -1,21 +1,24 @@
 # Asyncio Timer
 
-An asynchronous timer with human-friendly interface and rich functionality:
+An asynchronous timer with a human-friendly API and rich functionality.
+
 * State management with `start()`, `stop()`, `pause()`, and `reset()` methods.
 * On-the-fly adjustment of the duration with `set()`, `prolong()`, and `shorten()` methods.
 * Multi-interval configuration when the timer runs multiple times with a predefined pattern of durations.
 * Looping capabilities for continuously running timers.
-* Rich callback system allowing to hook into the timer lifecycle events.
-* Asynchronous-safe architecture preventing any race conditions and deadlocks.
+* Rich callback system enabling hooking into the timer lifecycle events.
+* Concurrency-safe architecture designed to prevent race conditions and deadlocks.
+* Support for a wide range of Python versions from `3.9` onward.
+* Zero third-party dependencies.
 
-## Table of Contents
+## Table of contents
 * [Basic usage](#basic-usage)
   * [One-off timer](#one-off-timer)
   * [Multi-interval timer](#multi-interval-timer)
   * [Other usage examples](#other-usage-examples)
-* [Built-in intervals](#built-in-intervals)
+* [Built-in intervals](#built-in-interval-generators)
 * [Event system](#event-system)
-  * [Interval complete Event](#interval-complete-event)
+  * [Interval complete event](#interval-complete-event)
   * [Timer complete event](#timer-complete-event)
   * [Error event](#error-event)
 * [Advanced usage](#advanced-usage)
@@ -23,7 +26,7 @@ An asynchronous timer with human-friendly interface and rich functionality:
   * [Custom intervals](#custom-intervals)
 * [Contributing](#contributing)
 
-## Basic Usage
+## Basic usage
 
 ### One-off timer
 ```python
@@ -42,7 +45,7 @@ async def main() -> None:
     timer = Timer(once(3), lambda: print('3 seconds passed'))
     await timer.run()
 
-    # Add an extra second of sleep to avoid any race conditions.
+    # Wait for the timer to complete.
     await sleep(3 + 1)
 
 if __name__ == '__main__':
@@ -52,36 +55,38 @@ if __name__ == '__main__':
 ### Multi-interval timer
 
 ```python
-from asyncio import run
+from asyncio import run, sleep
 
 from aiotimer import Timer
 from aiotimer.interval import thrice
 
 
 async def main() -> None:
-  """
-  Will run the timer three times for 1 second each.
-  And will print intermediate messages every second.
-  Then will print the final message after a total of 3 seconds.
-  """
+    """
+    Will run the timer three times for 1 second each.
+    And will print intermediate messages every second.
+    Then will print the final message after a total of 3 seconds.
+    """
 
-  timer = Timer(
-    thrice(1),
-    on_timer_complete=lambda: print('3 seconds passed'),
-    on_interval_complete=lambda: print('1 more second passed'),
-  )
-  await timer.run()
+    timer = Timer(
+        thrice(1),
+        on_timer_complete=lambda: print('3 seconds passed'),
+        on_interval_complete=lambda: print('1 more second passed'),
+    )
+    await timer.run()
 
+    # Wait for the timer to complete.
+    await sleep(3 + 1)
 
 if __name__ == '__main__':
-  run(main())
+    run(main())
 ```
 
-### Other Usage Examples
-See more usage examples [here](examples).
+### Other usage examples
+More usage examples are available [here](examples).
 
 
-## Built-in Intervals
+## Built-in interval generators
 There are many built-in [interval generators](sources/aiotimer/interval) that should cover the majority of common use cases.
 
 ```python
@@ -106,57 +111,57 @@ Timer(exponentially(1, 5), lambda: print('Ran for 1, 2, 4, 8, and 16 seconds'))
 # Any interval construct could be combined with `immediately_then()`.
 Timer(immediately_then(once(5)), lambda: print('Fired immediately and after 5 seconds'))
 
-# Jitter may be specified relatively to the duration.
+# Jitter may be specified relative to the duration.
 Timer(jittery(thrice(5), relative=0.1), lambda: print('Ran thrice for 5±0.5 seconds'))
 
 # Jitter may be specified as an absolute value.
 Timer(jittery(thrice(5), absolute=0.5), lambda: print('Ran thrice for 5±0.5 seconds'))
 
-# `on_complete` will never be fired, use `on_interval` instead.
+# `on_timer_complete` will never be fired, use `on_interval_complete` instead.
 Timer(forever(once(5)), on_interval_complete=lambda: print('5 more seconds passed'))
 ```
 
 > If you believe some type of interval generator is missing, feel free to create an issue or a pull request.
 
 ## Event system
-All event handlers **must** comply with the following API contract. Non-compliant event handlers yield undefined behavior.
+All event handlers **must** comply with the following API contract. Non-compliant event handlers result in undefined behavior.
 * Event handler **may** be either:
   * Synchronous callable.
   * Asynchronous callable.
 * Event handler **must** have either:
     * Zero parameters.
     * Exactly one positional parameter accepting the corresponding event object type.
-* Event handler **should not** have any return value because it will be ignored and discarded by the timer object.
-* Event handler's signature **must not** be modified at runtime after registering it with the timer object.
+* Event handler **should not** return any values because they will be ignored and discarded by the timer.
+* An event handler's signature **must not** be modified at runtime after registration with the timer object.
 
 > Any public method of a timer object may be safely called from any event handler. The internal timer architecture prevents any race conditions and deadlocks from occurring. 
 
-### Interval Complete Event
+### Interval complete event
 This event is fired each time any interval of a timer is complete. An `on_interval_complete` handler **_may_** optionally accept an [`IntervalCompleteEvent`](sources/aiotimer/event/interval_complete_event.py) object.
 
-### Timer Complete Event
-This event is fired each time the last interval of a timer is complete. An `on_timer_complete` handler **_may_** optionally accept an [`TimerCompleteEvent`](sources/aiotimer/event/timer_complete_event.py) object.
+### Timer complete event
+This event is fired each time the last interval of a timer is complete. An `on_timer_complete` handler **_may_** optionally accept a [`TimerCompleteEvent`](sources/aiotimer/event/timer_complete_event.py) object.
 
-### Error Event
-This event is fired each time any exception is propagated outside from any of the event handlers described above. Additionally, it is fired when an exception occurs inside a system coroutine of a timer. An `on_error` handler **_may_** optionally accept an [`ErrorEvent`](sources/aiotimer/event/error_event.py) object.
+### Error event
+This event is fired each time any exception is propagated from any of the event handlers described above. Additionally, it is fired when an exception occurs inside a system coroutine of a timer. An `on_error` handler **_may_** optionally accept an [`ErrorEvent`](sources/aiotimer/event/error_event.py) object.
 
 ## Advanced usage
 
-### Configuring Precision
+### Configuring precision
 The timer class has a configurable `precision: float` parameter. It represents the amount of seconds a timer would idle between its system ticks.
 
-For adequate accuracy, it is recommended to have the precision value configured to at least several timers lower than the shortest interval the timer would have.
+For adequate accuracy, it is recommended to have the precision value configured significantly (at least several times) smaller than the shortest interval the timer would have.
 
-At the same time having precision configured to extremely low number (e.g. `0.001`) may yield a high CPU load.
+At the same time, having the precision configured to an extremely low value (e.g. `0.001`) may yield a high CPU load.
 
 ### Custom intervals
-The first argument to the timer constructor is an [`Interval Generator Factory`](sources/aiotimer/interval/type/interval_generator.py). I.e., it is a callable that returns a generator that yields interval durations.
+The first argument to the timer constructor is an [`Interval Generator Factory`](sources/aiotimer/interval/type/interval_generator.py). In other words, it is a callable that returns a generator that yields interval durations.
 
 > This design decision is required to support multiple functionalities.
 >
 > A regular list of interval durations could not be used because this would not allow having an infinite number of intervals.
 >
-> A regular generator object could not be used because it could not be reset to initial state, which is required to support the `timer.reset()` functionality.
+> A regular generator object could not be used because it could not be reset to its initial state, which is required to support the `timer.reset()` functionality.
 
 ```python
 from asyncio import run, sleep

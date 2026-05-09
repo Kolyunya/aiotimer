@@ -16,7 +16,7 @@ async def main() -> None:
     await timer.run()
     print('The timer is running.')
 
-    # Add a sleep margin of one second to avoid any race conditions.
+    # Wait for the timer to complete.
     await sleep(3 + 1)
 
 
