@@ -7,3 +7,6 @@
 
 # Setuptools
 /sources/*.egg-info
+
+# Python cache
+__pycache__
