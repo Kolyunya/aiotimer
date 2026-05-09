@@ -1,6 +1,9 @@
 from collections.abc import Callable
 from inspect import signature
 from typing import Any
+from unittest.mock import Mock
+
+from ...error import TimerError
 
 
 def has_parameters(the_callable: Callable[..., Any]) -> bool:
@@ -44,7 +47,15 @@ def has_parameters(the_callable: Callable[..., Any]) -> bool:
         - inspect.signature: The underlying inspection function used
     """
 
-    the_signature = signature(the_callable)
+    # Remove this block after the support for Python 3.10 is dropped.
+    # Mocks break when passed to `inspect.signature()` only in Python 3.10.
+    if isinstance(the_callable, Mock):
+        return True
+
+    try:
+        the_signature = signature(the_callable)
+    except Exception as error:
+        raise TimerError('Unable to introspect the callable') from error
 
     parameters_count = len(the_signature.parameters)
     callable_has_parameters = parameters_count > 0
