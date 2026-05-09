@@ -15,7 +15,7 @@ def main() -> None:
 
     marks = ''
     if arguments.skip_slow:
-        marks = 'not slow'
+        marks = '(not slow)'
 
     environment = {
         **environ,
@@ -38,7 +38,7 @@ def main() -> None:
         ['pyright', f'--project={path}/pyright.json', *sources],
         ['mypy', f'--config-file={path}/mypy.ini', *sources],
         ['pylint', f'--rcfile={path}/pylint.ini', *sources],
-        ['pytest', f'--config-file={path}/pytest.ini', f'-m=({marks})', 'tests'],
+        ['pytest', f'--config-file={path}/pytest.ini', f'-m={marks}', 'tests'],
     ]
 
     success = True
