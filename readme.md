@@ -2,7 +2,7 @@
 
 An asynchronous timer with a human-friendly API and rich functionality.
 
-* State management with `start()`, `stop()`, `pause()`, and `reset()` methods.
+* State management with `run()`, `pause()`, and `reset()` methods.
 * On-the-fly adjustment of the duration with `set()`, `prolong()`, and `shorten()` methods.
 * Multi-interval configuration when the timer runs multiple times with a predefined pattern of durations.
 * Looping capabilities for continuously running timers.
