@@ -1,0 +1,88 @@
+from collections.abc import Awaitable, Callable
+from inspect import isawaitable
+from typing import Generic, Optional, TypeVar, Union, cast
+
+from .has_parameters import has_parameters
+
+EventType = TypeVar('EventType')
+
+RawCallbackResult = Optional[Awaitable[None]]
+
+RawCallbackWithParameter = Union[
+    Callable[[EventType], None],
+    Callable[[EventType], Awaitable[None]],
+]
+
+RawCallbackWithoutParameter = Union[
+    Callable[[], None],
+    Callable[[], Awaitable[None]],
+]
+
+RawCallback = Optional[
+    Union[
+        RawCallbackWithParameter[EventType],
+        RawCallbackWithoutParameter,
+    ]
+]
+
+
+class Callback(Generic[EventType]):
+
+    def __init__(self, callback: RawCallback[EventType]) -> None:
+        self.__callback = callback
+        self.__has_parameters: Optional[bool] = None
+        self.__is_asynchronous: Optional[bool] = None
+
+        if callback:
+            self.__has_parameters = has_parameters(callback)
+
+            # We do not know if it is asynchronous before we call it.
+            # And it is not time yet to call it.
+            # We would find that out later after the first call.
+
+    @property
+    def is_set(self) -> bool:
+        callback_is_set = self.__callback is not None
+
+        return callback_is_set
+
+    async def __call__(self, event: EventType) -> None:
+        if not self.is_set:
+            return
+
+        result = self.__invoke_callback(event)
+        await self.__await_result(result)
+
+    def __invoke_callback(self, event: EventType) -> RawCallbackResult:
+        if self.__has_parameters:
+            result = self.__callback_with_parameter(event)
+        else:
+            result = self.__callback_without_parameter()
+
+        return result
+
+    async def __await_result(self, result: RawCallbackResult) -> None:
+        if self.__is_asynchronous is None:
+            self.__is_asynchronous = isawaitable(result)
+
+        if self.__is_asynchronous is True:
+            assert isinstance(result, Awaitable)
+            await result
+
+    @property
+    def __callback_with_parameter(self) -> RawCallbackWithParameter[EventType]:
+        callback = cast(
+            'RawCallbackWithParameter[EventType]',
+            self.__callback,
+        )
+
+        return callback
+
+    @property
+    def __callback_without_parameter(self) -> RawCallbackWithoutParameter:
+        callback = cast(
+            'RawCallbackWithoutParameter',
+            self.__callback,
+        )
+
+        return callback

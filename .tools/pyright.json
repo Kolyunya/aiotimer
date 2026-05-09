@@ -1,0 +1,21 @@
+{
+    "typeCheckingMode": "strict",
+
+    "reportMissingTypeStubs": "error",
+    "reportUnknownParameterType": "error",
+    "reportUntypedFunctionDecorator": "error",
+    "reportUnknownVariableType": "error",
+    "reportPrivateUsage": "error",
+    "reportMissingParameterType": "error",
+    "reportMissingTypeArgument": "error",
+
+    "executionEnvironments": [
+        {
+          "root": "../sources"
+        },
+        {
+          "root": "../tests",
+          "reportUnknownVariableType": "none"
+        }
+    ]
+}
