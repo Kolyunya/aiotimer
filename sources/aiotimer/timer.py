@@ -5,7 +5,7 @@ from contextlib import suppress
 from time import monotonic_ns
 from typing import TYPE_CHECKING, Optional
 
-from typing_extensions import Self, override
+from typing_extensions import override
 
 from .error import (
     InvalidConfigurationError,
@@ -78,27 +78,23 @@ class Timer(TimerInterface):
             raise InvalidConfigurationError('The interval generator must yield at least one value')
 
     @override
-    async def run(self) -> Self:
+    async def run(self) -> None:
         async with self.__lock:
             self.__state.ensure_could_run()
             self.__state = RunningState()
 
             await self.__start_advancement()
 
-        return self
-
     @override
-    async def pause(self) -> Self:
+    async def pause(self) -> None:
         async with self.__lock:
             self.__state.ensure_could_stop()
             self.__state = StoppedState()
 
             await self.__stop_advancement()
 
-        return self
-
     @override
-    async def reset(self) -> Self:
+    async def reset(self) -> None:
         async with self.__lock:
             self.__state.ensure_could_reset()
             self.__state = InitialState()
@@ -111,33 +107,25 @@ class Timer(TimerInterface):
             if not self.__initialize_next_interval():
                 raise InvalidConfigurationError('The interval generator must yield at least one value')
 
-        return self
-
     @override
-    async def set(self, duration: float) -> Self:
+    async def set(self, duration: float) -> None:
         self.__validate_duration(duration)
 
         async with self.__lock:
             self.__state.ensure_could_adjust()
             self.__duration = s2ns(duration)
 
-        return self
-
     @override
-    async def prolong(self, duration_delta: float) -> Self:
+    async def prolong(self, duration_delta: float) -> None:
         async with self.__lock:
             self.__state.ensure_could_adjust()
             self.__adjust(duration_delta)
 
-        return self
-
     @override
-    async def shorten(self, duration_delta: float) -> Self:
+    async def shorten(self, duration_delta: float) -> None:
         async with self.__lock:
             self.__state.ensure_could_adjust()
             self.__adjust(-1 * duration_delta)
-
-        return self
 
     @override
     async def view(self) -> float:

@@ -3,8 +3,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from typing_extensions import Self
-
 if TYPE_CHECKING:
     from .state import State
 
@@ -12,27 +10,27 @@ if TYPE_CHECKING:
 class TimerInterface(ABC):
 
     @abstractmethod
-    async def run(self) -> Self:
+    async def run(self) -> None:
         pass
 
     @abstractmethod
-    async def pause(self) -> Self:
+    async def pause(self) -> None:
         pass
 
     @abstractmethod
-    async def reset(self) -> Self:
+    async def reset(self) -> None:
         pass
 
     @abstractmethod
-    async def set(self, duration: float) -> Self:
+    async def set(self, duration: float) -> None:
         pass
 
     @abstractmethod
-    async def prolong(self, duration_delta: float) -> Self:
+    async def prolong(self, duration_delta: float) -> None:
         pass
 
     @abstractmethod
-    async def shorten(self, duration_delta: float) -> Self:
+    async def shorten(self, duration_delta: float) -> None:
         pass
 
     @abstractmethod
