@@ -16,7 +16,8 @@ An asynchronous timer with a human-friendly API and rich functionality.
   * [One-off timer](#one-off-timer)
   * [Multi-interval timer](#multi-interval-timer)
   * [Other usage examples](#other-usage-examples)
-* [Built-in intervals](#built-in-interval-generators)
+* [States and transitions](#states-and-transitions)
+* [Built-in interval generators](#built-in-interval-generators)
 * [Event system](#event-system)
   * [Interval complete event](#interval-complete-event)
   * [Timer complete event](#timer-complete-event)
@@ -85,6 +86,14 @@ if __name__ == '__main__':
 ### Other usage examples
 More usage examples are available [here](examples).
 
+## States and transitions
+The timer class implements the [State Pattern](https://en.wikipedia.org/wiki/State_pattern). Methods that modify the timer state may only be called when the timer is in a supported state.
+
+Any transition not listed in the diagram will raise an [`InvalidStateError`](sources/aiotimer/error/state_error.py). For example, you cannot `reset()` a timer while it is in the `InitialState`, and you cannot `run()` a timer that is in the `CompleteState`.
+
+This design is used as a defensive programming technique in order to catch any logic errors in the code early and to simplify the debugging process.
+
+![](.assets/state-diagram.png)
 
 ## Built-in interval generators
 There are many built-in [interval generators](sources/aiotimer/interval) that should cover the majority of common use cases.
@@ -93,32 +102,32 @@ There are many built-in [interval generators](sources/aiotimer/interval) that sh
 from aiotimer import Timer
 from aiotimer.interval import *
 
-Timer(once(5), lambda: print('Ran once for 5 seconds'))
+Timer(once(5), lambda: print('Ran once for 5 seconds.'))
 
-Timer(twice(5), lambda: print('Ran twice for 5 seconds each'))
+Timer(twice(5), lambda: print('Ran twice for 5 seconds each.'))
 
-Timer(thrice(5), lambda: print('Ran thrice for 5 seconds each'))
+Timer(thrice(5), lambda: print('Ran thrice for 5 seconds each.'))
 
 # Repeatedly accepts any other interval and repeats it.
-Timer(repeatedly(once(5), 10), lambda: print('Ran 10 times for 5 seconds each'))
+Timer(repeatedly(once(5), 10), lambda: print('Ran 10 times for 5 seconds each.'))
 
-Timer(repeatedly(randomly(3, 5), 10), lambda: print('Ran 10 times between 3 and 5 seconds each'))
+Timer(repeatedly(randomly(3, 5), 10), lambda: print('Ran 10 times between 3 and 5 seconds each.'))
 
-Timer(sequentially(1, 2, 3), lambda: print('Ran for 1, 2, and 3 seconds'))
+Timer(sequentially(1, 2, 3), lambda: print('Ran for 1, 2, and 3 seconds.'))
 
-Timer(exponentially(1, 5), lambda: print('Ran for 1, 2, 4, 8, and 16 seconds'))
+Timer(exponentially(1, 5), lambda: print('Ran for 1, 2, 4, 8, and 16 seconds.'))
 
 # Any interval construct could be combined with `immediately_then()`.
-Timer(immediately_then(once(5)), lambda: print('Fired immediately and after 5 seconds'))
+Timer(immediately_then(once(5)), lambda: print('Fired immediately and after 5 seconds.'))
 
 # Jitter may be specified relative to the duration.
-Timer(jittery(thrice(5), relative=0.1), lambda: print('Ran thrice for 5±0.5 seconds'))
+Timer(jittery(thrice(5), relative=0.1), lambda: print('Ran thrice for 5±0.5 seconds.'))
 
 # Jitter may be specified as an absolute value.
-Timer(jittery(thrice(5), absolute=0.5), lambda: print('Ran thrice for 5±0.5 seconds'))
+Timer(jittery(thrice(5), absolute=0.5), lambda: print('Ran thrice for 5±0.5 seconds.'))
 
 # `on_timer_complete` will never be fired, use `on_interval_complete` instead.
-Timer(forever(once(5)), on_interval_complete=lambda: print('5 more seconds passed'))
+Timer(forever(once(5)), on_interval_complete=lambda: print('5 more seconds passed.'))
 ```
 
 > If you believe some type of interval generator is missing, feel free to create an issue or a pull request.
