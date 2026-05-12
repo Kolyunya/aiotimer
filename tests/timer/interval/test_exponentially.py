@@ -6,46 +6,49 @@ from aiotimer.error import InvalidConfigurationError
 from aiotimer.interval.exponentially import exponentially
 
 
-@mark.parametrize(('ticks', 'max_duration'), [
+@mark.parametrize(('interval_count', 'maximum_duration'), [
     (None, None),
     (10, 60),
 ])
-def test_either_ticks_or_max_duration_must_be_specified(
-    ticks: Optional[int],
-    max_duration: Optional[float],
+def test_exactly_one_of_interval_count_or_maximum_duration_must_be_specified(
+    interval_count: Optional[int],
+    maximum_duration: Optional[float],
 ) -> None:
     with raises(InvalidConfigurationError) as error:
-        exponentially(1, ticks, max_duration)
+        exponentially(
+            interval_count=interval_count,
+            maximum_duration=maximum_duration,
+        )
 
-    assert str(error.value) == 'Exactly one of intervals count and maximum duration must be specified'
+    assert str(error.value) == 'Exactly one of `interval_count` and `maximum_duration` must be specified'
 
 
-@mark.parametrize('initial_duration', [-1, 0])
-def test_initial_duration_must_be_positive(initial_duration: float) -> None:
+@mark.parametrize('base', [-1, 0, 1])
+def test_base_must_be_greater_than_one(base: int) -> None:
     with raises(InvalidConfigurationError) as error:
-        exponentially(initial_duration, 10)
+        exponentially(base, interval_count=10)
 
-    assert str(error.value) == 'Initial duration must be a positive number'
+    assert str(error.value) == 'Exponent base must be greater than one'
 
 
-@mark.parametrize('ticks', [-1, 0])
-def test_ticks_must_be_positive(ticks: int) -> None:
+@mark.parametrize('interval_count', [-1, 0, 1])
+def test_interval_count_must_be_greater_than_one(interval_count: int) -> None:
     with raises(InvalidConfigurationError) as error:
-        exponentially(1, ticks)
+        exponentially(interval_count=interval_count)
 
-    assert str(error.value) == 'Intervals count must be positive'
+    assert str(error.value) == 'Interval count must be greater than one'
 
 
-@mark.parametrize('max_duration', [-1, 0])
-def test_max_duration_must_be_positive(max_duration: float) -> None:
+@mark.parametrize('maximum_duration', [-1, 0, 1])
+def test_maximum_duration_must_be_greater_than_one(maximum_duration: float) -> None:
     with raises(InvalidConfigurationError) as error:
-        exponentially(1, max_duration=max_duration)
+        exponentially(maximum_duration=maximum_duration)
 
-    assert str(error.value) == 'Maximum duration must be a positive number'
+    assert str(error.value) == 'Maximum duration must be greater than one'
 
 
-def test_exponentially_with_ticks_limit() -> None:
-    generator_factory = exponentially(1, intervals=5)
+def test_exponentially_with_interval_count() -> None:
+    generator_factory = exponentially(interval_count=5)
     generator = generator_factory()
 
     durations = list(generator)
@@ -53,8 +56,8 @@ def test_exponentially_with_ticks_limit() -> None:
     assert durations == [1, 2, 4, 8, 16]
 
 
-def test_exponentially_with_max_duration_limit() -> None:
-    generator_factory = exponentially(1, max_duration=300)
+def test_exponentially_with_maximum_duration() -> None:
+    generator_factory = exponentially(maximum_duration=300)
     generator = generator_factory()
 
     durations = list(generator)

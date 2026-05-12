@@ -30,7 +30,7 @@ async def main() -> None:
         print(event.error)
 
     timer = Timer(
-        immediately_then(exponentially(intervals=10)),
+        immediately_then(exponentially(interval_count=4)),
         on_interval_complete=send_http_request,
         on_error=on_error,
     )

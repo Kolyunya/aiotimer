@@ -5,9 +5,9 @@ from .type import IntervalGenerator, IntervalGeneratorFactory
 
 
 def exponentially(
-    initial_duration: float = 1,
-    intervals: Optional[int] = None,
-    max_duration: Optional[float] = None,
+    base: int = 2,
+    interval_count: Optional[int] = None,
+    maximum_duration: Optional[float] = None,
 ) -> IntervalGeneratorFactory:
     """
     Create an exponential duration generator factory.
@@ -21,34 +21,34 @@ def exponentially(
     the duration.
     """
 
-    if initial_duration <= 0:
-        raise InvalidDurationError('Initial duration must be a positive number')
+    if base <= 1:
+        raise InvalidDurationError('Exponent base must be greater than one')
 
     if (
-        (intervals is None and max_duration is None)
+        (interval_count is None and maximum_duration is None)
         or
-        (intervals is not None and max_duration is not None)
+        (interval_count is not None and maximum_duration is not None)
     ):
-        message = 'Exactly one of intervals count and maximum duration must be specified'
+        message = 'Exactly one of `interval_count` and `maximum_duration` must be specified'
         raise InvalidConfigurationError(message)
 
-    if intervals is not None and intervals < 1:
-        raise InvalidConfigurationError('Intervals count must be positive')
+    if interval_count is not None and interval_count <= 1:
+        raise InvalidConfigurationError('Interval count must be greater than one')
 
-    if max_duration is not None and max_duration < 1:
-        raise InvalidDurationError('Maximum duration must be a positive number')
+    if maximum_duration is not None and maximum_duration <= 1:
+        raise InvalidDurationError('Maximum duration must be greater than one')
 
     def factory() -> IntervalGenerator:
-        tick = 0
+        interval_numer = 0
 
         while True:
-            duration = initial_duration * pow(2, tick)
-            tick += 1
+            duration = pow(base, interval_numer)
+            interval_numer += 1
 
             if (
-                (intervals is not None and intervals >= tick)
+                (interval_count is not None and interval_count >= interval_numer)
                 or
-                (max_duration is not None and max_duration >= duration)
+                (maximum_duration is not None and maximum_duration >= duration)
             ):
                 yield duration
             else:

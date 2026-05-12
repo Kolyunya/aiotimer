@@ -115,7 +115,7 @@ Timer(repeatedly(randomly(3, 5), 10), lambda: print('Ran 10 times between 3 and 
 
 Timer(sequentially(1, 2, 3), lambda: print('Ran for 1, 2, and 3 seconds.'))
 
-Timer(exponentially(1, 5), lambda: print('Ran for 1, 2, 4, 8, and 16 seconds.'))
+Timer(exponentially(2, 5), lambda: print('Ran for 1, 2, 4, 8, and 16 seconds.'))
 
 # Any interval construct could be combined with `immediately_then()`.
 Timer(immediately_then(once(5)), lambda: print('Fired immediately and after 5 seconds.'))
