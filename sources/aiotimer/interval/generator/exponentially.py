@@ -1,7 +1,7 @@
 from typing import Optional
 
-from ..error import InvalidConfigurationError, InvalidDurationError
-from .type import IntervalGenerator, IntervalGeneratorFactory
+from ...error import InvalidConfigurationError, InvalidDurationError
+from .generator import IntervalGenerator, IntervalGeneratorFactory
 
 
 def exponentially(
@@ -10,7 +10,7 @@ def exponentially(
     maximum_duration: Optional[float] = None,
 ) -> IntervalGeneratorFactory:
     """
-    Create an exponential duration generator factory.
+    Create an exponential duration generator generator.
 
     A generator will sequentially yield factors of two
     multiplied by the initial value.

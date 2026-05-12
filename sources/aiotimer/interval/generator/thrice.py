@@ -1,10 +1,10 @@
+from .generator import IntervalGeneratorFactory
 from .sequentially import sequentially
-from .type import IntervalGeneratorFactory
 
 
 def thrice(duration: float) -> IntervalGeneratorFactory:
     """
-    Create a triple duration generator factory.
+    Create a triple duration generator generator.
 
     A generator will yield three durations, each of `duration` seconds.
     """

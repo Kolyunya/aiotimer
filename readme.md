@@ -96,7 +96,7 @@ This design is used as a defensive programming technique in order to catch any l
 ![](.assets/state-diagram.png)
 
 ## Built-in interval generators
-There are many built-in [interval generators](sources/aiotimer/interval) that should cover the majority of common use cases.
+There are many built-in [interval generators](sources/aiotimer/interval/generator) that should cover the majority of common use cases.
 
 ```python
 from aiotimer import Timer
@@ -164,7 +164,7 @@ For adequate accuracy, it is recommended to have the precision value configured 
 At the same time, having the precision configured to an extremely low value (e.g. `0.001`) may yield a high CPU load.
 
 ### Custom intervals
-The first argument to the timer constructor is an [`Interval Generator Factory`](sources/aiotimer/interval/type/interval_generator.py). In other words, it is a callable that returns a generator that yields interval durations.
+The first argument to the timer constructor is an [`Interval Generator Factory`](sources/aiotimer/interval/generator/generator.py). In other words, it is a callable that returns a generator that yields interval durations.
 
 > This design decision is required to support multiple functionalities.
 >

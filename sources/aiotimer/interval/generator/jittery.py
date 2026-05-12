@@ -1,9 +1,9 @@
 import random
 from typing import Optional
 
-from ..error import InvalidConfigurationError
-from ..utility.boolean import coin_flip
-from .type import IntervalGenerator, IntervalGeneratorFactory
+from ...error import InvalidConfigurationError
+from ...utility.boolean import coin_flip
+from .generator import IntervalGenerator, IntervalGeneratorFactory
 
 
 def jittery(
@@ -12,21 +12,21 @@ def jittery(
     absolute: Optional[float] = None,
 ) -> IntervalGeneratorFactory:
     """
-    Create a jittery duration generator factory.
+    Create a jittery duration generator generator.
 
     This function is used as a decorator to add random jitter to other
     interval generators. A generator will yield durations with random jitter
-    applied to each duration from the provided generator factory. The jitter can
+    applied to each duration from the provided generator generator. The jitter can
     be specified either as a relative percentage of the original duration or
     as an absolute value.
 
     Args:
-        generator_factory: The base interval generator factory to apply jitter to.
+        generator_factory: The base interval generator generator to apply jitter to.
         relative: Optional relative jitter as a fraction of the duration (e.g., 0.1 for ±10%).
         absolute: Optional absolute jitter value in seconds (e.g., 0.5 for ±0.5 seconds).
 
     Returns:
-        An interval generator factory that yields durations with applied jitter.
+        An interval generator generator that yields durations with applied jitter.
 
     Raises:
         InvalidConfigurationError: If both relative and absolute are specified,

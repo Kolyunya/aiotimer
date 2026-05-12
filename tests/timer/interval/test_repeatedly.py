@@ -1,9 +1,9 @@
 from pytest import mark, raises
 
 from aiotimer.error import InvalidConfigurationError
-from aiotimer.interval.once import once
-from aiotimer.interval.repeatedly import repeatedly
-from aiotimer.interval.sequentially import sequentially
+from aiotimer.interval.generator.once import once
+from aiotimer.interval.generator.repeatedly import repeatedly
+from aiotimer.interval.generator.sequentially import sequentially
 
 
 @mark.parametrize('count', [-1, 0])

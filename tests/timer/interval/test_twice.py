@@ -1,4 +1,4 @@
-from aiotimer.interval.twice import twice
+from aiotimer.interval.generator.twice import twice
 
 
 def test_twice() -> None:

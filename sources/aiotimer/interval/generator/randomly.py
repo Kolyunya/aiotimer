@@ -1,7 +1,7 @@
 import random
 
-from ..error import InvalidDurationError
-from .type import IntervalGenerator, IntervalGeneratorFactory
+from ...error import InvalidDurationError
+from .generator import IntervalGenerator, IntervalGeneratorFactory
 
 
 def randomly(
@@ -9,7 +9,7 @@ def randomly(
     maximum: float,
 ) -> IntervalGeneratorFactory:
     """
-    Create a random duration generator factory.
+    Create a random duration generator generator.
 
     This function creates an interval generator that yields a single random
     duration between the specified minimum and maximum bounds. Each time a new
@@ -20,7 +20,7 @@ def randomly(
         maximum: The maximum possible duration in seconds (exclusive).
 
     Returns:
-        An interval generator factory that yields a single random duration.
+        An interval generator generator that yields a single random duration.
 
     Raises:
         InvalidDurationError: If the minimum is greater than or equal

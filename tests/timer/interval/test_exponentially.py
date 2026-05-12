@@ -3,7 +3,7 @@ from typing import Optional
 from pytest import mark, raises
 
 from aiotimer.error import InvalidConfigurationError
-from aiotimer.interval.exponentially import exponentially
+from aiotimer.interval.generator.exponentially import exponentially
 
 
 @mark.parametrize(('interval_count', 'maximum_duration'), [

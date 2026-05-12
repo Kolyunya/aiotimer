@@ -1,16 +1,16 @@
+from .generator import IntervalGeneratorFactory
 from .sequentially import sequentially
-from .type import IntervalGeneratorFactory
 
 
 def once(duration: float) -> IntervalGeneratorFactory:
     """
-    Create a single duration generator factory.
+    Create a single duration generator generator.
 
     Args:
         duration: The duration in seconds for the single interval.
 
     Returns:
-        An interval generator factory that yields exactly one duration.
+        An interval generator generator that yields exactly one duration.
 
     Example:
         >>> # Create a 5-second-long single interval

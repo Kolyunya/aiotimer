@@ -1,5 +1,5 @@
-from ..error import InvalidConfigurationError
-from .type import IntervalGenerator, IntervalGeneratorFactory
+from ...error import InvalidConfigurationError
+from .generator import IntervalGenerator, IntervalGeneratorFactory
 
 
 def repeatedly(
@@ -7,18 +7,18 @@ def repeatedly(
     count: int,
 ) -> IntervalGeneratorFactory:
     """
-    Create a repeating duration generator factory.
+    Create a repeating duration generator generator.
 
     This function is used as a decorator to repeat another interval generator
     a specified number of times. A generator will yield all durations from the
     decorated generator repeatedly given number of times.
 
     Args:
-        generator_factory: The decorated interval generator factory to repeat.
+        generator_factory: The decorated interval generator generator to repeat.
         count: Number of times to repeat the entire generator sequence.
 
     Returns:
-        An interval generator factory that yields durations repeatedly specified number of times.
+        An interval generator generator that yields durations repeatedly specified number of times.
 
     Raises:
         InvalidConfigurationError: If repetitions count is a negative number or zero.

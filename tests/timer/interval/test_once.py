@@ -1,4 +1,4 @@
-from aiotimer.interval.once import once
+from aiotimer.interval.generator.once import once
 
 
 def test_once() -> None:

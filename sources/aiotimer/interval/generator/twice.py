@@ -1,10 +1,10 @@
+from .generator import IntervalGeneratorFactory
 from .sequentially import sequentially
-from .type import IntervalGeneratorFactory
 
 
 def twice(duration: float) -> IntervalGeneratorFactory:
     """
-    Create a double duration generator factory.
+    Create a double duration generator generator.
 
     A generator will yield two durations, each of `duration` seconds.
     """

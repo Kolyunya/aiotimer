@@ -1,4 +1,4 @@
-from aiotimer.interval.thrice import thrice
+from aiotimer.interval.generator.thrice import thrice
 
 
 def test_thrice() -> None:

@@ -7,7 +7,7 @@ from aiotimer import Timer
 from aiotimer.error import InvalidConfigurationError, InvalidDurationError
 from aiotimer.event import ErrorEvent
 from aiotimer.interval import once
-from aiotimer.interval.never import never
+from aiotimer.interval.generator.never import never
 
 
 @mark.asyncio

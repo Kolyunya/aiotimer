@@ -2,8 +2,8 @@ from asyncio import Lock, Task, create_task
 from collections.abc import Callable
 from typing import TypeVar
 
-from aiotimer.callback.callback import Callback
-from aiotimer.event import ErrorEvent
+from ..event import ErrorEvent
+from .callback import Callback
 
 EventType = TypeVar('EventType')
 

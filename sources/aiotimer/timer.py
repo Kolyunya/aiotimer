@@ -33,7 +33,7 @@ if TYPE_CHECKING:
         OnIntervalComplete,
         OnTimerComplete,
     )
-    from .interval.type import (
+    from .interval import (
         IntervalGenerator,
         IntervalGeneratorFactory,
     )

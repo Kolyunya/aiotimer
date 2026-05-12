@@ -1,7 +1,7 @@
 from pytest import raises
 
 from aiotimer.error import InvalidConfigurationError
-from aiotimer.interval.sequentially import sequentially
+from aiotimer.interval.generator.sequentially import sequentially
 
 
 def test_durations_can_not_be_empty() -> None:

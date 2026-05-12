@@ -1,16 +1,16 @@
-from ..error import InvalidDurationError
-from .type import IntervalGenerator, IntervalGeneratorFactory
+from ...error import InvalidDurationError
+from .generator import IntervalGenerator, IntervalGeneratorFactory
 
 
 def sequentially(*durations: float) -> IntervalGeneratorFactory:
     """
-    Create a sequential duration generator factory.
+    Create a sequential duration generator generator.
 
     Args:
         *durations: Variable number of durations in seconds to execute sequentially.
 
     Returns:
-        An interval generator factory that yields durations in the order provided.
+        An interval generator generator that yields durations in the order provided.
 
     Raises:
         InvalidDurationError: If no durations are provided or any duration is negative.

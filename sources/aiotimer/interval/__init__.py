@@ -2,20 +2,23 @@
 Interval Generator Factories.
 """
 
-from .exponentially import exponentially
-from .forever import forever
-from .immediately_then import immediately_then
+from .generator.exponentially import exponentially
+from .generator.forever import forever
+from .generator.generator import IntervalGenerator, IntervalGeneratorFactory
+from .generator.immediately_then import immediately_then
+from .generator.jittery import jittery
+from .generator.once import once
+from .generator.randomly import randomly
+from .generator.repeatedly import repeatedly
+from .generator.sequentially import sequentially
+from .generator.thrice import thrice
+from .generator.twice import twice
 from .interval import Interval
-from .jittery import jittery
-from .once import once
-from .randomly import randomly
-from .repeatedly import repeatedly
-from .sequentially import sequentially
-from .thrice import thrice
-from .twice import twice
 
 __all__ = [
     'Interval',
+    'IntervalGenerator',
+    'IntervalGeneratorFactory',
     'exponentially',
     'forever',
     'immediately_then',

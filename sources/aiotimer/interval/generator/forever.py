@@ -1,10 +1,10 @@
-from ..error import InvalidConfigurationError
-from .type import IntervalGenerator, IntervalGeneratorFactory
+from ...error import InvalidConfigurationError
+from .generator import IntervalGenerator, IntervalGeneratorFactory
 
 
 def forever(intervals: IntervalGeneratorFactory) -> IntervalGeneratorFactory:
     """
-    Create an infinite duration generator factory.
+    Create an infinite duration generator generator.
 
     A generator will act as a decorator and continuously yield
     durations from a decorated generator in an infinite loop.
