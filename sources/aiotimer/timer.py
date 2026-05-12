@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from asyncio import CancelledError, Lock, Task, create_task, sleep
 from contextlib import suppress
-from time import monotonic_ns
 from typing import TYPE_CHECKING, Optional
 
 from typing_extensions import override
@@ -10,7 +9,6 @@ from typing_extensions import override
 from .callback import Callback, Executor
 from .error import (
     InvalidConfigurationError,
-    InvalidDurationError,
     InvalidPrecisionError,
     MissingEventHandlerError,
 )
@@ -19,6 +17,7 @@ from .event import (
     IntervalCompleteEvent,
     TimerCompleteEvent,
 )
+from .interval import Interval
 from .state import (
     CompleteState,
     InitialState,
@@ -27,7 +26,6 @@ from .state import (
     StoppedState,
 )
 from .timer_interface import TimerInterface
-from .utility.time import ns2s, s2ns
 
 if TYPE_CHECKING:
     from .callback import (
@@ -66,15 +64,12 @@ class Timer(TimerInterface):
             self.__make_error_event,
         )
         self.__state: State = InitialState()
+        self.__advancement_task: Optional[Task[None]] = None
         self.__interval_generator: IntervalGenerator
-        self.__duration: int
-        self.__advance_task: Optional[Task[None]] = None
-        self.__advanced_at: Optional[int] = None
-        self.__elapsed_time: int = 0
-        self.__interval_number: int = 0
+        self.__interval: Interval
 
         self.__initialize_interval_generator()
-        if not self.__initialize_next_interval():
+        if not self.__initialize_next_interval(first_one=True):
             raise InvalidConfigurationError('The interval generator must yield at least one value')
 
     @override
@@ -100,45 +95,34 @@ class Timer(TimerInterface):
             self.__state = InitialState()
 
             await self.__stop_advancement()
-            self.__elapsed_time = 0
-            self.__interval_number = 0
 
             self.__initialize_interval_generator()
-            if not self.__initialize_next_interval():
+            if not self.__initialize_next_interval(first_one=True):
                 raise InvalidConfigurationError('The interval generator must yield at least one value')
 
     @override
     async def set(self, duration: float) -> None:
-        self.__validate_duration(duration)
-
         async with self.__lock:
             self.__state.ensure_could_adjust()
-            self.__duration = s2ns(duration)
+            self.__interval.duration = duration
 
     @override
-    async def prolong(self, duration_delta: float) -> None:
+    async def prolong(self, delta: float) -> None:
         async with self.__lock:
             self.__state.ensure_could_adjust()
-            self.__adjust(duration_delta)
+            self.__interval.prolong(delta)
 
     @override
-    async def shorten(self, duration_delta: float) -> None:
+    async def shorten(self, delta: float) -> None:
         async with self.__lock:
             self.__state.ensure_could_adjust()
-            self.__adjust(-1 * duration_delta)
+            self.__interval.shorten(delta)
 
     @override
     async def view(self) -> float:
         async with self.__lock:
             self.__state.ensure_could_view()
-
-            time_left_ns = self.__duration - self.__elapsed_time
-            time_left = ns2s(time_left_ns)
-
-            # The timer may (and will) overshoot more or less
-            # depending on the duration-to-precision ratio.
-            # Return zero in case of an overshoot.
-            time_left = max(time_left, 0)
+            time_left = self.__interval.time_left
 
             return time_left
 
@@ -151,9 +135,9 @@ class Timer(TimerInterface):
         try:
             while True:
                 async with self.__lock:
-                    self.__update_time_counters()
+                    self.__interval.advance()
 
-                    if self.__is_interval_complete():
+                    if self.__interval.is_complete:
                         await self.__invoke_interval_complete_event()
 
                         if not self.__initialize_next_interval():
@@ -172,19 +156,18 @@ class Timer(TimerInterface):
     def __initialize_interval_generator(self) -> None:
         self.__interval_generator = self.__interval_factory()
 
-    def __initialize_next_interval(self) -> bool:
+    def __initialize_next_interval(self, *, first_one: bool = False) -> bool:
         success = False
 
         try:
-            duration_seconds = next(self.__interval_generator)
-            self.__validate_duration(duration_seconds)
-            duration_nseconds = s2ns(duration_seconds)
-            self.__duration = duration_nseconds
+            duration = next(self.__interval_generator)
 
-            self.__advanced_at = None
-            self.__elapsed_time = 0
-            self.__interval_number += 1
+            if first_one:
+                number = 1
+            else:
+                number = self.__interval.number + 1
 
+            self.__interval = Interval(number, duration)
             success = True
 
         except StopIteration:
@@ -194,55 +177,26 @@ class Timer(TimerInterface):
 
     async def __start_advancement(self) -> None:
         coroutine = self.__advance()
-        self.__advance_task = create_task(coroutine)
+        self.__advancement_task = create_task(coroutine)
 
     async def __stop_advancement(self) -> None:
-        if not self.__advance_task:
+        if not self.__advancement_task:
             # The advancement task may be missing when
             # `reset()` is called after `stop()`
             return
 
-        self.__advance_task.cancel()
+        self.__advancement_task.cancel()
         with suppress(CancelledError):
-            await self.__advance_task
+            await self.__advancement_task
 
-        self.__advance_task = None
-        self.__advanced_at = None
-
-    def __update_time_counters(self) -> None:
-        self.__update_elapsed_time()
-        self.__update_advanced_at()
-
-    def __update_elapsed_time(self) -> None:
-        if not self.__advanced_at:
-            # This is the first iteration of the advancement cycle.
-            return
-
-        now = monotonic_ns()
-        elapsed = now - self.__advanced_at
-        self.__elapsed_time += elapsed
-
-    def __update_advanced_at(self) -> None:
-        now = monotonic_ns()
-        self.__advanced_at = now
-
-    def __adjust(self, delta: float) -> None:
-        delta_ns = s2ns(delta)
-        duration = self.__duration + delta_ns
-
-        self.__validate_duration(duration)
-        self.__duration = duration
-
-    def __is_interval_complete(self) -> bool:
-        is_complete = self.__elapsed_time >= self.__duration
-
-        return is_complete
+        self.__advancement_task = None
+        self.__interval.stop_advancement()
 
     def __make_interval_complete_event(self) -> IntervalCompleteEvent:
         event = IntervalCompleteEvent(
             timer=self,
-            interval_number=self.__interval_number,
-            interval_duration=ns2s(self.__duration),
+            interval_number=self.__interval.number,
+            interval_duration=self.__interval.duration,
         )
 
         return event
@@ -250,7 +204,7 @@ class Timer(TimerInterface):
     def __make_timer_complete_event(self) -> TimerCompleteEvent:
         event = TimerCompleteEvent(
             timer=self,
-            interval_count=self.__interval_number,
+            interval_count=self.__interval.number,
         )
 
         return event
@@ -294,11 +248,6 @@ class Timer(TimerInterface):
     ) -> None:
         if not on_complete and not on_interval:
             raise MissingEventHandlerError
-
-    @classmethod
-    def __validate_duration(cls, duration: float) -> None:
-        if duration < 0:
-            raise InvalidDurationError
 
     @classmethod
     def __validate_precision(cls, precision: float) -> None:

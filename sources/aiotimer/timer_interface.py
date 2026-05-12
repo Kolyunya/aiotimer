@@ -26,11 +26,11 @@ class TimerInterface(ABC):
         pass
 
     @abstractmethod
-    async def prolong(self, duration_delta: float) -> None:
+    async def prolong(self, delta: float) -> None:
         pass
 
     @abstractmethod
-    async def shorten(self, duration_delta: float) -> None:
+    async def shorten(self, delta: float) -> None:
         pass
 
     @abstractmethod

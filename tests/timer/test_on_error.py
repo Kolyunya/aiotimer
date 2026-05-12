@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, Mock
 from pytest import mark
 
 from aiotimer import Timer
-from aiotimer.interval import once, thrice
+from aiotimer.interval import once
 
 
 @mark.asyncio
@@ -16,7 +16,7 @@ async def test_sync_on_error_is_called() -> None:
     on_error = Mock()
 
     timer = Timer(
-        thrice(0.1),
+        once(0.1),
         on_timer_complete=on_complete,
         on_error=on_error,
     )
@@ -38,7 +38,7 @@ async def test_async_on_error_is_called() -> None:
     on_error = AsyncMock()
 
     timer = Timer(
-        thrice(0.1),
+        once(0.1),
         on_timer_complete=on_complete,
         on_error=on_error,
     )
