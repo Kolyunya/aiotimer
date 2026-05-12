@@ -65,7 +65,7 @@ def jittery(
             elif absolute is not None:
                 jitter_threshold = absolute
             else:
-                raise InvalidConfigurationError('Exactly only type of jitter must be specified')
+                raise InvalidConfigurationError('Exactly one type of jitter must be specified')
 
             the_jitter = random.uniform(0, jitter_threshold) * multiplier
             jittery_duration = duration + the_jitter
