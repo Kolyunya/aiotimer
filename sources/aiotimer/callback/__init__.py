@@ -12,11 +12,13 @@ Types:
         each time when timer encounters an error.
 """
 
-from .on_error import OnError
-from .on_interval_complete import OnIntervalComplete
-from .on_timer_complete import OnTimerComplete
+from .callback import Callback
+from .executor import Executor
+from .user_callback import OnError, OnIntervalComplete, OnTimerComplete
 
 __all__ = [
+    'Callback',
+    'Executor',
     'OnError',
     'OnIntervalComplete',
     'OnTimerComplete',

@@ -2,8 +2,8 @@ from unittest.mock import AsyncMock, Mock, call
 
 from pytest import mark
 
+from aiotimer.callback import Callback
 from aiotimer.event import TimerEvent
-from aiotimer.utility.callback.callback import Callback
 
 
 @mark.asyncio

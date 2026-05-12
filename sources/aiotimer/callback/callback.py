@@ -1,34 +1,20 @@
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable
 from inspect import isawaitable
-from typing import Generic, Optional, TypeVar, Union, cast
+from typing import Generic, Optional, cast
 
-from .has_parameters import has_parameters
-
-EventType = TypeVar('EventType')
-
-RawCallbackResult = Optional[Awaitable[None]]
-
-RawCallbackWithParameter = Union[
-    Callable[[EventType], None],
-    Callable[[EventType], Awaitable[None]],
-]
-
-RawCallbackWithoutParameter = Union[
-    Callable[[], None],
-    Callable[[], Awaitable[None]],
-]
-
-RawCallback = Optional[
-    Union[
-        RawCallbackWithParameter[EventType],
-        RawCallbackWithoutParameter,
-    ]
-]
+from ..utility.callback.has_parameters import has_parameters
+from .user_callback import (
+    EventType,
+    ParameterizedUserCallback,
+    ParameterlessUserCallback,
+    UserCallback,
+    UserCallbackResult,
+)
 
 
 class Callback(Generic[EventType]):
 
-    def __init__(self, callback: RawCallback[EventType]) -> None:
+    def __init__(self, callback: UserCallback[EventType]) -> None:
         self.__callback = callback
         self.__has_parameters: Optional[bool] = None
         self.__is_asynchronous: Optional[bool] = None
@@ -53,15 +39,15 @@ class Callback(Generic[EventType]):
         result = self.__invoke_callback(event)
         await self.__await_result(result)
 
-    def __invoke_callback(self, event: EventType) -> RawCallbackResult:
+    def __invoke_callback(self, event: EventType) -> UserCallbackResult:
         if self.__has_parameters:
-            result = self.__callback_with_parameter(event)
+            result = self.__parametrized_callback(event)
         else:
-            result = self.__callback_without_parameter()
+            result = self.__unparametrized_callback()
 
         return result
 
-    async def __await_result(self, result: RawCallbackResult) -> None:
+    async def __await_result(self, result: UserCallbackResult) -> None:
         if self.__is_asynchronous is None:
             self.__is_asynchronous = isawaitable(result)
 
@@ -70,18 +56,18 @@ class Callback(Generic[EventType]):
             await result
 
     @property
-    def __callback_with_parameter(self) -> RawCallbackWithParameter[EventType]:
+    def __parametrized_callback(self) -> ParameterizedUserCallback[EventType]:
         callback = cast(
-            'RawCallbackWithParameter[EventType]',
+            'ParameterizedUserCallback[EventType]',
             self.__callback,
         )
 
         return callback
 
     @property
-    def __callback_without_parameter(self) -> RawCallbackWithoutParameter:
+    def __unparametrized_callback(self) -> ParameterlessUserCallback:
         callback = cast(
-            'RawCallbackWithoutParameter',
+            'ParameterlessUserCallback',
             self.__callback,
         )
 

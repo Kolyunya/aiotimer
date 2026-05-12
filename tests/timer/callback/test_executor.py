@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 from pytest import mark
 
-from aiotimer.utility.callback import Executor
+from aiotimer.callback import Executor
 
 
 @mark.asyncio

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Optional
 
 from typing_extensions import override
 
+from .callback import Callback, Executor
 from .error import (
     InvalidConfigurationError,
     InvalidDurationError,
@@ -26,7 +27,6 @@ from .state import (
     StoppedState,
 )
 from .timer_interface import TimerInterface
-from .utility.callback import Callback, Executor
 from .utility.time import ns2s, s2ns
 
 if TYPE_CHECKING:
