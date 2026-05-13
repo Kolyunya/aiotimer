@@ -46,7 +46,7 @@ class Interval:
         return result
 
     @property
-    def time_left(self) -> float:
+    def remaining_time(self) -> float:
         result = self.__duration - self.__elapsed
 
         # The timer may (and will) overshoot more or less

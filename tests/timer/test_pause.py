@@ -34,7 +34,7 @@ async def test_pause_does_not_reset_time_left() -> None:
     await timer.run()
     await sleep(1)
     await timer.pause()
-    time_left = await timer.view()
+    time_left = await timer.remaining_time
 
     # Assert
     assert time_left == approx(41, abs=0.1)
@@ -49,7 +49,7 @@ async def test_time_left_is_not_decreasing_when_timer_is_paused() -> None:
     await timer.run()
     await timer.pause()
     await sleep(1)
-    time_left = await timer.view()
+    time_left = await timer.remaining_time
 
     # Assert
     assert time_left == 42
@@ -68,7 +68,7 @@ async def test_can_pause_the_timer_from_on_interval() -> None:
     await sleep(1)
 
     # Act
-    state = await timer.view_state()
+    state = await timer.state
 
     # Assert
     assert state == StoppedState

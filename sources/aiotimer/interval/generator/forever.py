@@ -1,4 +1,4 @@
-from ...error import InvalidConfigurationError
+from ...error import EmptyGeneratorError
 from .generator import IntervalGenerator, IntervalGeneratorFactory
 
 
@@ -23,7 +23,6 @@ def forever(intervals: IntervalGeneratorFactory) -> IntervalGeneratorFactory:
 
             except StopIteration as exception:
                 if durations == 0:
-                    message = 'Interval generator yielded zero values'
-                    raise InvalidConfigurationError(message) from exception
+                    raise EmptyGeneratorError from exception
 
     return factory

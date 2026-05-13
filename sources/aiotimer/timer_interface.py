@@ -33,10 +33,17 @@ class TimerInterface(ABC):
     async def shorten(self, delta: float) -> None:
         pass
 
+    @property
     @abstractmethod
-    async def view(self) -> float:
+    async def remaining_time(self) -> float:
         pass
 
+    @property
     @abstractmethod
-    async def view_state(self) -> type[State]:
+    async def elapsed_time(self) -> float:
+        pass
+
+    @property
+    @abstractmethod
+    async def state(self) -> type[State]:
         pass

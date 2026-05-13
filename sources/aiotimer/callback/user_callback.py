@@ -1,9 +1,7 @@
 from collections.abc import Awaitable, Callable
-from typing import Optional, TypeVar, Union
+from typing import Optional, Union
 
-from ..event import ErrorEvent, IntervalCompleteEvent, TimerCompleteEvent
-
-EventType = TypeVar('EventType')
+from ..event import ErrorEvent, EventType, IntervalCompleteEvent, TimerCompleteEvent
 
 ParameterizedUserCallback = Union[
     Callable[[EventType], None],

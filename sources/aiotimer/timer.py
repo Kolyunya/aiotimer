@@ -1,14 +1,20 @@
 from __future__ import annotations
 
-from asyncio import CancelledError, Lock, Task, create_task, sleep
+from asyncio import CancelledError, Lock, Queue, Task, create_task, sleep
 from contextlib import suppress
+from time import monotonic
 from typing import TYPE_CHECKING, Optional
 
 from typing_extensions import override
 
-from .callback import Callback, Executor
+from .callback import (
+    AsyncExecutor,
+    Callback,
+    Executor,
+    SyncExecutor,
+)
 from .error import (
-    InvalidConfigurationError,
+    EmptyGeneratorError,
     InvalidPrecisionError,
     MissingEventHandlerError,
 )
@@ -28,6 +34,8 @@ from .state import (
 from .timer_interface import TimerInterface
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable
+
     from .callback import (
         OnError,
         OnIntervalComplete,
@@ -47,6 +55,8 @@ class Timer(TimerInterface):
         on_timer_complete: Optional[OnTimerComplete] = None,
         on_interval_complete: Optional[OnIntervalComplete] = None,
         on_error: Optional[OnError] = None,
+        *,
+        await_callbacks: bool = False,
         precision: float = 0.1,
     ) -> None:
         self.__validate_event_handlers(on_timer_complete, on_interval_complete)
@@ -59,24 +69,27 @@ class Timer(TimerInterface):
         self.__precision = precision
 
         self.__lock: Lock = Lock()
-        self.__executor: Executor = Executor(
-            self.__on_error,
-            self.__make_error_event,
-        )
         self.__state: State = InitialState()
         self.__advancement_task: Optional[Task[None]] = None
-        self.__interval_generator: IntervalGenerator
-        self.__interval: Interval
+        self.__callbacks: Queue[Awaitable[None]] = Queue()
+        self.__started_at: Optional[float] = None
 
+        self.__executor: Executor
+        self.__initialize_executor(await_callbacks=await_callbacks)
+
+        self.__interval_generator: IntervalGenerator
         self.__initialize_interval_generator()
+
+        self.__interval: Interval
         if not self.__initialize_next_interval(first_one=True):
-            raise InvalidConfigurationError('The interval generator must yield at least one value')
+            raise EmptyGeneratorError
 
     @override
     async def run(self) -> None:
         async with self.__lock:
             self.__state.ensure_could_run()
             self.__state = RunningState()
+            self.__started_at = monotonic()
 
             await self.__start_advancement()
 
@@ -96,9 +109,11 @@ class Timer(TimerInterface):
 
             await self.__stop_advancement()
 
+            self.__started_at = None
+
             self.__initialize_interval_generator()
             if not self.__initialize_next_interval(first_one=True):
-                raise InvalidConfigurationError('The interval generator must yield at least one value')
+                raise EmptyGeneratorError
 
     @override
     async def set(self, duration: float) -> None:
@@ -118,16 +133,26 @@ class Timer(TimerInterface):
             self.__state.ensure_could_adjust()
             self.__interval.shorten(delta)
 
+    @property
     @override
-    async def view(self) -> float:
+    async def remaining_time(self) -> float:
         async with self.__lock:
             self.__state.ensure_could_view()
-            time_left = self.__interval.time_left
+            remaining_time = self.__interval.remaining_time
 
-            return time_left
+            return remaining_time
 
+    @property
     @override
-    async def view_state(self) -> type[State]:
+    async def elapsed_time(self) -> float:
+        async with self.__lock:
+            elapsed_time = self.__get_elapsed_time()
+
+            return elapsed_time
+
+    @property
+    @override
+    async def state(self) -> type[State]:
         async with self.__lock:
             return type(self.__state)
 
@@ -138,12 +163,17 @@ class Timer(TimerInterface):
                     self.__interval.advance()
 
                     if self.__interval.is_complete:
-                        await self.__invoke_interval_complete_event()
+                        await self.__enqueue_interval_complete_event()
 
                         if not self.__initialize_next_interval():
                             self.__state = CompleteState()
-                            await self.__invoke_timer_complete_event()
-                            return
+
+                            await self.__enqueue_timer_complete_event()
+
+                            # Stop the advancement.
+                            break
+
+                await self.__process_callbacks()
 
                 await sleep(self.__precision)
 
@@ -152,6 +182,16 @@ class Timer(TimerInterface):
 
         except Exception as error:
             await self.__invoke_error_event(error)
+
+        finally:
+            await self.__process_callbacks()
+
+    def __initialize_executor(self, *, await_callbacks: bool) -> None:
+        executor_type = SyncExecutor if await_callbacks else AsyncExecutor
+        self.__executor = executor_type(
+            self.__on_error,
+            self.__make_error_event,
+        )
 
     def __initialize_interval_generator(self) -> None:
         self.__interval_generator = self.__interval_factory()
@@ -192,44 +232,55 @@ class Timer(TimerInterface):
         self.__advancement_task = None
         self.__interval.stop_advancement()
 
-    def __make_interval_complete_event(self) -> IntervalCompleteEvent:
+    async def __process_callbacks(self) -> None:
+        while not self.__callbacks.empty():
+            callback = await self.__callbacks.get()
+            await callback
+            self.__callbacks.task_done()
+
+    async def __make_interval_complete_event(self) -> IntervalCompleteEvent:
+        elapsed = self.__get_elapsed_time()
         event = IntervalCompleteEvent(
             timer=self,
+            elapsed=elapsed,
             interval_number=self.__interval.number,
             interval_duration=self.__interval.duration,
         )
 
         return event
 
-    def __make_timer_complete_event(self) -> TimerCompleteEvent:
+    async def __make_timer_complete_event(self) -> TimerCompleteEvent:
+        elapsed = self.__get_elapsed_time()
         event = TimerCompleteEvent(
             timer=self,
+            elapsed=elapsed,
             interval_count=self.__interval.number,
         )
 
         return event
 
-    def __make_error_event(self, error: Exception) -> ErrorEvent:
+    async def __make_error_event(self, error: Exception) -> ErrorEvent:
+        elapsed = self.__get_elapsed_time()
         event = ErrorEvent(
             timer=self,
+            elapsed=elapsed,
             error=error,
         )
 
         return event
 
-    async def __invoke_interval_complete_event(self) -> None:
-        event = self.__make_interval_complete_event()
-        await self.__executor(self.__on_interval_complete, event)
+    async def __enqueue_interval_complete_event(self) -> None:
+        event = await self.__make_interval_complete_event()
+        coroutine = self.__executor(self.__on_interval_complete, event)
+        await self.__callbacks.put(coroutine)
 
-    async def __invoke_timer_complete_event(self) -> None:
-        event = self.__make_timer_complete_event()
-        await self.__executor(self.__on_timer_complete, event)
+    async def __enqueue_timer_complete_event(self) -> None:
+        event = await self.__make_timer_complete_event()
+        coroutine = self.__executor(self.__on_timer_complete, event)
+        await self.__callbacks.put(coroutine)
 
     async def __invoke_error_event(self, error: Exception) -> None:
-        if not self.__on_error.is_set:
-            raise error
-
-        event = self.__make_error_event(error)
+        event = await self.__make_error_event(error)
 
         await self.__executor(
             self.__on_error,
@@ -239,6 +290,15 @@ class Timer(TimerInterface):
             # in case an error occurs inside the error handler.
             handle_errors=False,
         )
+
+    def __get_elapsed_time(self) -> float:
+        elapsed_time = 0.0
+
+        if self.__started_at is not None:
+            now = monotonic()
+            elapsed_time = now - self.__started_at
+
+        return elapsed_time
 
     @classmethod
     def __validate_event_handlers(

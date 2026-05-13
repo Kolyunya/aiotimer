@@ -20,13 +20,14 @@ ignore = [
     'D413',
     'E501',
     'E731',
-    'EM101',    # TODO: Consider fixing this.
+    'EM101',
+    'PLR0913',
     'RET504',
     'S101',
     'S311',
     'SIM108',
     'TID252',
-    'TRY003',   # TODO: Consider fixing this.
+    'TRY003',
     'UP007',    # TODO: Delete this line after Python 3.9 support is dropped.
     'UP045',    # TODO: Delete this line after Python 3.9 support is dropped.
 ]
@@ -40,6 +41,7 @@ ignore = [
 'tests/*' = [
     'D103',
     'D104',
+    'FBT001',
     'PLR2004',
     'PT013',
 ]

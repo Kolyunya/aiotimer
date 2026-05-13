@@ -14,7 +14,7 @@ async def test_can_shorten_duration_to_positive_number() -> None:
 
     # Act
     await timer.shorten(10)
-    duration = await timer.view()
+    duration = await timer.remaining_time
 
     # Assert
     assert duration == 32
@@ -27,7 +27,7 @@ async def test_can_shorten_duration_to_zero() -> None:
 
     # Act
     await timer.shorten(42)
-    duration = await timer.view()
+    duration = await timer.remaining_time
 
     # Assert
     assert duration == 0

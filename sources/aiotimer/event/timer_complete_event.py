@@ -14,6 +14,7 @@ class TimerCompleteEvent(TimerEvent):
 
     Attributes:
         timer: The timer instance that generated this event.
+        elapsed: The elapsed time in seconds since the first interval started.
         interval_count: The total number of intervals that were executed.
 
     Example:

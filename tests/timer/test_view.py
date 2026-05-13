@@ -11,7 +11,7 @@ from aiotimer.interval import once
 async def test_view_after_instantiation() -> None:
     timer = Timer(once(42), Mock())
 
-    time_left = await timer.view()
+    time_left = await timer.remaining_time
 
     assert time_left == 42
 
@@ -24,7 +24,7 @@ async def test_view_after_running_for_some_time() -> None:
     # Act
     await timer.run()
     await sleep(1)
-    time_left = await timer.view()
+    time_left = await timer.remaining_time
 
     # Assert
     assert time_left == approx(41, abs=0.1)
@@ -41,7 +41,7 @@ async def test_remaining_time_could_not_be_negative() -> None:
     # Act
     await timer.run()
     await sleep(1)
-    time_left = await timer.view()
+    time_left = await timer.remaining_time
 
     # Assert
     assert time_left == 0

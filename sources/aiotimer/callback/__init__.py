@@ -1,25 +1,15 @@
-"""
-Callback Function Types.
-
-Types:
-    OnIntervalComplete: Callback function that is called
-        each time any timer interval completes.
-
-    OnTimerComplete: Callback function that is called
-        each time the last timer interval completes.
-
-    OnError: Callback function that is called
-        each time when timer encounters an error.
-"""
-
+from .async_executor import AsyncExecutor
 from .callback import Callback
 from .executor import Executor
+from .sync_executor import SyncExecutor
 from .user_callback import OnError, OnIntervalComplete, OnTimerComplete
 
 __all__ = [
+    'AsyncExecutor',
     'Callback',
     'Executor',
     'OnError',
     'OnIntervalComplete',
     'OnTimerComplete',
+    'SyncExecutor',
 ]

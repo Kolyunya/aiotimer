@@ -14,7 +14,7 @@ async def test_can_prolong_duration() -> None:
 
     # Act
     await timer.prolong(10)
-    duration = await timer.view()
+    duration = await timer.remaining_time
 
     # Assert
     assert duration == 52
@@ -27,7 +27,7 @@ async def test_can_prolong_duration_to_zero() -> None:
 
     # Act
     await timer.prolong(-42)
-    duration = await timer.view()
+    duration = await timer.remaining_time
 
     # Assert
     assert duration == 0

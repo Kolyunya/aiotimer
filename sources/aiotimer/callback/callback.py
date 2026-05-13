@@ -2,9 +2,9 @@ from collections.abc import Awaitable
 from inspect import isawaitable
 from typing import Generic, Optional, cast
 
+from ..event import EventType
 from ..utility.callback.has_parameters import has_parameters
 from .user_callback import (
-    EventType,
     ParameterizedUserCallback,
     ParameterlessUserCallback,
     UserCallback,
@@ -29,11 +29,15 @@ class Callback(Generic[EventType]):
     @property
     def is_set(self) -> bool:
         callback_is_set = self.__callback is not None
-
         return callback_is_set
 
+    @property
+    def is_missing(self) -> bool:
+        callback_is_not_set = not self.is_set
+        return callback_is_not_set
+
     async def __call__(self, event: EventType) -> None:
-        if not self.is_set:
+        if self.is_missing:
             return
 
         result = self.__invoke_callback(event)

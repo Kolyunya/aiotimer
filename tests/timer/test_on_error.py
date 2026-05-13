@@ -8,7 +8,8 @@ from aiotimer.interval import once
 
 
 @mark.asyncio
-async def test_sync_on_error_is_called() -> None:
+@mark.parametrize('await_callbacks', [True, False])
+async def test_sync_on_error_is_called(await_callbacks: bool) -> None:
     # Arrange
     def on_complete() -> None:
         raise RuntimeError
@@ -19,6 +20,7 @@ async def test_sync_on_error_is_called() -> None:
         once(0.1),
         on_timer_complete=on_complete,
         on_error=on_error,
+        await_callbacks=await_callbacks,
     )
 
     # Act
@@ -30,7 +32,8 @@ async def test_sync_on_error_is_called() -> None:
 
 
 @mark.asyncio
-async def test_async_on_error_is_called() -> None:
+@mark.parametrize('await_callbacks', [True, False])
+async def test_async_on_error_is_called(await_callbacks: bool) -> None:
     # Arrange
     async def on_complete() -> None:
         raise RuntimeError
@@ -41,6 +44,7 @@ async def test_async_on_error_is_called() -> None:
         once(0.1),
         on_timer_complete=on_complete,
         on_error=on_error,
+        await_callbacks=await_callbacks,
     )
 
     # Act
@@ -52,7 +56,8 @@ async def test_async_on_error_is_called() -> None:
 
 
 @mark.asyncio
-async def test_no_infinite_loop_after_error_inside_error_handler() -> None:
+@mark.parametrize('await_callbacks', [True, False])
+async def test_no_infinite_loop_after_error_inside_error_handler(await_callbacks: bool) -> None:
     # Arrange
     def on_complete() -> None:
         raise RuntimeError
@@ -65,6 +70,7 @@ async def test_no_infinite_loop_after_error_inside_error_handler() -> None:
         once(0.1),
         on_timer_complete=on_complete,
         on_error=on_error,
+        await_callbacks=await_callbacks,
     )
 
     # Assert

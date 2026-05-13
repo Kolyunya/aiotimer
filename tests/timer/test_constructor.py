@@ -32,7 +32,7 @@ async def test_interval_generator_must_not_be_empty() -> None:
     with raises(InvalidConfigurationError) as error:
         Timer(never(), Mock())
 
-    assert str(error.value) == 'The interval generator must yield at least one value'
+    assert str(error.value) == 'The interval generator yielded no values'
 
 
 @mark.asyncio

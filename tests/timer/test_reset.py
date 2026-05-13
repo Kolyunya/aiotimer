@@ -1,5 +1,5 @@
 from asyncio import sleep
-from unittest.mock import AsyncMock, Mock, call
+from unittest.mock import AsyncMock, Mock
 
 from pytest import mark
 
@@ -7,6 +7,8 @@ from aiotimer import Timer
 from aiotimer.event import IntervalCompleteEvent, TimerCompleteEvent
 from aiotimer.interval import once, sequentially
 from aiotimer.state import InitialState
+
+from ..support.callback import EventData, assert_callback_awaited
 
 
 @mark.asyncio
@@ -34,7 +36,7 @@ async def test_can_reset_a_running_timer() -> None:
     # Act
     await timer.run()
     await timer.reset()
-    state = await timer.view_state()
+    state = await timer.state
 
     # Assert
     assert state == InitialState
@@ -49,7 +51,7 @@ async def test_can_reset_a_stopped_timer() -> None:
     await timer.run()
     await timer.pause()
     await timer.reset()
-    state = await timer.view_state()
+    state = await timer.state
 
     # Assert
     assert state == InitialState
@@ -64,7 +66,7 @@ async def test_reset_resets_time_left() -> None:
     await timer.run()
     await sleep(1)
     await timer.reset()
-    time_left = await timer.view()
+    time_left = await timer.remaining_time
 
     # Assert
     assert time_left == 42
@@ -79,7 +81,7 @@ async def test_time_left_is_not_decreasing_when_timer_is_reset() -> None:
     await timer.run()
     await timer.reset()
     await sleep(1)
-    time_left = await timer.view()
+    time_left = await timer.remaining_time
 
     # Assert
     assert time_left == 42
@@ -106,11 +108,35 @@ async def test_reset_resets_interval_number_and_duration() -> None:
     await sleep(1)
 
     # Assert
-    on_interval_complete.assert_has_awaits([
-        call(IntervalCompleteEvent(timer, 1, 0.1)),
-        call(IntervalCompleteEvent(timer, 2, 0.2)),
-        call(IntervalCompleteEvent(timer, 1, 0.1)),
-        call(IntervalCompleteEvent(timer, 2, 0.2)),
-        call(IntervalCompleteEvent(timer, 1, 0.1)),
-        call(IntervalCompleteEvent(timer, 2, 0.2)),
+    assert_callback_awaited(on_interval_complete, [
+        EventData(IntervalCompleteEvent, {
+            'timer': timer,
+            'interval_number': 1,
+            'interval_duration': 0.1,
+        }),
+        EventData(IntervalCompleteEvent, {
+            'timer': timer,
+            'interval_number': 2,
+            'interval_duration': 0.2,
+        }),
+        EventData(IntervalCompleteEvent, {
+            'timer': timer,
+            'interval_number': 1,
+            'interval_duration': 0.1,
+        }),
+        EventData(IntervalCompleteEvent, {
+            'timer': timer,
+            'interval_number': 2,
+            'interval_duration': 0.2,
+        }),
+        EventData(IntervalCompleteEvent, {
+            'timer': timer,
+            'interval_number': 1,
+            'interval_duration': 0.1,
+        }),
+        EventData(IntervalCompleteEvent, {
+            'timer': timer,
+            'interval_number': 2,
+            'interval_duration': 0.2,
+        }),
     ])

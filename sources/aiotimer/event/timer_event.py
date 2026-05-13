@@ -1,6 +1,9 @@
 from dataclasses import dataclass
+from typing import TypeVar
 
 from ..timer_interface import TimerInterface
+
+EventType = TypeVar('EventType')
 
 
 @dataclass(frozen=True)
@@ -14,6 +17,8 @@ class TimerEvent:
 
     Attributes:
         timer: The timer instance that generated this event.
+        elapsed: The elapsed time in seconds since the first interval started.
     """
 
     timer: TimerInterface
+    elapsed: float

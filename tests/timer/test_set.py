@@ -27,7 +27,7 @@ async def test_can_set_duration_to_zero() -> None:
 
     # Act
     await timer.set(0)
-    duration = await timer.view()
+    duration = await timer.remaining_time
 
     # Assert
     assert duration == 0
@@ -40,7 +40,7 @@ async def test_can_set_duration_to_positive_number() -> None:
 
     # Act
     await timer.set(142)
-    duration = await timer.view()
+    duration = await timer.remaining_time
 
     # Assert
     assert duration == 142
