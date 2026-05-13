@@ -1,6 +1,8 @@
 from asyncio import run, sleep
+from contextlib import suppress
 
 from aiotimer import Timer
+from aiotimer.error import TimerError
 from aiotimer.event import ErrorEvent, IntervalCompleteEvent
 from aiotimer.interval import exponentially, immediately_then
 
@@ -24,13 +26,14 @@ async def main() -> None:
             raise RuntimeError(error)
 
         print(f'HTTP request succeeded after {duration} seconds.')
-        await event.timer.pause()
+        with suppress(TimerError):
+            await event.timer.pause()
 
     async def on_error(event: ErrorEvent) -> None:
         print(event.error)
 
     timer = Timer(
-        immediately_then(exponentially(interval_count=4)),
+        immediately_then(exponentially(interval_count=3)),
         on_interval_complete=send_http_request,
         on_error=on_error,
     )
