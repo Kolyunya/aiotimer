@@ -1,4 +1,4 @@
-from aiotimer.interval.generator.never import never
+from aiotimer.interval import never
 
 
 def test_never() -> None:

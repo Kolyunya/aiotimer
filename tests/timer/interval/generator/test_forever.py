@@ -3,9 +3,7 @@ from itertools import islice
 from pytest import raises
 
 from aiotimer.error import InvalidConfigurationError
-from aiotimer.interval import sequentially
-from aiotimer.interval.generator.forever import forever
-from aiotimer.interval.generator.never import never
+from aiotimer.interval import forever, never, sequentially
 
 
 def test_durations_generator_must_not_be_degenerate() -> None:

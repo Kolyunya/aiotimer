@@ -1,7 +1,3 @@
-"""
-Timer Error Classes.
-"""
-
 from .duration_error import InvalidDurationError
 from .event_handler_error import MissingEventHandlerError
 from .generator_error import EmptyGeneratorError

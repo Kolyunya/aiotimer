@@ -1,6 +1,4 @@
-from aiotimer.interval.generator.immediately_then import immediately_then
-from aiotimer.interval.generator.once import once
-from aiotimer.interval.generator.repeatedly import repeatedly
+from aiotimer.interval import immediately_then, once, repeatedly
 
 
 def test_immediately_then_once() -> None:

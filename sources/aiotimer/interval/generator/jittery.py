@@ -11,36 +11,6 @@ def jittery(
     relative: Optional[float] = None,
     absolute: Optional[float] = None,
 ) -> IntervalGeneratorFactory:
-    """
-    Create a jittery duration generator generator.
-
-    This function is used as a decorator to add random jitter to other
-    interval generators. A generator will yield durations with random jitter
-    applied to each duration from the provided generator generator. The jitter can
-    be specified either as a relative percentage of the original duration or
-    as an absolute value.
-
-    Args:
-        generator_factory: The base interval generator generator to apply jitter to.
-        relative: Optional relative jitter as a fraction of the duration (e.g., 0.1 for ±10%).
-        absolute: Optional absolute jitter value in seconds (e.g., 0.5 for ±0.5 seconds).
-
-    Returns:
-        An interval generator generator that yields durations with applied jitter.
-
-    Raises:
-        InvalidConfigurationError: If both relative and absolute are specified,
-            if neither is specified, if either value is negative, or if the
-            resulting jittery duration is less than or equal to zero.
-
-    Example:
-        >>> # ±10% relative jitter.
-        >>> jittery(once(5), relative=0.1)  # Yields value between 4.5 and 5.5
-
-        >>> # ±0.5 seconds absolute jitter.
-        >>> jittery(once(5), absolute=0.5)  # Yields value between 4.5 and 5.5
-    """
-
     if (
         (relative is not None and absolute is not None)
         or

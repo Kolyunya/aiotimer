@@ -1,7 +1,7 @@
 from pytest import approx, mark, raises
 
 from aiotimer.error import InvalidConfigurationError
-from aiotimer.interval.generator.randomly import randomly
+from aiotimer.interval import randomly
 
 
 @mark.parametrize(('minimum', 'maximum'), [

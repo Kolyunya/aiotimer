@@ -1,10 +1,7 @@
 from pytest import approx, raises
 
 from aiotimer.error import InvalidConfigurationError
-from aiotimer.interval.generator.jittery import jittery
-from aiotimer.interval.generator.once import once
-from aiotimer.interval.generator.repeatedly import repeatedly
-from aiotimer.interval.generator.thrice import thrice
+from aiotimer.interval import jittery, once, repeatedly, thrice
 
 
 def test_relative_jitter_can_not_be_negative() -> None:

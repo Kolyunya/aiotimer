@@ -1,7 +1,3 @@
-"""
-Callback Utilities.
-"""
-
 from .has_parameters import has_parameters
 
 __all__ = [

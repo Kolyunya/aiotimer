@@ -1,7 +1,3 @@
-"""
-Asyncio Timer Library.
-"""
-
 from os import getenv
 
 from .timer import Timer

@@ -9,18 +9,6 @@ def exponentially(
     interval_count: Optional[int] = None,
     maximum_duration: Optional[float] = None,
 ) -> IntervalGeneratorFactory:
-    """
-    Create an exponential duration generator generator.
-
-    A generator will sequentially yield factors of two
-    multiplied by the initial value.
-    E.g., with an initial duration of 1, a generator
-    would yield the following durations: 1, 2, 4, 8, 16, etc.
-    The number of produced durations may be flexibly controlled
-    via the fixed interval count or via the maximum value of
-    the duration.
-    """
-
     if base <= 1:
         raise InvalidDurationError('Exponent base must be greater than one')
 

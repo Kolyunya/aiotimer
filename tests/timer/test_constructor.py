@@ -6,8 +6,7 @@ from pytest import mark, raises
 from aiotimer import Timer
 from aiotimer.error import InvalidConfigurationError, InvalidDurationError
 from aiotimer.event import ErrorEvent
-from aiotimer.interval import once
-from aiotimer.interval.generator.never import never
+from aiotimer.interval import never, once
 
 
 @mark.asyncio
