@@ -37,4 +37,4 @@ jobs:
 
             - name: Run tests
               run: |
-                  BEARTYPE=Yes python -m test --skip-slow=No
+                  BEARTYPE=Yes python -m test
