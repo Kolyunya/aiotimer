@@ -38,7 +38,7 @@ def main() -> None:
         ['pyright', f'--project={path}/pyright.json', *sources],
         ['mypy', f'--config-file={path}/mypy.ini', *sources],
         ['pylint', f'--rcfile={path}/pylint.ini', *sources],
-        ['pytest', f'--config-file={path}/pytest.ini', f'-m={marks}', 'tests'],
+        ['pytest', f'--config-file={path}/pytest.ini', f'-m={marks}', '--capture=no', 'tests'],
     ]
 
     success = True
