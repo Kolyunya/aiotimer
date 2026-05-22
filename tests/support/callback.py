@@ -21,6 +21,4 @@ def assert_callback_awaited(mock: AsyncMock, awaits: list[EventData]) -> None:
 
         for argument, value in awaits[await_index].data.items():
             actual_value = getattr(event, argument)
-            assert actual_value == value, (
-                f'{argument}: expected {value}, got {actual_value}'
-            )
+            assert actual_value == value
