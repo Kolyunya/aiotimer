@@ -3,12 +3,11 @@ from unittest.mock import AsyncMock, Mock
 
 from pytest import mark
 
-from aiotimer import Timer
+from aiotimer import MultiTimer
 from aiotimer.event import IntervalCompleteEvent, TimerCompleteEvent
 from aiotimer.interval import once, sequentially
 from aiotimer.state import InitialState
-
-from ..support.callback import EventData, assert_callback_awaited
+from tests.support.callback import EventData, assert_callback_awaited
 
 
 @mark.asyncio
@@ -16,10 +15,10 @@ async def test_callbacks_are_not_called_after_resetting() -> None:
     # Arrange
     on_complete = Mock()
     on_interval = Mock()
-    timer = Timer(once(0.1), on_complete, on_interval)
+    timer = MultiTimer(once(0.1), on_complete, on_interval)
 
     # Act
-    await timer.run()
+    await timer.start()
     await timer.reset()
     await sleep(1)
 
@@ -31,10 +30,10 @@ async def test_callbacks_are_not_called_after_resetting() -> None:
 @mark.asyncio
 async def test_can_reset_a_running_timer() -> None:
     # Arrange
-    timer = Timer(once(42), Mock())
+    timer = MultiTimer(once(42), Mock())
 
     # Act
-    await timer.run()
+    await timer.start()
     await timer.reset()
     state = await timer.state
 
@@ -45,11 +44,11 @@ async def test_can_reset_a_running_timer() -> None:
 @mark.asyncio
 async def test_can_reset_a_stopped_timer() -> None:
     # Arrange
-    timer = Timer(once(42), Mock())
+    timer = MultiTimer(once(42), Mock())
 
     # Act
-    await timer.run()
-    await timer.pause()
+    await timer.start()
+    await timer.stop()
     await timer.reset()
     state = await timer.state
 
@@ -60,13 +59,13 @@ async def test_can_reset_a_stopped_timer() -> None:
 @mark.asyncio
 async def test_reset_resets_time_left() -> None:
     # Arrange
-    timer = Timer(once(42), Mock())
+    timer = MultiTimer(once(42), Mock())
 
     # Act
-    await timer.run()
+    await timer.start()
     await sleep(1)
     await timer.reset()
-    time_left = await timer.remaining_time
+    time_left = await timer.remaining
 
     # Assert
     assert time_left == 42
@@ -75,13 +74,13 @@ async def test_reset_resets_time_left() -> None:
 @mark.asyncio
 async def test_time_left_is_not_decreasing_when_timer_is_reset() -> None:
     # Arrange
-    timer = Timer(once(42), Mock())
+    timer = MultiTimer(once(42), Mock())
 
     # Act
-    await timer.run()
+    await timer.start()
     await timer.reset()
     await sleep(1)
-    time_left = await timer.remaining_time
+    time_left = await timer.remaining
 
     # Assert
     assert time_left == 42
@@ -92,19 +91,18 @@ async def test_reset_resets_interval_number_and_duration() -> None:
     # Arrange
     async def on_timer_complete(event: TimerCompleteEvent) -> None:
         await event.timer.reset()
-        await event.timer.run()
+        await event.timer.start()
 
     on_interval_complete = AsyncMock()
 
-    timer = Timer(
+    timer = MultiTimer(
         sequentially(0.1, 0.2),
         on_timer_complete=on_timer_complete,
         on_interval_complete=on_interval_complete,
-        precision=0.01,
     )
 
     # Act
-    await timer.run()
+    await timer.start()
     await sleep(1)
 
     # Assert

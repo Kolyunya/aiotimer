@@ -10,11 +10,11 @@ if TYPE_CHECKING:
 class TimerInterface(ABC):
 
     @abstractmethod
-    async def run(self) -> None:
+    async def start(self) -> None:
         pass
 
     @abstractmethod
-    async def pause(self) -> None:
+    async def stop(self) -> None:
         pass
 
     @abstractmethod
@@ -35,12 +35,12 @@ class TimerInterface(ABC):
 
     @property
     @abstractmethod
-    async def remaining_time(self) -> float:
+    async def remaining(self) -> float:
         pass
 
     @property
     @abstractmethod
-    async def elapsed_time(self) -> float:
+    async def elapsed(self) -> float:
         pass
 
     @property

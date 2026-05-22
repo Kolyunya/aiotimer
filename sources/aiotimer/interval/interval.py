@@ -1,7 +1,11 @@
 from time import monotonic
 from typing import Optional
 
-from ..error import InvalidConfigurationError, InvalidDurationError
+from ..error import (
+    InvalidConfigurationError,
+    InvalidDurationError,
+    TimerError,
+)
 
 
 class Interval:
@@ -17,8 +21,32 @@ class Interval:
         self.__number: int = number
         self.__duration: float = duration
 
-        self.__advanced_at: Optional[float] = None
-        self.__elapsed: float = 0
+        self.__elapsed: float = 0.0
+        self.__started_at: Optional[float] = None
+
+    def start(self) -> None:
+        if self.__started_at is not None:
+            raise TimerError('The interval has already started')
+
+        self.__started_at = monotonic()
+
+    def stop(self) -> None:
+        if self.__started_at is None:
+            raise TimerError('The interval has not started yet')
+
+        now = monotonic()
+        elapsed = now - self.__started_at
+        self.__elapsed += elapsed
+
+        self.__started_at = None
+
+    def prolong(self, delta: float) -> None:
+        duration = self.__duration + delta
+        self.duration = duration
+
+    def shorten(self, delta: float) -> None:
+        duration = self.__duration - delta
+        self.duration = duration
 
     @property
     def number(self) -> int:
@@ -33,48 +61,21 @@ class Interval:
         self.__validate_duration(value)
         self.__duration = value
 
-    def prolong(self, delta: float) -> None:
-        self.__adjust(delta)
+    @property
+    def remaining(self) -> float:
+        remaining = self.__duration - self.elapsed
 
-    def shorten(self, delta: float) -> None:
-        self.__adjust(-1 * delta)
+        return remaining
 
     @property
-    def is_complete(self) -> bool:
-        result = self.__elapsed >= self.__duration
+    def elapsed(self) -> float:
+        elapsed = self.__elapsed
 
-        return result
+        if self.__started_at is not None:
+            now = monotonic()
+            elapsed += now - self.__started_at
 
-    @property
-    def remaining_time(self) -> float:
-        result = self.__duration - self.__elapsed
-
-        # The timer may (and will) overshoot more or less
-        # depending on the duration-to-precision ratio.
-        # Return zero in case of an overshoot.
-        result = max(result, 0)
-
-        return result
-
-    def advance(self) -> None:
-        now = monotonic()
-
-        # `self.__advanced_at` is `None` on the first iteration
-        # of the advancement cycle.
-        if self.__advanced_at is not None:
-            elapsed = now - self.__advanced_at
-            self.__elapsed += elapsed
-
-        self.__advanced_at = now
-
-    def stop_advancement(self) -> None:
-        self.__advanced_at = None
-
-    def __adjust(self, delta: float) -> None:
-        duration = self.__duration + delta
-        self.__validate_duration(duration)
-
-        self.__duration = duration
+        return elapsed
 
     @classmethod
     def __validate_number(cls, number: int) -> None:

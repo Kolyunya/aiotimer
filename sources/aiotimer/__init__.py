@@ -1,10 +1,12 @@
 from os import getenv
 
+from .multi_timer import MultiTimer
 from .timer import Timer
 from .timer_interface import TimerInterface
 from .utility.boolean import parse_boolean
 
 __all__ = [
+    'MultiTimer',
     'Timer',
     'TimerInterface',
 ]

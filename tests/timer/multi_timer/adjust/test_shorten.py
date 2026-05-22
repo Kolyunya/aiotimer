@@ -1,8 +1,9 @@
+from asyncio import sleep
 from unittest.mock import Mock
 
 from pytest import mark, raises
 
-from aiotimer import Timer
+from aiotimer import MultiTimer
 from aiotimer.error import InvalidConfigurationError
 from aiotimer.interval import once
 
@@ -10,11 +11,11 @@ from aiotimer.interval import once
 @mark.asyncio
 async def test_can_shorten_duration_to_positive_number() -> None:
     # Arrange
-    timer = Timer(once(42), Mock())
+    timer = MultiTimer(once(42), Mock())
 
     # Act
     await timer.shorten(10)
-    duration = await timer.remaining_time
+    duration = await timer.remaining
 
     # Assert
     assert duration == 32
@@ -23,11 +24,11 @@ async def test_can_shorten_duration_to_positive_number() -> None:
 @mark.asyncio
 async def test_can_shorten_duration_to_zero() -> None:
     # Arrange
-    timer = Timer(once(42), Mock())
+    timer = MultiTimer(once(42), Mock())
 
     # Act
     await timer.shorten(42)
-    duration = await timer.remaining_time
+    duration = await timer.remaining
 
     # Assert
     assert duration == 0
@@ -36,7 +37,7 @@ async def test_can_shorten_duration_to_zero() -> None:
 @mark.asyncio
 async def test_can_not_shorten_duration_to_negative_number() -> None:
     # Arrange
-    timer = Timer(once(42), Mock())
+    timer = MultiTimer(once(42), Mock())
 
     # Act
     with raises(InvalidConfigurationError) as error:
@@ -44,3 +45,23 @@ async def test_can_not_shorten_duration_to_negative_number() -> None:
 
     # Assert
     assert str(error.value) == 'The duration must be a positive number or zero'
+
+
+@mark.asyncio
+@mark.parametrize(('duration', 'delta', 'wait'), [
+    (100.0, 99.0, 1.0),
+    (100.0, 99.9, 0.1),
+    (100.0, 100.0, 0.0),
+])
+async def test_completes_earlier_after_shortening(duration: float, delta: float, wait: float) -> None:
+    # Arrange
+    on_complete = Mock()
+    timer = MultiTimer(once(duration), on_complete)
+
+    # Act
+    await timer.start()
+    await timer.shorten(delta)
+    await sleep(wait + 0.1)
+
+    # Assert
+    on_complete.assert_called_once()

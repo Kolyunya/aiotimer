@@ -74,7 +74,7 @@ async def test_async_function_is_awaited_once() -> None:
     await callback(event)
 
     # Assert
-    event_handler.assert_called_once_with(event)
+    event_handler.assert_awaited_once_with(event)
 
 
 @mark.asyncio
@@ -92,7 +92,7 @@ async def test_async_function_is_awaited_thrice() -> None:
     await callback(event_3)
 
     # Assert
-    assert event_handler.call_count == 3
+    assert event_handler.await_count == 3
     event_handler.assert_has_awaits([
         call(event_1),
         call(event_2),

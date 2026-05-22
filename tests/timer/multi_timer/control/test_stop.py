@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 from pytest import approx, mark
 
-from aiotimer import Timer
+from aiotimer import MultiTimer
 from aiotimer.interval import forever, once
 from aiotimer.state.stopped_state import StoppedState
 
@@ -13,11 +13,11 @@ async def test_callbacks_are_not_called_after_pausing() -> None:
     # Arrange
     on_complete = Mock()
     on_interval = Mock()
-    timer = Timer(once(0.1), on_complete, on_interval)
+    timer = MultiTimer(once(0.1), on_complete, on_interval)
 
     # Act
-    await timer.run()
-    await timer.pause()
+    await timer.start()
+    await timer.stop()
     await sleep(1)
 
     # Assert
@@ -26,45 +26,45 @@ async def test_callbacks_are_not_called_after_pausing() -> None:
 
 
 @mark.asyncio
-async def test_pause_does_not_reset_time_left() -> None:
+async def test_stop_does_not_reset_time_left() -> None:
     # Arrange
-    timer = Timer(once(42), Mock())
+    timer = MultiTimer(once(42), Mock())
 
     # Act
-    await timer.run()
+    await timer.start()
     await sleep(1)
-    await timer.pause()
-    time_left = await timer.remaining_time
+    await timer.stop()
+    time_left = await timer.remaining
 
     # Assert
     assert time_left == approx(41, abs=0.1)
 
 
 @mark.asyncio
-async def test_time_left_is_not_decreasing_when_timer_is_paused() -> None:
+async def test_time_left_is_not_decreasing_when_timer_is_stopd() -> None:
     # Arrange
-    timer = Timer(once(42), Mock())
+    timer = MultiTimer(once(42), Mock())
 
     # Act
-    await timer.run()
-    await timer.pause()
+    await timer.start()
+    await timer.stop()
     await sleep(1)
-    time_left = await timer.remaining_time
+    time_left = await timer.remaining
 
     # Assert
-    assert time_left == 42
+    assert time_left == approx(42, abs=0.001)
 
 
 @mark.asyncio
-async def test_can_pause_the_timer_from_on_interval() -> None:
+async def test_can_stop_the_timer_from_on_interval() -> None:
     # Arrange
-    timer: Timer
+    timer: MultiTimer
 
     async def on_interval() -> None:
-        await timer.pause()
+        await timer.stop()
 
-    timer = Timer(forever(once(0.1)), on_interval_complete=on_interval)
-    await timer.run()
+    timer = MultiTimer(forever(once(0.1)), on_interval_complete=on_interval)
+    await timer.start()
     await sleep(1)
 
     # Act

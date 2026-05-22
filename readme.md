@@ -2,9 +2,10 @@
 
 An asynchronous timer with a human-friendly API and rich functionality.
 
-* State management with `run()`, `pause()`, and `reset()` methods.
+* State management with `start()`, `stop()`, and `reset()` methods.
 * On-the-fly adjustment of the duration with `set()`, `prolong()`, and `shorten()` methods.
-* Multi-interval configuration when the timer runs multiple times with a predefined pattern of durations.
+* Introspection with `elapsed`, `remaining`, and `state` properties.
+* Multi-interval configuration when a timer runs multiple times with a predefined schedule pattern.
 * Looping capabilities for continuously running timers.
 * Rich callback system enabling hooking into the timer lifecycle events.
 * Concurrency-safe architecture designed to prevent race conditions and deadlocks.
@@ -23,13 +24,13 @@ An asynchronous timer with a human-friendly API and rich functionality.
   * [Timer complete event](#timer-complete-event)
   * [Error event](#error-event)
 * [Advanced usage](#advanced-usage)
-  * [Configuring precision](#configuring-precision)
   * [Custom intervals](#custom-intervals)
 * [Contributing](#contributing)
 
 ## Basic usage
 
 ### One-off timer
+
 ```python
 from asyncio import run, sleep
 
@@ -38,19 +39,20 @@ from aiotimer.interval import once
 
 
 async def main() -> None:
-    """
-    Will run the timer for 3 seconds.
-    Then will print a message.
-    """
+  """
+  Will run the timer for 3 seconds.
+  Then will print a message.
+  """
 
-    timer = Timer(once(3), lambda: print('3 seconds passed'))
-    await timer.run()
+  timer = Timer(3, lambda: print('3 seconds passed'))
+  await timer.start()
 
-    # Wait for the timer to complete.
-    await sleep(3 + 1)
+  # Wait for the timer to complete.
+  await sleep(3 + 1)
+
 
 if __name__ == '__main__':
-    run(main())
+  run(main())
 ```
 
 ### Multi-interval timer
@@ -58,29 +60,30 @@ if __name__ == '__main__':
 ```python
 from asyncio import run, sleep
 
-from aiotimer import Timer
+from aiotimer import MultiTimer
 from aiotimer.interval import thrice
 
 
 async def main() -> None:
-    """
-    Will run the timer three times for 1 second each.
-    And will print intermediate messages every second.
-    Then will print the final message after a total of 3 seconds.
-    """
+  """
+  Will run the timer three times for 1 second each.
+  And will print intermediate messages every second.
+  Then will print the final message after a total of 3 seconds.
+  """
 
-    timer = Timer(
-        thrice(1),
-        on_timer_complete=lambda: print('3 seconds passed'),
-        on_interval_complete=lambda: print('1 more second passed'),
-    )
-    await timer.run()
+  timer = MultiTimer(
+    thrice(1),
+    on_timer_complete=lambda: print('3 seconds passed'),
+    on_interval_complete=lambda: print('1 more second passed'),
+  )
+  await timer.start()
 
-    # Wait for the timer to complete.
-    await sleep(3 + 1)
+  # Wait for the timer to complete.
+  await sleep(3 + 1)
+
 
 if __name__ == '__main__':
-    run(main())
+  run(main())
 ```
 
 ### Other usage examples
@@ -187,13 +190,6 @@ This event is fired each time any exception is propagated from any of the event 
 
 ## Advanced usage
 
-### Configuring precision
-The timer class has a configurable `precision: float` parameter. It represents the amount of seconds a timer would idle between its system ticks.
-
-For adequate accuracy, it is recommended to have the precision value configured significantly (at least several times) smaller than the shortest interval the timer would have.
-
-At the same time, having the precision configured to an extremely low value (e.g. `0.001`) may yield a high CPU load.
-
 ### Custom intervals
 The first argument to the timer constructor is an [`Interval Generator Factory`](sources/aiotimer/interval/generator/generator.py). In other words, it is a callable that returns a generator that yields interval durations.
 
@@ -206,21 +202,22 @@ The first argument to the timer constructor is an [`Interval Generator Factory`]
 ```python
 from asyncio import run, sleep
 
-from aiotimer import Timer
+from aiotimer import MultiTimer
 
 
 async def main() -> None:
-    # The simplest form of the Interval Generator Factory.
-    intervals = lambda: (duration for duration in [1, 2, 3])
+  # The simplest form of the Interval Generator Factory.
+  intervals = lambda: (duration for duration in [1, 2, 3])
 
-    timer = Timer(intervals, lambda: print('6 seconds passed'))
-    await timer.run()
+  timer = MultiTimer(intervals, lambda: print('6 seconds passed'))
+  await timer.start()
 
-    # Add an extra second of sleep to avoid a race condition.
-    await sleep(6 + 1)
+  # Add an extra second of sleep to avoid a race condition.
+  await sleep(6 + 1)
+
 
 if __name__ == '__main__':
-    run(main())
+  run(main())
 ```
 
 ## Contributing
@@ -239,4 +236,4 @@ pip install --editable ".[development]"
 BEARTYPE=Yes python -m test --skip-slow=No
 ```
 
-Additionally, a convenient `Test` run configuration is provided for `PyCharm` users.
+Additionally, convenient `Quick QA` and `Full QA` run configuration are provided for `PyCharm` users.

@@ -6,7 +6,7 @@ from .state import State
 class StoppedState(State):
 
     @override
-    def ensure_could_run(self) -> None:
+    def ensure_could_start(self) -> None:
         pass
 
     @override

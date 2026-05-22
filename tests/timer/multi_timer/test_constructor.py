@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, Mock
 
 from pytest import mark, raises
 
-from aiotimer import Timer
+from aiotimer import MultiTimer
 from aiotimer.error import InvalidConfigurationError, InvalidDurationError
 from aiotimer.event import ErrorEvent
 from aiotimer.interval import never, once
@@ -12,24 +12,15 @@ from aiotimer.interval import never, once
 @mark.asyncio
 async def test_at_least_one_callback_must_be_specified() -> None:
     with raises(InvalidConfigurationError) as error:
-        Timer(once(42))
+        MultiTimer(once(42))
 
     assert str(error.value) == 'At least one of the `on_interval_complete` and `on_timer_complete` event handlers must be specified'
 
 
 @mark.asyncio
-@mark.parametrize('precision', [-1, 0])
-async def test_precision_must_be_positive(precision: float) -> None:
-    with raises(InvalidConfigurationError) as error:
-        Timer(once(42), Mock(), precision=precision)
-
-    assert str(error.value) == 'The precision must be a positive number'
-
-
-@mark.asyncio
 async def test_interval_generator_must_not_be_empty() -> None:
     with raises(InvalidConfigurationError) as error:
-        Timer(never(), Mock())
+        MultiTimer(never(), Mock())
 
     assert str(error.value) == 'The interval generator yielded no values'
 
@@ -42,7 +33,7 @@ async def test_first_duration_must_be_non_negative(first_duration: float) -> Non
 
     # Act
     with raises(InvalidConfigurationError) as error:
-        Timer(intervals, Mock())
+        MultiTimer(intervals, Mock())
 
     # Assert
     assert str(error.value) == 'The duration must be a positive number or zero'
@@ -59,14 +50,14 @@ async def test_all_durations_must_be_non_negative(durations: tuple[float]) -> No
     on_complete = Mock()
     on_error = Mock()
 
-    timer = Timer(
+    timer = MultiTimer(
         intervals,
         on_timer_complete=on_complete,
         on_error=on_error,
     )
 
     # Act
-    await timer.run()
+    await timer.start()
     await sleep(1)
 
     # Assert
@@ -80,9 +71,9 @@ async def test_all_durations_must_be_non_negative(durations: tuple[float]) -> No
 
 @mark.asyncio
 async def test_on_complete_could_be_sync() -> None:
-    Timer(once(42), Mock())
+    MultiTimer(once(42), Mock())
 
 
 @mark.asyncio
 async def test_on_complete_could_be_async() -> None:
-    Timer(once(42), AsyncMock())
+    MultiTimer(once(42), AsyncMock())

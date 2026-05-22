@@ -14,9 +14,9 @@ class State:
 
         return name
 
-    def ensure_could_run(self) -> None:
+    def ensure_could_start(self) -> None:
         """Raise an exception if the timer could not been started."""
-        self.__raise_error('run')
+        self.__raise_error('started')
 
     def ensure_could_stop(self) -> None:
         """Raise an exception if the timer could not been stopped."""
@@ -29,17 +29,6 @@ class State:
     def ensure_could_adjust(self) -> None:
         """Raise an exception if the timer could not be adjusted."""
         self.__raise_error('adjusted')
-
-    def ensure_could_view(self) -> None:
-        """
-        Raise an exception if the remaining time could not be viewed.
-
-        Note:
-            No exception is raised in the current implementation.
-            A user may view the remaining time at any state of the timer.
-            The view_state() method always returns the current state type,
-            while view() returns remaining time (0.0 if not running).
-        """
 
     def __raise_error(self, operation: str) -> None:
         raise InvalidStateError(str(self), operation)

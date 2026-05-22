@@ -1,0 +1,316 @@
+from __future__ import annotations
+
+from asyncio import (
+    FIRST_COMPLETED,
+    CancelledError,
+    Event,
+    Lock,
+    Queue,
+    Task,
+    create_task,
+    sleep,
+    wait,
+)
+from contextlib import suppress
+from typing import TYPE_CHECKING, Optional
+
+from typing_extensions import override
+
+from .callback import (
+    AsyncExecutor,
+    Callback,
+    Executor,
+    SyncExecutor,
+)
+from .error import (
+    EmptyGeneratorError,
+    MissingEventHandlerError,
+)
+from .event import (
+    ErrorEvent,
+    IntervalCompleteEvent,
+    TimerCompleteEvent,
+)
+from .interval import Interval
+from .state import (
+    CompleteState,
+    InitialState,
+    RunningState,
+    State,
+    StoppedState,
+)
+from .timer_interface import TimerInterface
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable
+
+    from .callback import (
+        OnError,
+        OnIntervalComplete,
+        OnTimerComplete,
+    )
+    from .interval import (
+        IntervalGenerator,
+        IntervalGeneratorFactory,
+    )
+
+
+class MultiTimer(TimerInterface):
+
+    def __init__(
+        self,
+        interval_factory: IntervalGeneratorFactory,
+        on_timer_complete: Optional[OnTimerComplete] = None,
+        on_interval_complete: Optional[OnIntervalComplete] = None,
+        on_error: Optional[OnError] = None,
+        *,
+        await_callbacks: bool = False,
+    ) -> None:
+        self.__validate_event_handlers(on_timer_complete, on_interval_complete)
+
+        self.__interval_factory = interval_factory
+        self.__on_timer_complete = Callback(on_timer_complete)
+        self.__on_interval_complete = Callback(on_interval_complete)
+        self.__on_error = Callback(on_error)
+
+        self.__lock: Lock = Lock()
+        self.__modified: Event = Event()
+
+        self.__state: State = InitialState()
+        self.__run_task: Optional[Task[None]] = None
+        self.__callbacks: Queue[Awaitable[None]] = Queue()
+
+        self.__executor: Executor
+        self.__initialize_executor(await_callbacks=await_callbacks)
+
+        self.__interval_generator: IntervalGenerator
+        self.__initialize_interval_generator()
+
+        self.__interval: Interval
+        if not self.__initialize_next_interval(reset=True):
+            raise EmptyGeneratorError
+
+    @override
+    async def start(self) -> None:
+        async with self.__lock:
+            self.__state.ensure_could_start()
+            self.__state = RunningState()
+            await self.__start()
+
+    @override
+    async def stop(self) -> None:
+        async with self.__lock:
+            self.__state.ensure_could_stop()
+            self.__state = StoppedState()
+            await self.__stop()
+
+    @override
+    async def reset(self) -> None:
+        async with self.__lock:
+            self.__state.ensure_could_reset()
+            self.__state = InitialState()
+            await self.__stop()
+
+            self.__initialize_interval_generator()
+            if not self.__initialize_next_interval(reset=True):
+                raise EmptyGeneratorError
+
+    @override
+    async def set(self, duration: float) -> None:
+        async with self.__lock:
+            self.__state.ensure_could_adjust()
+            self.__interval.duration = duration
+            self.__modified.set()
+
+    @override
+    async def prolong(self, delta: float) -> None:
+        async with self.__lock:
+            self.__state.ensure_could_adjust()
+            self.__interval.prolong(delta)
+            self.__modified.set()
+
+    @override
+    async def shorten(self, delta: float) -> None:
+        async with self.__lock:
+            self.__state.ensure_could_adjust()
+            self.__interval.shorten(delta)
+            self.__modified.set()
+
+    @property
+    @override
+    async def remaining(self) -> float:
+        async with self.__lock:
+            return self.__interval.remaining
+
+    @property
+    @override
+    async def elapsed(self) -> float:
+        async with self.__lock:
+            return self.__interval.elapsed
+
+    @property
+    @override
+    async def state(self) -> type[State]:
+        async with self.__lock:
+            return type(self.__state)
+
+    async def __start(self) -> None:
+        self.__interval.start()
+
+        self.__run_task = create_task(self.__run())
+
+    async def __stop(self) -> None:
+        if not self.__run_task:
+            # The run task will be missing when
+            # `reset()` is called after `stop()`.
+            return
+
+        self.__interval.stop()
+
+        self.__run_task.cancel()
+        with suppress(CancelledError):
+            await self.__run_task
+        self.__run_task = None
+
+    async def __run(self) -> None:
+        try:
+            while True:
+                async with self.__lock:
+                    await_completion = create_task(sleep(self.__interval.remaining))
+                    await_modification = create_task(self.__modified.wait())
+                    tasks = [await_completion, await_modification]
+
+                # Release the lock before waiting for the tasks.
+                done, pending = await wait(tasks, return_when=FIRST_COMPLETED)
+
+                async with self.__lock:
+                    if await_completion in done:
+                        await self.__enqueue_interval_complete_event()
+
+                        if self.__initialize_next_interval():
+                            self.__interval.start()
+                        else:
+                            self.__state = CompleteState()
+                            await self.__enqueue_timer_complete_event()
+                            break
+
+                    if await_modification in done:
+                        self.__modified.clear()
+
+                    for task in pending:
+                        task.cancel()
+
+                # Release the lock before processing the callbacks.
+                await self.__process_callbacks()
+
+        except CancelledError:
+            pass
+
+        except Exception as error:
+            await self.__invoke_error_event(error)
+
+        finally:
+            await self.__process_callbacks()
+
+    async def __process_callbacks(self) -> None:
+        while not self.__callbacks.empty():
+            callback = await self.__callbacks.get()
+            await callback
+            self.__callbacks.task_done()
+
+    def __initialize_executor(self, *, await_callbacks: bool) -> None:
+        executor_type = SyncExecutor if await_callbacks else AsyncExecutor
+        self.__executor = executor_type(
+            self.__on_error,
+            self.__make_error_event,
+        )
+
+    def __initialize_interval_generator(self) -> None:
+        self.__interval_generator = self.__interval_factory()
+
+    def __initialize_next_interval(self, *, reset: bool = False) -> bool:
+        success = False
+
+        try:
+            duration = next(self.__interval_generator)
+
+            if reset:
+                number = 1
+            else:
+                number = self.__interval.number + 1
+
+            self.__interval = Interval(number, duration)
+            success = True
+
+        except StopIteration:
+            pass
+
+        return success
+
+    async def __make_interval_complete_event(self) -> IntervalCompleteEvent:
+        event = IntervalCompleteEvent(
+            timer=self,
+            elapsed=self.__interval.elapsed,
+            remaining=self.__interval.remaining,
+            interval_number=self.__interval.number,
+            interval_duration=self.__interval.duration,
+        )
+
+        return event
+
+    async def __make_timer_complete_event(self) -> TimerCompleteEvent:
+        event = TimerCompleteEvent(
+            timer=self,
+            elapsed=self.__interval.elapsed,
+            remaining=self.__interval.remaining,
+            interval_count=self.__interval.number,
+        )
+
+        return event
+
+    async def __make_error_event(self, error: Exception) -> ErrorEvent:
+        event = ErrorEvent(
+            timer=self,
+            elapsed=self.__interval.elapsed,
+            remaining=self.__interval.remaining,
+            error=error,
+        )
+
+        return event
+
+    async def __enqueue_interval_complete_event(self) -> None:
+        if self.__on_interval_complete.is_missing:
+            return
+
+        event = await self.__make_interval_complete_event()
+        coroutine = self.__executor(self.__on_interval_complete, event)
+        await self.__callbacks.put(coroutine)
+
+    async def __enqueue_timer_complete_event(self) -> None:
+        if self.__on_timer_complete.is_missing:
+            return
+
+        event = await self.__make_timer_complete_event()
+        coroutine = self.__executor(self.__on_timer_complete, event)
+        await self.__callbacks.put(coroutine)
+
+    async def __invoke_error_event(self, error: Exception) -> None:
+        event = await self.__make_error_event(error)
+
+        await self.__executor(
+            self.__on_error,
+            event,
+
+            # Disable error handling to prevent an infinite loop
+            # in case an error occurs inside the error handler.
+            handle_errors=False,
+        )
+
+    @classmethod
+    def __validate_event_handlers(
+            cls,
+            on_complete: Optional[OnTimerComplete],
+            on_interval: Optional[OnIntervalComplete],
+    ) -> None:
+        if not on_complete and not on_interval:
+            raise MissingEventHandlerError

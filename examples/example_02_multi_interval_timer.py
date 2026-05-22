@@ -1,6 +1,6 @@
 from asyncio import run, sleep
 
-from aiotimer import Timer
+from aiotimer import MultiTimer
 from aiotimer.interval import once, repeatedly
 
 
@@ -9,12 +9,12 @@ async def main() -> None:
     Demonstrate an example of a multi-interval timer usage.
     """
 
-    timer = Timer(
+    timer = MultiTimer(
         repeatedly(once(1), 3),
         on_timer_complete=lambda: print('The timer has ran for a total of 3 seconds.'),
         on_interval_complete=lambda: print('The timer has ran for another second.'),
     )
-    await timer.run()
+    await timer.start()
     print('The timer is running.')
 
     # Wait for the timer to complete.

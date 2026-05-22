@@ -3,7 +3,7 @@ from time import perf_counter
 
 from pytest import approx, mark
 
-from aiotimer import Timer
+from aiotimer import MultiTimer
 from aiotimer.interval import once, repeatedly
 
 
@@ -23,17 +23,16 @@ async def test_one_long_interval_produces_no_drift(duration: int) -> None:
         nonlocal timer_is_complete
         timer_is_complete = True
 
-    timer = Timer(
+    timer = MultiTimer(
         once(duration),
         on_complete,
-        precision=0.001,
         await_callbacks=False,
     )
 
     start_time = perf_counter()
 
     # Act
-    await timer.run()
+    await timer.start()
     await sleep(duration + 0.01)
 
     # Assert
@@ -43,7 +42,7 @@ async def test_one_long_interval_produces_no_drift(duration: int) -> None:
 @mark.asyncio
 @mark.slow
 @mark.parametrize('duration', [60, 60 * 3, 60 * 5])
-async def test_many_short_intervals_produce_no_drift(duration: int) -> None:
+async def test_many_short_intervals_produce_no_drift_profile(duration: int) -> None:
     # Arrange
     timer_is_complete = False
 
@@ -56,17 +55,16 @@ async def test_many_short_intervals_produce_no_drift(duration: int) -> None:
         nonlocal timer_is_complete
         timer_is_complete = True
 
-    timer = Timer(
+    timer = MultiTimer(
         repeatedly(once(1), duration),
         on_complete,
-        precision=0.001,
         await_callbacks=False,
     )
 
     start_time = perf_counter()
 
     # Act
-    await timer.run()
+    await timer.start()
     await sleep(duration + 1.00)
 
     # Assert
