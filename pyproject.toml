@@ -3,7 +3,7 @@ name = "aiotimer"
 description = "An asynchronous timer with a human-friendly API and rich functionality."
 version = "1.0.0"
 license = "Apache-2.0"
-requires-python = ">=3.9"
+requires-python = "~=3.9"
 
 dependencies = [
     "typing-extensions ~=4.15",
@@ -15,11 +15,13 @@ development = [
     "flake8 ~=7.3",
     "mypy ~=1.19",
     "pylint ~=3.3",
+    "pyrefly ~=1.0",
     "pyright ~=1.1",
     "pytest ~=8.4",
     "pytest_asyncio ~=1.2",
     "pytest_retry ~=1.7",
     "ruff ~=0.15",
+    "ty ~=0.0.38",
 ]
 
 [build-system]

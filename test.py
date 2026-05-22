@@ -37,7 +37,9 @@ def main() -> None:
         ['flake8', f'--config={path}/flake8.ini', *sources],
         ['pyright', f'--project={path}/pyright.json', *sources],
         ['mypy', f'--config-file={path}/mypy.ini', *sources],
+        ['ty', 'check', f'--config-file={path}/ty.toml', *sources],
         ['pylint', f'--rcfile={path}/pylint.ini', *sources],
+        ['pyrefly', 'check', f'--config={path}/pyrefly.toml'],
         ['pytest', f'--config-file={path}/pytest.ini', f'-m={marks}', '--capture=no', 'tests'],
     ]
 

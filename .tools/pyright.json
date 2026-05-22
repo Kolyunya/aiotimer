@@ -11,11 +11,17 @@
 
     "executionEnvironments": [
         {
-          "root": "../sources"
+            "root": "../sources",
+            "extraPaths": [
+                ".."
+            ]
         },
         {
-          "root": "../tests",
-          "reportUnknownVariableType": "none"
+            "root": "../tests",
+            "extraPaths": [
+                ".."
+            ],
+            "reportUnknownVariableType": false
         }
     ]
 }
