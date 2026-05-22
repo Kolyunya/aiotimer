@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Test" type="PythonConfigurationType" factoryName="Python">
-    <module name="timer" />
+  <configuration default="false" name="Full QA" type="PythonConfigurationType" factoryName="Python">
+    <module name="aiotimer" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
@@ -13,8 +13,10 @@
     <option name="IS_MODULE_SDK" value="true" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
+    <option name="DEBUG_JUST_MY_CODE" value="true" />
+    <option name="RUN_TOOL" value="" />
     <option name="SCRIPT_NAME" value="test" />
-    <option name="PARAMETERS" value="--skip-slow=$Prompt:Skip slow tests:Yes$" />
+    <option name="PARAMETERS" value="--skip-slow=No" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="true" />
