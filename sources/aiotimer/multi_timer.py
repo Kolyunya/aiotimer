@@ -57,7 +57,7 @@ class MultiTimer(TimerInterface):
 
     def __init__(
         self,
-        interval_factory: IntervalGeneratorFactory,
+        interval_generator_factory: IntervalGeneratorFactory,
         on_timer_complete: Optional[OnTimerComplete] = None,
         on_interval_complete: Optional[OnIntervalComplete] = None,
         on_error: Optional[OnError] = None,
@@ -68,7 +68,7 @@ class MultiTimer(TimerInterface):
         self.__validate_event_handlers(on_timer_complete, on_interval_complete)
         self.__validate_precision(precision)
 
-        self.__interval_factory = interval_factory
+        self.__interval_generator_factory = interval_generator_factory
         self.__on_timer_complete = Callback(on_timer_complete)
         self.__on_interval_complete = Callback(on_interval_complete)
         self.__on_error = Callback(on_error)
@@ -215,7 +215,7 @@ class MultiTimer(TimerInterface):
         )
 
     def __initialize_interval_generator(self) -> None:
-        self.__interval_generator = self.__interval_factory()
+        self.__interval_generator = self.__interval_generator_factory()
 
     def __initialize_next_interval(self, *, reset: bool = False) -> bool:
         success = False
