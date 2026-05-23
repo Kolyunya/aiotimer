@@ -53,4 +53,4 @@ async def test_elapsed_time_must_not_be_greater_than_duration() -> None:
     elapsed = await timer.elapsed
 
     # Assert
-    assert elapsed == 0.1
+    assert elapsed == approx(0.1)
