@@ -21,24 +21,25 @@ class Interval:
         self.__number: int = number
         self.__duration: float = duration
 
-        self.__elapsed: float = 0.0
-        self.__started_at: Optional[float] = None
+        self.__elapsed: float = 0
+        self.__advanced_at: Optional[float] = None
 
     def start(self) -> None:
-        if self.__started_at is not None:
-            raise TimerError('The interval has already started')
-
-        self.__started_at = monotonic()
+        self.__advanced_at = monotonic()
 
     def stop(self) -> None:
-        if self.__started_at is None:
-            raise TimerError('The interval has not started yet')
+        self.__advanced_at = None
+
+    def advance(self) -> None:
+        if self.__advanced_at is None:
+            raise TimerError('Interval must be started before advancing')
 
         now = monotonic()
-        elapsed = now - self.__started_at
+
+        elapsed = now - self.__advanced_at
         self.__elapsed += elapsed
 
-        self.__started_at = None
+        self.__advanced_at = now
 
     def prolong(self, delta: float) -> None:
         duration = self.__duration + delta
@@ -71,11 +72,13 @@ class Interval:
     def elapsed(self) -> float:
         elapsed = self.__elapsed
 
-        if self.__started_at is not None:
-            now = monotonic()
-            elapsed += now - self.__started_at
-
         return elapsed
+
+    @property
+    def is_complete(self) -> bool:
+        is_complete = self.__elapsed >= self.__duration
+
+        return is_complete
 
     @classmethod
     def __validate_number(cls, number: int) -> None:

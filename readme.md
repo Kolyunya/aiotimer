@@ -24,6 +24,7 @@ An asynchronous timer with a human-friendly API and rich functionality.
   * [Timer complete event](#timer-complete-event)
   * [Error event](#error-event)
 * [Advanced usage](#advanced-usage)
+  * [Configuring precision](#configuring-precision) 
   * [Custom intervals](#custom-intervals)
 * [Contributing](#contributing)
 
@@ -189,6 +190,13 @@ This event is fired each time the last interval of a timer is complete. An `on_t
 This event is fired each time any exception is propagated from any of the event handlers described above. Additionally, it is fired when an exception occurs inside a system coroutine of a timer. An `on_error` handler **_may_** optionally accept an [`ErrorEvent`](sources/aiotimer/event/error_event.py) object.
 
 ## Advanced usage
+
+### Configuring precision
+The timer class has a configurable `precision: float` parameter. It represents the amount of seconds a timer would idle between its system ticks.
+
+For adequate accuracy, it is recommended to have the precision value configured significantly (at least several times) smaller than the shortest interval the timer would have.
+
+At the same time, having the precision configured to an extremely low value (e.g. `0.001`) may yield a high CPU load.
 
 ### Custom intervals
 The first argument to the timer constructor is an [`Interval Generator Factory`](sources/aiotimer/interval/generator/generator.py). In other words, it is a callable that returns a generator that yields interval durations.

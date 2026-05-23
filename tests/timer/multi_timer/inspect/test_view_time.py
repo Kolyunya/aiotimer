@@ -27,7 +27,7 @@ async def test_view_after_running_for_some_time() -> None:
     time_left = await timer.remaining
 
     # Assert
-    assert time_left == approx(41, abs=0.1)
+    assert time_left == approx(41, abs=0.01)
 
 
 @mark.asyncio
@@ -42,4 +42,4 @@ async def test_remaining_time_could_be_negative() -> None:
     time_left = await timer.remaining
 
     # Assert
-    assert time_left == approx(-0.9, abs=0.1)
+    assert time_left == approx(0, abs=0.01)

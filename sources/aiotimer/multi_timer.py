@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from asyncio import (
-    FIRST_COMPLETED,
     CancelledError,
     Event,
     Lock,
@@ -9,7 +8,6 @@ from asyncio import (
     Task,
     create_task,
     sleep,
-    wait,
 )
 from contextlib import suppress
 from typing import TYPE_CHECKING, Optional
@@ -24,6 +22,7 @@ from .callback import (
 )
 from .error import (
     EmptyGeneratorError,
+    InvalidPrecisionError,
     MissingEventHandlerError,
 )
 from .event import (
@@ -64,20 +63,23 @@ class MultiTimer(TimerInterface):
         on_interval_complete: Optional[OnIntervalComplete] = None,
         on_error: Optional[OnError] = None,
         *,
+        precision: float = 0.001,
         await_callbacks: bool = False,
     ) -> None:
         self.__validate_event_handlers(on_timer_complete, on_interval_complete)
+        self.__validate_precision(precision)
 
         self.__interval_factory = interval_factory
         self.__on_timer_complete = Callback(on_timer_complete)
         self.__on_interval_complete = Callback(on_interval_complete)
         self.__on_error = Callback(on_error)
+        self.__precision = precision
 
         self.__lock: Lock = Lock()
         self.__modified: Event = Event()
 
         self.__state: State = InitialState()
-        self.__run_task: Optional[Task[None]] = None
+        self.__advance_task: Optional[Task[None]] = None
         self.__callbacks: Queue[Awaitable[None]] = Queue()
 
         self.__executor: Executor
@@ -95,21 +97,21 @@ class MultiTimer(TimerInterface):
         async with self.__lock:
             self.__state.ensure_could_start()
             self.__state = RunningState()
-            await self.__start()
+            await self.__start_advancement()
 
     @override
     async def stop(self) -> None:
         async with self.__lock:
             self.__state.ensure_could_stop()
             self.__state = StoppedState()
-            await self.__stop()
+            await self.__stop_advancement()
 
     @override
     async def reset(self) -> None:
         async with self.__lock:
             self.__state.ensure_could_reset()
             self.__state = InitialState()
-            await self.__stop()
+            await self.__stop_advancement()
 
             self.__initialize_interval_generator()
             if not self.__initialize_next_interval(reset=True):
@@ -154,54 +156,42 @@ class MultiTimer(TimerInterface):
         async with self.__lock:
             return type(self.__state)
 
-    async def __start(self) -> None:
+    async def __start_advancement(self) -> None:
         self.__interval.start()
 
-        self.__run_task = create_task(self.__run())
+        self.__advance_task = create_task(self.__advance())
 
-    async def __stop(self) -> None:
-        if not self.__run_task:
+    async def __stop_advancement(self) -> None:
+        if not self.__advance_task:
             # The run task will be missing when
             # `reset()` is called after `stop()`.
             return
 
         self.__interval.stop()
 
-        self.__run_task.cancel()
+        self.__advance_task.cancel()
         with suppress(CancelledError):
-            await self.__run_task
-        self.__run_task = None
+            await self.__advance_task
+        self.__advance_task = None
 
-    async def __run(self) -> None:
+    async def __advance(self) -> None:
         try:
             while True:
                 async with self.__lock:
-                    await_completion = create_task(sleep(self.__interval.remaining))
-                    await_modification = create_task(self.__modified.wait())
-                    tasks = [await_completion, await_modification]
+                    self.__interval.advance()
 
-                # Release the lock before waiting for the tasks.
-                done, pending = await wait(tasks, return_when=FIRST_COMPLETED)
-
-                async with self.__lock:
-                    if await_completion in done:
+                    if self.__interval.is_complete:
                         await self.__enqueue_interval_complete_event()
 
-                        if self.__initialize_next_interval():
-                            self.__interval.start()
-                        else:
+                        if not self.__initialize_next_interval():
                             self.__state = CompleteState()
                             await self.__enqueue_timer_complete_event()
                             break
 
-                    if await_modification in done:
-                        self.__modified.clear()
-
-                    for task in pending:
-                        task.cancel()
-
-                # Release the lock before processing the callbacks.
+                # The lock must be released before callback processing.
                 await self.__process_callbacks()
+
+                await sleep(self.__precision)
 
         except CancelledError:
             pass
@@ -240,6 +230,9 @@ class MultiTimer(TimerInterface):
                 number = self.__interval.number + 1
 
             self.__interval = Interval(number, duration)
+            if isinstance(self.__state, RunningState):
+                self.__interval.start()
+
             success = True
 
         except StopIteration:
@@ -314,3 +307,8 @@ class MultiTimer(TimerInterface):
     ) -> None:
         if not on_complete and not on_interval:
             raise MissingEventHandlerError
+
+    @classmethod
+    def __validate_precision(cls, precision: float) -> None:
+        if precision <= 0:
+            raise InvalidPrecisionError
