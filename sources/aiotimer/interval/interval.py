@@ -66,11 +66,19 @@ class Interval:
     def remaining(self) -> float:
         remaining = self.__duration - self.elapsed
 
+        # The timer may (and will) overshoot
+        # more or less depending on the precision value.
+        # Return zero in case of an overshoot.
+        remaining = max(remaining, 0)
+
         return remaining
 
     @property
     def elapsed(self) -> float:
-        elapsed = self.__elapsed
+        # The timer may (and will) overshoot
+        # more or less depending on the precision value.
+        # Return the duration value in case of an overshoot.
+        elapsed = min(self.__elapsed, self.__duration)
 
         return elapsed
 
