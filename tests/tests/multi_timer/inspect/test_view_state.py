@@ -9,7 +9,7 @@ from aiotimer.state import CompleteState, InitialState, RunningState, StoppedSta
 
 
 @mark.asyncio
-async def test_initial_state_after_instantiating() -> None:
+async def test_see_initial_state_after_instantiation() -> None:
     # Arrange
     timer = MultiTimer(once(1), Mock())
 
@@ -21,7 +21,7 @@ async def test_initial_state_after_instantiating() -> None:
 
 
 @mark.asyncio
-async def test_running_state() -> None:
+async def test_see_running_state_after_starting() -> None:
     # Arrange
     timer = MultiTimer(once(1), Mock())
 
@@ -34,7 +34,7 @@ async def test_running_state() -> None:
 
 
 @mark.asyncio
-async def test_stopped_state_after_stopping() -> None:
+async def test_see_stopped_state_after_stopping() -> None:
     # Arrange
     timer = MultiTimer(once(1), Mock())
 
@@ -48,7 +48,7 @@ async def test_stopped_state_after_stopping() -> None:
 
 
 @mark.asyncio
-async def test_complete_state() -> None:
+async def test_complete_state_after_completion() -> None:
     # Arrange
     timer = MultiTimer(once(0.1), Mock())
 
@@ -62,7 +62,7 @@ async def test_complete_state() -> None:
 
 
 @mark.asyncio
-async def test_initial_state_after_running_and_resetting() -> None:
+async def test_see_initial_state_after_starting_and_resetting() -> None:
     # Arrange
     timer = MultiTimer(once(1), Mock())
 
@@ -76,7 +76,7 @@ async def test_initial_state_after_running_and_resetting() -> None:
 
 
 @mark.asyncio
-async def test_initial_state_after_completing_and_resetting() -> None:
+async def test_see_initial_state_after_completion_and_resetting() -> None:
     # Arrange
     timer = MultiTimer(once(0.1), Mock())
 
