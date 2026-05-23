@@ -37,4 +37,9 @@ jobs:
 
             - name: Run tests
               run: |
-                  BEARTYPE=Yes python -m test
+                  BEARTYPE=Yes python -m test --skip-slow=Yes
+
+            - name: Upload coverage reports to Codecov
+              uses: codecov/codecov-action@v5
+              with:
+                  token: ${{ secrets.CODECOV_TOKEN }}

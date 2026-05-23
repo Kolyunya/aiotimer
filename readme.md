@@ -1,6 +1,6 @@
 # Asyncio Timer
 
-[![QA](https://github.com/Kolyunya/aiotimer/actions/workflows/qa.yaml/badge.svg)](https://github.com/Kolyunya/aiotimer/actions/workflows/qa.yaml)
+[![QA](https://github.com/Kolyunya/aiotimer/actions/workflows/qa.yaml/badge.svg)](https://github.com/Kolyunya/aiotimer/actions/workflows/qa.yaml) [![codecov](https://codecov.io/github/Kolyunya/aiotimer/graph/badge.svg?token=XTSKV4Q8CR)](https://codecov.io/github/Kolyunya/aiotimer)
 
 An asynchronous timer with a human-friendly API and rich functionality.
 

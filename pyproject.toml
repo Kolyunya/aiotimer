@@ -19,6 +19,7 @@ development = [
     "pyright ~=1.1",
     "pytest ~=8.4",
     "pytest_asyncio ~=1.2",
+    "pytest-cov ~=7.1",
     "pytest_retry ~=1.7",
     "ruff ~=0.15",
     "ty ~=0.0.38",

@@ -10,3 +10,7 @@
 
 # Python cache
 __pycache__
+
+# Test coverage
+/.coverage
+/coverage.xml
