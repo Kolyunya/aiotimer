@@ -3,11 +3,11 @@ from unittest.mock import AsyncMock, Mock
 
 from pytest import mark
 
-from aiotimer.callback import AsyncExecutor, Callback, SyncExecutor
+from aiotimer.callback import Callback, SyncExecutor
 
 
 @mark.asyncio
-async def test_sync_executor_executes_a_callback() -> None:
+async def test_calls_a_sync_callback() -> None:
     # Arrange
     callback = Mock()
     executor = SyncExecutor(
@@ -24,10 +24,10 @@ async def test_sync_executor_executes_a_callback() -> None:
 
 
 @mark.asyncio
-async def test_async_executor_executes_a_callback() -> None:
+async def test_awaits_an_async_callback() -> None:
     # Arrange
     callback = AsyncMock()
-    executor = AsyncExecutor(
+    executor = SyncExecutor(
         error_handler=Mock(),
         error_factory=Mock(),
     )

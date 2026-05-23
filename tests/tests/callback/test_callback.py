@@ -7,16 +7,6 @@ from aiotimer.event import TimerEvent
 
 
 @mark.asyncio
-async def test_callback_is_set() -> None:
-    # Arrange
-    callback = Callback[TimerEvent](Mock())
-
-    # Assert
-    assert callback.is_set is True
-    assert callback.is_missing is False
-
-
-@mark.asyncio
 async def test_callback_is_missing() -> None:
     # Arrange
     callback = Callback[TimerEvent](None)
@@ -24,6 +14,16 @@ async def test_callback_is_missing() -> None:
     # Assert
     assert callback.is_missing is True
     assert callback.is_set is False
+
+
+@mark.asyncio
+async def test_callback_is_set() -> None:
+    # Arrange
+    callback = Callback[TimerEvent](Mock())
+
+    # Assert
+    assert callback.is_set is True
+    assert callback.is_missing is False
 
 
 @mark.asyncio
