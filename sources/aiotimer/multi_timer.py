@@ -192,9 +192,6 @@ class MultiTimer(TimerInterface):
 
                 await sleep(self.__precision)
 
-        except CancelledError:
-            pass
-
         except Exception as error:
             await self.__invoke_error_event(error)
 
