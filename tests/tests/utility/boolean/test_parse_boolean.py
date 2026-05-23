@@ -14,8 +14,7 @@ from aiotimer.utility.boolean import parse_boolean
     'False',
 ])
 def test_false(string: str) -> None:
-    boolean = (
-        parse_boolean(string))
+    boolean = parse_boolean(string)
 
     assert boolean is False
 

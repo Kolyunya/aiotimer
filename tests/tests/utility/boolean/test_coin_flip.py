@@ -8,7 +8,7 @@ def test_coin_flip() -> None:
     heads_count = 0
     tails_count = 0
 
-    for _ in range(100):
+    for _ in range(1, 100):
         result = coin_flip()
 
         if result:
@@ -16,4 +16,4 @@ def test_coin_flip() -> None:
         else:
             tails_count += 1
 
-    assert heads_count == approx(tails_count, abs=25)
+    assert heads_count == approx(tails_count, 0.25)
