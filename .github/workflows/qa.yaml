@@ -1,11 +1,11 @@
-name: Test
+name: QA
 
 on:
     push:
     pull_request:
 
 jobs:
-    test:
+    qa:
         runs-on: ubuntu-latest
 
         strategy:

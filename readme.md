@@ -1,5 +1,7 @@
 # Asyncio Timer
 
+[![QA](https://github.com/Kolyunya/aiotimer/actions/workflows/qa.yaml/badge.svg)](https://github.com/Kolyunya/aiotimer/actions/workflows/qa.yaml)
+
 An asynchronous timer with a human-friendly API and rich functionality.
 
 * State management with `start()`, `stop()`, and `reset()` methods.
