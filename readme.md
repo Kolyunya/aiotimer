@@ -169,25 +169,34 @@ never()
 
 ## Event system
 All event handlers **must** comply with the following API contract. Non-compliant event handlers result in undefined behavior.
-* Event handler **may** be either:
-  * Synchronous callable.
-  * Asynchronous callable.
 * Event handler **must** have either:
     * Zero parameters.
     * Exactly one positional parameter accepting the corresponding event object type.
-* Event handler **should not** return any values because they will be ignored and discarded by the timer.
 * An event handler's signature **must not** be modified at runtime after registration with the timer object.
+* Event handler **should not** return any values because they will be ignored and discarded by the timer.
+* Event handler **may** be either:
+  * Synchronous callable.
+  * Asynchronous callable.
+
+> All event objects have a `timer` property that references the timer object that fired the event.
 
 > Any public method of a timer object may be safely called from any event handler. The internal timer architecture prevents any race conditions and deadlocks from occurring. 
 
-### Interval complete event
-This event is fired each time any interval of a timer is complete. An `on_interval_complete` handler **_may_** optionally accept an [`IntervalCompleteEvent`](sources/aiotimer/event/interval_complete_event.py) object.
-
 ### Timer complete event
-This event is fired each time the last interval of a timer is complete. An `on_timer_complete` handler **_may_** optionally accept a [`TimerCompleteEvent`](sources/aiotimer/event/timer_complete_event.py) object.
+This event is fired each time the last interval of a timer is complete. An `on_timer_complete` handler **_may_** optionally accept a [`TimerCompleteEvent`](sources/aiotimer/event/timer_complete_event.py) object. Events of this type have the following properties:
+* `timer: Timer|MultiTimer`
+* `interval_count: int`
+
+### Interval complete event
+This event is fired each time any interval of a timer is complete. An `on_interval_complete` handler **_may_** optionally accept an [`IntervalCompleteEvent`](sources/aiotimer/event/interval_complete_event.py) object. Events of this type have the following properties:
+* `timer: MultiTimer`
+* `interval_number: int`
+* `interval_duration: float`
 
 ### Error event
-This event is fired each time any exception is propagated from any of the event handlers described above. Additionally, it is fired when an exception occurs inside a system coroutine of a timer. An `on_error` handler **_may_** optionally accept an [`ErrorEvent`](sources/aiotimer/event/error_event.py) object.
+This event is fired each time any exception is propagated from any of the event handlers described above. Additionally, it is fired when an exception occurs inside a system coroutine of a timer. An `on_error` handler **_may_** optionally accept an [`ErrorEvent`](sources/aiotimer/event/error_event.py) object. Events of this type have the following properties:
+* `timer: Timer|MultiTimer`
+* `error: Exception`
 
 ## Advanced usage
 
