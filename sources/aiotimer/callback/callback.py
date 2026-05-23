@@ -3,7 +3,7 @@ from inspect import isawaitable
 from typing import Generic, Optional, cast
 
 from ..event import EventType
-from ..utility.callback.has_parameters import has_parameters
+from ..utility.function.has_parameters import has_parameters
 from .user_callback import (
     ParameterizedUserCallback,
     ParameterlessUserCallback,
