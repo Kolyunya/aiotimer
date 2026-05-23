@@ -9,6 +9,7 @@ from asyncio import (
     create_task,
     sleep,
 )
+from collections.abc import Awaitable
 from contextlib import suppress
 from typing import TYPE_CHECKING, Optional
 
@@ -41,8 +42,6 @@ from .state import (
 from .timer_interface import TimerInterface
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable
-
     from .callback import (
         OnError,
         OnIntervalComplete,
@@ -80,7 +79,7 @@ class MultiTimer(TimerInterface):
 
         self.__state: State = InitialState()
         self.__advance_task: Optional[Task[None]] = None
-        self.__callbacks: Queue[Awaitable[None]] = Queue()
+        self.__callbacks: Queue[Awaitable[None]] = Queue[Awaitable[None]]()
 
         self.__executor: Executor
         self.__initialize_executor(await_callbacks=await_callbacks)
