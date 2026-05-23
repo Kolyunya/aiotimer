@@ -16,7 +16,7 @@ def test_durations_generator_must_not_be_degenerate() -> None:
         next(generator)
 
     # Assert
-    assert str(error.value) == 'The interval generator yielded no values'
+    assert str(error.value) == 'The interval generator must yield at least one value'
 
 
 def test_forever() -> None:

@@ -24,7 +24,7 @@ from .callback import (
 from .error import (
     EmptyGeneratorError,
     InvalidPrecisionError,
-    MissingEventHandlerError,
+    MissingCallbackError,
 )
 from .event import (
     ErrorEvent,
@@ -305,7 +305,7 @@ class MultiTimer(TimerInterface):
             on_interval: Optional[OnIntervalComplete],
     ) -> None:
         if not on_complete and not on_interval:
-            raise MissingEventHandlerError
+            raise MissingCallbackError
 
     @classmethod
     def __validate_precision(cls, precision: float) -> None:

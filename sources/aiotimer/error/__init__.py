@@ -1,5 +1,5 @@
+from .callback_error import MissingCallbackError
 from .duration_error import InvalidDurationError
-from .event_handler_error import MissingEventHandlerError
 from .generator_error import EmptyGeneratorError
 from .precision_error import InvalidPrecisionError
 from .state_error import InvalidStateError, InvalidStateNameError
@@ -15,6 +15,6 @@ __all__ = [
     'InvalidPrecisionError',
     'InvalidStateError',
     'InvalidStateNameError',
-    'MissingEventHandlerError',
+    'MissingCallbackError',
     'TimerError',
 ]
