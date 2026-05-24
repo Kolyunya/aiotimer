@@ -10,6 +10,7 @@ An asynchronous timer with a human-friendly API and rich functionality.
 * Multi-interval configuration when a timer runs multiple times with a predefined schedule pattern.
 * Looping capabilities for continuously running timers.
 * Rich callback system enabling hooking into the timer lifecycle events.
+* Synchronous and asynchronous callback modes.
 * Concurrency-safe architecture designed to prevent race conditions and deadlocks.
 * Support for a wide range of Python versions from `3.9` onward.
 * Zero third-party dependencies.
@@ -200,6 +201,15 @@ This event is fired each time any exception is propagated from any of the event 
 * `error: Exception`
 
 ## Advanced usage
+
+### Sync and Async callbacks
+Use the `await_callbacks` parameter of the `MultiTimer` constructor to control the way the callbacks are handled.
+
+In the sync mode (`await_callbacks == True`) the next interval would not start until the `on_interval_complete` callback finishes execution.
+
+In the async mode (`await_callbacks == False`) the next interval would start immediately after the previous one completes.
+
+> Both modes support `def`, `async def` as well as any other types of [compatible callables](#event-system). It's perfectly fine to use `def` in the async mode and `async def` in sync mode.
 
 ### Configuring precision
 The timer class has a configurable `precision: float` parameter. It represents the amount of seconds a timer would idle between its system ticks.
