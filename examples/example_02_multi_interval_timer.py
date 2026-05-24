@@ -1,7 +1,7 @@
 from asyncio import run, sleep
 
 from aiotimer import MultiTimer
-from aiotimer.interval import once, repeatedly
+from aiotimer.duration import once, repeatedly
 
 
 async def main() -> None:

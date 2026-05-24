@@ -9,3 +9,10 @@ class InvalidDurationError(InvalidConfigurationError):
         if not message:
             message = 'The duration must be a positive number or zero'
         super().__init__(message)
+
+
+class EmptyDurationIterableError(InvalidConfigurationError):
+
+    def __init__(self) -> None:
+        message = 'Duration iterable must have at least one value'
+        super().__init__(message)

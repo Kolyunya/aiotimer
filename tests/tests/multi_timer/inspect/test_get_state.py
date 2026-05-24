@@ -4,7 +4,7 @@ from unittest.mock import Mock
 from pytest import mark
 
 from aiotimer import MultiTimer
-from aiotimer.interval import once
+from aiotimer.duration import once
 from aiotimer.state import CompleteState, InitialState, RunningState, StoppedState
 
 

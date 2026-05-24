@@ -4,7 +4,7 @@ from unittest.mock import Mock
 from pytest import approx, mark
 
 from aiotimer import MultiTimer
-from aiotimer.interval import forever, once
+from aiotimer.duration import forever, once
 from aiotimer.state.stopped_state import StoppedState
 
 

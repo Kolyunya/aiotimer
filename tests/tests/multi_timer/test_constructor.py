@@ -4,17 +4,21 @@ from unittest.mock import Mock
 from pytest import mark, raises
 
 from aiotimer import MultiTimer
-from aiotimer.error import InvalidConfigurationError, InvalidDurationError
+from aiotimer.duration import never, once
+from aiotimer.error import (
+    EmptyDurationIterableError,
+    InvalidConfigurationError,
+    InvalidDurationError,
+)
 from aiotimer.event import ErrorEvent
-from aiotimer.interval import never, once
 
 
 @mark.asyncio
-async def test_interval_generator_must_not_be_empty() -> None:
-    with raises(InvalidConfigurationError) as error:
+async def test_intervals_must_not_be_empty() -> None:
+    with raises(EmptyDurationIterableError) as error:
         MultiTimer(never(), Mock())
 
-    assert str(error.value) == 'The interval generator must yield at least one value'
+    assert str(error.value) == 'Duration iterable must have at least one value'
 
 
 @mark.asyncio

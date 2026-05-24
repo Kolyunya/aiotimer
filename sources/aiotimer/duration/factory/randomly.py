@@ -1,20 +1,20 @@
 import random
 
 from ...error import InvalidDurationError
-from .generator import IntervalGenerator, IntervalGeneratorFactory
+from ..duration import Durations, DurationsFactory
 
 
 def randomly(
     minimum: float,
     maximum: float,
-) -> IntervalGeneratorFactory:
+) -> DurationsFactory:
     if minimum >= maximum:
         raise InvalidDurationError('The minimum duration must be less than the maximum duration')
 
     if minimum <= 0 or maximum <= 0:
         raise InvalidDurationError('Duration boundaries must be positive')
 
-    def factory() -> IntervalGenerator:
+    def factory() -> Durations:
         duration = random.uniform(minimum, maximum)
         yield duration
 

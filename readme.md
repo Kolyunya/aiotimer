@@ -20,14 +20,15 @@ An asynchronous timer with a human-friendly API and rich functionality.
   * [Multi-interval timer](#multi-interval-timer)
   * [Other usage examples](#other-usage-examples)
 * [States and transitions](#states-and-transitions)
-* [Interval Generator Factories](#interval-generator-factories)
+* [Duration Factories](#duration-factories)
 * [Event system](#event-system)
   * [Interval complete event](#interval-complete-event)
   * [Timer complete event](#timer-complete-event)
   * [Error event](#error-event)
 * [Advanced usage](#advanced-usage)
   * [Configuring precision](#configuring-precision) 
-  * [Custom intervals](#custom-intervals)
+  * [Custom duration factories
+](#custom-duration-factories)
 * [Contributing](#contributing)
 
 ## Basic usage
@@ -38,7 +39,7 @@ An asynchronous timer with a human-friendly API and rich functionality.
 from asyncio import run, sleep
 
 from aiotimer import Timer
-from aiotimer.interval import once
+from aiotimer.duration import once
 
 
 async def main() -> None:
@@ -64,7 +65,7 @@ if __name__ == '__main__':
 from asyncio import run, sleep
 
 from aiotimer import MultiTimer
-from aiotimer.interval import thrice
+from aiotimer.duration import thrice
 
 
 async def main() -> None:
@@ -101,13 +102,11 @@ This design is used as a defensive programming technique that helps catch any lo
 
 ![](.assets/state-diagram.png)
 
-## Interval Generator Factories
-[Interval Generator Factories](sources/aiotimer/interval/generator) (IGFs) are responsible for the making of Interval Generators. Which in turn are responsible for the generation of interval durations for timers. 
-
-There are many built-in IGFs that should cover the majority of common use cases.
+## Duration Factories
+[`Duration Factories`](sources/aiotimer/interval/factory) are responsible for generating durations for [`Multi Timers`](sources/aiotimer/multi_timer.py).  There are many built-in duration factories that should cover the majority of common use cases.
 
 ```python
-from aiotimer.interval import *
+from aiotimer.duration import *
 
 # Generates 1 interval of 5 seconds.
 once(5)
@@ -167,7 +166,7 @@ immediately_then(thrice(5))
 never()
 ```
 
-> If you believe some type of Interval Generator Factory is missing, feel free to submit an issue or a pull request.
+> If you believe some type of duration factory is missing, feel free to submit an issue or a pull request.
 
 ## Event system
 All event handlers **must** comply with the following API contract. Non-compliant event handlers result in undefined behavior.
@@ -209,30 +208,36 @@ For adequate accuracy, it is recommended to have the precision value configured 
 
 At the same time, having the precision configured to an extremely low value (e.g. `0.001`) may yield a high CPU load.
 
-### Custom intervals
-The first argument to the timer constructor is an [`Interval Generator Factory`](sources/aiotimer/interval/generator/generator.py). In other words, it is a callable that returns a generator that yields interval durations.
+### Custom duration factories
+Creating a custom duration factory is pretty straightforward. It is basically a callable that returns an `Iterable[float]` object.
 
-> This design decision is required to support multiple functionalities.
+> This design is required to support the following features.
+> * Perpetually running `MultiTimer` which requires an infinite `Generator` for durations.
+> * The `reset()` method which requires a new instance of the duration `Generator`.
 >
-> A regular list of interval durations could not be used because this would not allow having an infinite number of intervals.
->
-> A regular generator object could not be used because it could not be reset to its initial state, which is required to support the `timer.reset()` functionality.
+> A factory allows timer to create a new instance of a duration generator after a reset.
 
 ```python
 from asyncio import run, sleep
 
 from aiotimer import MultiTimer
+from aiotimer.event import IntervalCompleteEvent, TimerCompleteEvent
 
 
 async def main() -> None:
-  # The simplest form of the Interval Generator Factory.
-  intervals = lambda: (duration for duration in [1, 2, 3])
+    duration_factory = lambda: [1, 2, 3]
 
-  timer = MultiTimer(intervals, lambda: print('6 seconds passed'))
-  await timer.start()
+    def on_timer_complete() -> None:
+        print(f'Timer complete after 6 seconds')
 
-  # Add an extra second of sleep to avoid a race condition.
-  await sleep(6 + 1)
+    timer = MultiTimer(
+        duration_factory,
+        on_timer_complete,
+    )
+    await timer.start()
+
+    # Wait for the timer to complete.
+    await sleep(6 + 0.1)
 
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ from asyncio import (
     create_task,
     sleep,
 )
-from collections.abc import Awaitable
+from collections.abc import Awaitable, Iterator
 from contextlib import suppress
 from typing import TYPE_CHECKING, Optional
 
@@ -22,7 +22,7 @@ from .callback import (
     SyncExecutor,
 )
 from .error import (
-    EmptyGeneratorError,
+    EmptyDurationIterableError,
     InvalidPrecisionError,
     MissingCallbackError,
 )
@@ -47,17 +47,14 @@ if TYPE_CHECKING:
         OnIntervalComplete,
         OnTimerComplete,
     )
-    from .interval import (
-        IntervalGenerator,
-        IntervalGeneratorFactory,
-    )
+    from .duration import DurationsFactory
 
 
 class MultiTimer(TimerInterface):
 
     def __init__(
         self,
-        interval_generator_factory: IntervalGeneratorFactory,
+        durations_factory: DurationsFactory,
         on_timer_complete: Optional[OnTimerComplete] = None,
         on_interval_complete: Optional[OnIntervalComplete] = None,
         on_error: Optional[OnError] = None,
@@ -68,7 +65,7 @@ class MultiTimer(TimerInterface):
         self.__validate_event_handlers(on_timer_complete, on_interval_complete)
         self.__validate_precision(precision)
 
-        self.__interval_generator_factory = interval_generator_factory
+        self.__durations_factory = durations_factory
         self.__on_timer_complete = Callback(on_timer_complete)
         self.__on_interval_complete = Callback(on_interval_complete)
         self.__on_error = Callback(on_error)
@@ -84,12 +81,12 @@ class MultiTimer(TimerInterface):
         self.__executor: Executor
         self.__initialize_executor(await_callbacks=await_callbacks)
 
-        self.__interval_generator: IntervalGenerator
-        self.__initialize_interval_generator()
+        self.__duration_iterator: Iterator[float]
+        self.__initialize_duration_iterator()
 
         self.__interval: Interval
         if not self.__initialize_next_interval(reset=True):
-            raise EmptyGeneratorError
+            raise EmptyDurationIterableError
 
     @override
     async def start(self) -> None:
@@ -112,9 +109,9 @@ class MultiTimer(TimerInterface):
             self.__state = InitialState()
             await self.__stop_advancement()
 
-            self.__initialize_interval_generator()
+            self.__initialize_duration_iterator()
             if not self.__initialize_next_interval(reset=True):
-                raise EmptyGeneratorError
+                raise EmptyDurationIterableError
 
     @override
     async def set(self, duration: float) -> None:
@@ -211,14 +208,17 @@ class MultiTimer(TimerInterface):
             self.__make_error_event,
         )
 
-    def __initialize_interval_generator(self) -> None:
-        self.__interval_generator = self.__interval_generator_factory()
+    def __initialize_duration_iterator(self) -> None:
+        iterable = self.__durations_factory()
+        iterator = iter(iterable)
+
+        self.__duration_iterator = iterator
 
     def __initialize_next_interval(self, *, reset: bool = False) -> bool:
         success = False
 
         try:
-            duration = next(self.__interval_generator)
+            duration = next(self.__duration_iterator)
 
             if reset:
                 number = 1

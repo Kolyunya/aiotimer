@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
-from .interval import once
+from .duration import once
 from .multi_timer import MultiTimer
 
 if TYPE_CHECKING:

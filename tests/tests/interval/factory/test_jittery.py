@@ -1,7 +1,7 @@
 from pytest import approx, raises
 
+from aiotimer.duration import jittery, once, repeatedly, thrice
 from aiotimer.error import InvalidConfigurationError
-from aiotimer.interval import jittery, once, repeatedly, thrice
 
 
 def test_relative_jitter_can_not_be_negative() -> None:
@@ -35,25 +35,23 @@ def test_can_not_specify_zero_types_of_jitter() -> None:
 def test_jittery_duration_must_be_positive() -> None:
     # Arrange
     factory = jittery(repeatedly(once(1), 100), absolute=2)
-    generator = factory()
 
     # Act
     with raises(InvalidConfigurationError) as error:
-        list(generator)
+        list(factory())
 
     assert str(error.value) == 'Jittery duration is less than or equals zero'
 
 
 def test_relative_jitter() -> None:
-    interval_factory = repeatedly(once(10), 42)
-    generator_factory = jittery(interval_factory, relative=0.1)
-    generator = generator_factory()
+    base_factory = repeatedly(once(10), 42)
+    jittery_factory = jittery(base_factory, relative=0.1)
 
     intervals = 0
     positive_jitter_generated = False
     negative_jitter_generated = False
 
-    for duration in generator:
+    for duration in jittery_factory():
         intervals += 1
 
         if duration > 10:
@@ -70,15 +68,14 @@ def test_relative_jitter() -> None:
 
 
 def test_absolute_jitter() -> None:
-    interval_factory = repeatedly(once(10), 42)
-    generator_factory = jittery(interval_factory, absolute=1)
-    generator = generator_factory()
+    base_factory = repeatedly(once(10), 42)
+    jittery_factory = jittery(base_factory, absolute=1)
 
     intervals = 0
     positive_jitter_generated = False
     negative_jitter_generated = False
 
-    for duration in generator:
+    for duration in jittery_factory():
         intervals += 1
 
         if duration > 10:
