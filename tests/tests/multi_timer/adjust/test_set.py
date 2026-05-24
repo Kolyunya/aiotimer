@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 from pytest import mark, raises
 
-from aiotimer import MultiTimer, Timer
+from aiotimer import MultiTimer
 from aiotimer.error import InvalidConfigurationError
 from aiotimer.interval import once
 
@@ -51,7 +51,7 @@ async def test_can_set_duration_to_positive_number() -> None:
 async def test_can_change_duration_after_starting() -> None:
     # Arrange
     on_complete = Mock()
-    timer = Timer(42, on_complete)
+    timer = MultiTimer(once(42), on_complete)
 
     # Act
     await timer.start()
