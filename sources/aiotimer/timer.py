@@ -25,5 +25,4 @@ class Timer(MultiTimer):
             on_timer_complete=on_timer_complete,
             on_interval_complete=None,
             on_error=on_error,
-            await_callbacks=True,
         )
