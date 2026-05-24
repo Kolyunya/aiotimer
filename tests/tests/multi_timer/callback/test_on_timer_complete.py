@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, Mock
 from pytest import mark
 
 from aiotimer import MultiTimer
-from aiotimer.interval import thrice
+from aiotimer.duration import thrice
 
 
 @mark.asyncio

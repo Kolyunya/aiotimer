@@ -2,8 +2,8 @@ from typing import Optional
 
 from pytest import mark, raises
 
+from aiotimer.duration import exponentially
 from aiotimer.error import InvalidConfigurationError
-from aiotimer.interval import exponentially
 
 
 @mark.parametrize(('interval_count', 'maximum_duration'), [
@@ -48,18 +48,16 @@ def test_maximum_duration_must_be_greater_than_one(maximum_duration: float) -> N
 
 
 def test_exponentially_with_interval_count() -> None:
-    generator_factory = exponentially(interval_count=5)
-    generator = generator_factory()
+    factory = exponentially(interval_count=5)
 
-    durations = list(generator)
+    durations = list(factory())
 
     assert durations == [1, 2, 4, 8, 16]
 
 
 def test_exponentially_with_maximum_duration() -> None:
-    generator_factory = exponentially(maximum_duration=300)
-    generator = generator_factory()
+    factory = exponentially(maximum_duration=300)
 
-    durations = list(generator)
+    durations = list(factory())
 
     assert durations == [1, 2, 4, 8, 16, 32, 64, 128, 256]

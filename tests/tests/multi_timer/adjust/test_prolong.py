@@ -3,8 +3,8 @@ from unittest.mock import Mock
 from pytest import mark, raises
 
 from aiotimer import MultiTimer
+from aiotimer.duration import once
 from aiotimer.error import InvalidDurationError
-from aiotimer.interval import once
 
 
 @mark.asyncio

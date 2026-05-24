@@ -1,7 +1,7 @@
 from pytest import approx, mark, raises
 
+from aiotimer.duration import randomly
 from aiotimer.error import InvalidConfigurationError
-from aiotimer.interval import randomly
 
 
 @mark.parametrize(('minimum', 'maximum'), [
@@ -34,12 +34,11 @@ def test_duration_boundaries_must_be_positive(
 
 def test_randomly() -> None:
     # Arrange
-    generator_factory = randomly(3, 5)
+    factory = randomly(3, 5)
 
     # Act
     for _ in range(100):
-        generator = generator_factory()
-        durations = list(generator)
+        durations = list(factory())
 
         assert len(durations) == 1
         assert durations[0] == approx(4, abs=1)

@@ -1,6 +1,5 @@
 from .callback_error import MissingCallbackError
-from .duration_error import InvalidDurationError
-from .generator_error import EmptyGeneratorError
+from .duration_error import EmptyDurationIterableError, InvalidDurationError
 from .precision_error import InvalidPrecisionError
 from .state_error import InvalidStateError, InvalidStateNameError
 from .timer_error import (
@@ -9,7 +8,7 @@ from .timer_error import (
 )
 
 __all__ = [
-    'EmptyGeneratorError',
+    'EmptyDurationIterableError',
     'InvalidConfigurationError',
     'InvalidDurationError',
     'InvalidPrecisionError',

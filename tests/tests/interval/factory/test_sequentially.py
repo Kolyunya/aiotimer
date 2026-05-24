@@ -1,7 +1,7 @@
 from pytest import raises
 
+from aiotimer.duration import sequentially
 from aiotimer.error import InvalidConfigurationError
-from aiotimer.interval import sequentially
 
 
 def test_durations_can_not_be_empty() -> None:
@@ -19,9 +19,8 @@ def test_durations_can_not_be_negative() -> None:
 
 
 def test_sequentially() -> None:
-    generator_factory = sequentially(1, 2, 4, 8, 16)
-    generator = generator_factory()
+    factory = sequentially(1, 2, 4, 8, 16)
 
-    durations = list(generator)
+    durations = list(factory())
 
     assert durations == [1, 2, 4, 8, 16]

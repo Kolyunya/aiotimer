@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock, Mock
 from pytest import mark
 
 from aiotimer import MultiTimer
+from aiotimer.duration import once, sequentially
 from aiotimer.event import IntervalCompleteEvent, TimerCompleteEvent
-from aiotimer.interval import once, sequentially
 from aiotimer.state import InitialState
 from tests.support.callback import EventData, assert_callback_awaited
 

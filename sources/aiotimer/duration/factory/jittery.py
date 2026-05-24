@@ -3,20 +3,18 @@ from typing import Optional
 
 from ...error import InvalidConfigurationError
 from ...utility.boolean import coin_flip
-from .generator import IntervalGenerator, IntervalGeneratorFactory
+from ..duration import Durations, DurationsFactory
 
 
 def jittery(
-    generator_factory: IntervalGeneratorFactory,
+    durations: DurationsFactory,
     relative: Optional[float] = None,
     absolute: Optional[float] = None,
-) -> IntervalGeneratorFactory:
+) -> DurationsFactory:
     __validate_jitter(relative, absolute)
 
-    def factory() -> IntervalGenerator:
-        generator = generator_factory()
-
-        for duration in generator:
+    def factory() -> Durations:
+        for duration in durations():
             multiplier = 1 if coin_flip() else -1
 
             if relative is not None:

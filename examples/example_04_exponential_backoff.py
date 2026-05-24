@@ -1,10 +1,8 @@
 from asyncio import run, sleep
-from contextlib import suppress
 
 from aiotimer import MultiTimer
-from aiotimer.error import InvalidStateError
+from aiotimer.duration import exponentially, immediately_then
 from aiotimer.event import ErrorEvent, IntervalCompleteEvent
-from aiotimer.interval import exponentially, immediately_then
 
 
 async def main() -> None:
@@ -26,8 +24,7 @@ async def main() -> None:
             raise RuntimeError(error)
 
         print(f'HTTP request succeeded after {duration} seconds.')
-        with suppress(InvalidStateError):
-            await event.timer.stop()
+        await event.timer.reset()
 
     async def on_error(event: ErrorEvent) -> None:
         print(event.error)
@@ -41,7 +38,7 @@ async def main() -> None:
     print('The timer is running.')
 
     # Wait for the timer to complete.
-    await sleep(10)
+    await sleep(7 + 0.1)
 
 
 if __name__ == '__main__':

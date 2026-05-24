@@ -1,15 +1,15 @@
 from ...error import InvalidDurationError
-from .generator import IntervalGenerator, IntervalGeneratorFactory
+from ..duration import Durations, DurationsFactory
 
 
-def sequentially(*durations: float) -> IntervalGeneratorFactory:
+def sequentially(*durations: float) -> DurationsFactory:
     if len(durations) == 0:
         raise InvalidDurationError('Duration sequence must not be empty')
 
     if any(duration < 0 for duration in durations):
         raise InvalidDurationError
 
-    def factory() -> IntervalGenerator:
+    def factory() -> Durations:
         yield from durations
 
     return factory

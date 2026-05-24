@@ -1,8 +1,8 @@
 from asyncio import run, sleep
 
 from aiotimer import MultiTimer
+from aiotimer.duration import thrice
 from aiotimer.event import ErrorEvent
-from aiotimer.interval import thrice
 
 
 async def main() -> None:

@@ -1,18 +1,18 @@
 from typing import Optional
 
 from ...error import InvalidConfigurationError, InvalidDurationError
-from .generator import IntervalGenerator, IntervalGeneratorFactory
+from ..duration import Durations, DurationsFactory
 
 
 def exponentially(
     base: int = 2,
     interval_count: Optional[int] = None,
     maximum_duration: Optional[float] = None,
-) -> IntervalGeneratorFactory:
+) -> DurationsFactory:
     __validate_base(base)
     __validate_limits(interval_count, maximum_duration)
 
-    def factory() -> IntervalGenerator:
+    def factory() -> Durations:
         interval_numer = 0
 
         while True:
