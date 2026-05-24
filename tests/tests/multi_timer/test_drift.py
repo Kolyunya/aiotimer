@@ -14,7 +14,7 @@ async def test_one_long_interval_produces_no_drift(duration: int) -> None:
     # Arrange
     timer_is_complete = False
 
-    async def on_complete() -> None:
+    def on_complete() -> None:
         end_time = perf_counter()
         elapsed_time = end_time - start_time
         assert elapsed_time == approx(duration, abs=0.01)
@@ -46,7 +46,7 @@ async def test_many_short_intervals_produce_no_drift_profile(duration: int) -> N
     # Arrange
     timer_is_complete = False
 
-    async def on_complete() -> None:
+    def on_complete() -> None:
         end_time = perf_counter()
         elapsed_time = end_time - start_time
         assert elapsed_time == approx(duration, abs=1.00)
