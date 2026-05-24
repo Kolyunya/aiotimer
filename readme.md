@@ -27,9 +27,11 @@ An asynchronous timer with a human-friendly API and rich functionality.
   * [Timer complete event](#timer-complete-event)
   * [Error event](#error-event)
 * [Advanced usage](#advanced-usage)
+  * [Sync and Async callbacks
+](#sync-and-async-callbacks)
   * [Configuring precision](#configuring-precision) 
   * [Custom duration factories
-](#custom-duration-factories)
+  ](#custom-duration-factories)
 * [Contributing](#contributing)
 
 ## Basic usage
