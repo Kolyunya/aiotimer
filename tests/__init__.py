@@ -1,6 +1,6 @@
 from beartype import BeartypeConf
-from beartype.claw import beartype_this_package
+from beartype.claw import beartype_all
 
-beartype_this_package(conf=BeartypeConf(
+beartype_all(conf=BeartypeConf(
     is_pep484_tower=True,
 ))
