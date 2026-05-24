@@ -11,18 +11,7 @@ def jittery(
     relative: Optional[float] = None,
     absolute: Optional[float] = None,
 ) -> IntervalGeneratorFactory:
-    if (
-        (relative is not None and absolute is not None)
-        or
-        (relative is None and absolute is None)
-    ):
-        raise InvalidConfigurationError('Exactly one type of jitter must be specified')
-
-    if relative is not None and relative < 0:
-        raise InvalidConfigurationError('Relative jitter can not be negative')
-
-    if absolute is not None and absolute < 0:
-        raise InvalidConfigurationError('Absolute jitter can not be negative')
+    __validate_jitter(relative, absolute)
 
     def factory() -> IntervalGenerator:
         generator = generator_factory()
@@ -46,3 +35,21 @@ def jittery(
             yield jittery_duration
 
     return factory
+
+
+def __validate_jitter(
+    relative: Optional[float],
+    absolute: Optional[float],
+) -> None:
+    if (
+        (relative is not None and absolute is not None)
+        or
+        (relative is None and absolute is None)
+    ):
+        raise InvalidConfigurationError('Exactly one type of jitter must be specified')
+
+    if relative is not None and relative < 0:
+        raise InvalidConfigurationError('Relative jitter can not be negative')
+
+    if absolute is not None and absolute < 0:
+        raise InvalidConfigurationError('Absolute jitter can not be negative')
