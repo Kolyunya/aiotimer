@@ -41,7 +41,7 @@ async def test_precision_must_be_positive(precision: float) -> None:
 @mark.asyncio
 async def test_first_duration_must_be_non_negative() -> None:
     # Arrange
-    intervals = lambda: (_ for _ in [-0.1])
+    intervals = lambda: [-0.1]
 
     # Act
     with raises(InvalidConfigurationError) as error:
@@ -54,7 +54,7 @@ async def test_first_duration_must_be_non_negative() -> None:
 @mark.asyncio
 async def test_all_durations_must_be_non_negative() -> None:
     # Arrange
-    intervals = lambda: (_ for _ in [0.1, -0.1])
+    intervals = lambda: [0.1, -0.1]
     on_error = Mock()
 
     timer = MultiTimer(
