@@ -11,14 +11,12 @@ async def main() -> None:
     """
 
     http_request_results = [False, False, False, True]
-    http_request_result_generator = (
-        success for success in http_request_results
-    )
+    http_request_result_iterator = iter(http_request_results)
 
     async def send_http_request(event: IntervalCompleteEvent) -> None:
         duration = event.interval_duration
 
-        result = next(http_request_result_generator)
+        result = next(http_request_result_iterator)
         if not result:
             error = f'HTTP request failed after {duration} seconds.'
             raise RuntimeError(error)
