@@ -8,7 +8,20 @@ from aiotimer.error import InvalidDurationError
 
 
 @mark.asyncio
-async def test_can_prolong_duration() -> None:
+async def test_can_not_prolong_duration_to_negative_number() -> None:
+    # Arrange
+    timer = MultiTimer(once(42), Mock())
+
+    # Act
+    with raises(InvalidDurationError) as error:
+        await timer.prolong(-142)
+
+    # Assert
+    assert str(error.value) == 'The duration must be a positive number or zero'
+
+
+@mark.asyncio
+async def test_can_prolong_duration_to_positive_number() -> None:
     # Arrange
     timer = MultiTimer(once(42), Mock())
 
@@ -31,16 +44,3 @@ async def test_can_prolong_duration_to_zero() -> None:
 
     # Assert
     assert duration == 0
-
-
-@mark.asyncio
-async def test_can_not_prolong_duration_to_negative_number() -> None:
-    # Arrange
-    timer = MultiTimer(once(42), Mock())
-
-    # Act
-    with raises(InvalidDurationError) as error:
-        await timer.prolong(-142)
-
-    # Assert
-    assert str(error.value) == 'The duration must be a positive number or zero'

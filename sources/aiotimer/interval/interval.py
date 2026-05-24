@@ -1,4 +1,4 @@
-from time import monotonic
+from time import monotonic_ns
 from typing import Optional
 
 from ..error import (
@@ -6,6 +6,7 @@ from ..error import (
     InvalidDurationError,
     TimerError,
 )
+from ..utility.time import ns2s, s2ns
 
 
 class Interval:
@@ -19,13 +20,13 @@ class Interval:
         self.__validate_duration(duration)
 
         self.__number: int = number
-        self.__duration: float = duration
+        self.__duration: int = s2ns(duration)
 
-        self.__elapsed: float = 0
-        self.__advanced_at: Optional[float] = None
+        self.__elapsed: int = 0
+        self.__advanced_at: Optional[int] = None
 
     def start(self) -> None:
-        self.__advanced_at = monotonic()
+        self.__advanced_at = monotonic_ns()
 
     def stop(self) -> None:
         self.__advanced_at = None
@@ -34,7 +35,7 @@ class Interval:
         if self.__advanced_at is None:
             raise TimerError('Interval must be started before advancing')
 
-        now = monotonic()
+        now = monotonic_ns()
 
         elapsed = now - self.__advanced_at
         self.__elapsed += elapsed
@@ -42,12 +43,10 @@ class Interval:
         self.__advanced_at = now
 
     def prolong(self, delta: float) -> None:
-        duration = self.__duration + delta
-        self.duration = duration
+        self.__adjust(delta)
 
     def shorten(self, delta: float) -> None:
-        duration = self.__duration - delta
-        self.duration = duration
+        self.__adjust(-1 * delta)
 
     @property
     def number(self) -> int:
@@ -55,38 +54,47 @@ class Interval:
 
     @property
     def duration(self) -> float:
-        return self.__duration
+        return ns2s(self.__duration)
 
     @duration.setter
     def duration(self, value: float) -> None:
         self.__validate_duration(value)
-        self.__duration = value
+        self.__duration = s2ns(value)
 
     @property
     def remaining(self) -> float:
-        remaining = self.__duration - self.elapsed
+        remaining_ns = self.__duration - self.__elapsed
 
         # The timer may (and will) overshoot
         # more or less depending on the precision value.
         # Return zero in case of an overshoot.
-        remaining = max(remaining, 0)
+        remaining_ns = max(remaining_ns, 0)
 
-        return remaining
+        remaining_s = ns2s(remaining_ns)
+
+        return remaining_s
 
     @property
     def elapsed(self) -> float:
         # The timer may (and will) overshoot
         # more or less depending on the precision value.
         # Return the duration value in case of an overshoot.
-        elapsed = min(self.__elapsed, self.__duration)
+        elapsed_ns = min(self.__elapsed, self.__duration)
 
-        return elapsed
+        elapsed_s = ns2s(elapsed_ns)
+
+        return elapsed_s
 
     @property
     def is_complete(self) -> bool:
         is_complete = self.__elapsed >= self.__duration
 
         return is_complete
+
+    def __adjust(self, delta: float) -> None:
+        duration = self.__duration + s2ns(delta)
+        self.__validate_duration(duration)
+        self.__duration = duration
 
     @classmethod
     def __validate_number(cls, number: int) -> None:

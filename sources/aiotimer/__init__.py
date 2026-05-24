@@ -12,6 +12,6 @@ __all__ = [
 ]
 
 if parse_boolean(getenv('BEARTYPE', '')):
-    from beartype.claw import beartype_all
+    from beartype.claw import beartype_this_package
 
-    beartype_all()
+    beartype_this_package()
