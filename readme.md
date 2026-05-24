@@ -1,6 +1,6 @@
 # Asyncio Timer
 
-[![QA](https://github.com/Kolyunya/aiotimer/actions/workflows/qa.yaml/badge.svg)](https://github.com/Kolyunya/aiotimer/actions/workflows/qa.yaml) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Kolyunya_aiotimer&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Kolyunya_aiotimer) [![codecov](https://codecov.io/github/Kolyunya/aiotimer/graph/badge.svg?token=XTSKV4Q8CR)](https://codecov.io/github/Kolyunya/aiotimer)
+[![QA](https://github.com/Kolyunya/aiotimer/actions/workflows/qa.yaml/badge.svg)](https://github.com/Kolyunya/aiotimer/actions/workflows/qa.yaml) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Kolyunya_aiotimer&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Kolyunya_aiotimer) [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Kolyunya_aiotimer&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Kolyunya_aiotimer) [![codecov](https://codecov.io/github/Kolyunya/aiotimer/graph/badge.svg?token=XTSKV4Q8CR)](https://codecov.io/github/Kolyunya/aiotimer)
 
 An asynchronous timer with a human-friendly API and rich functionality.
 
