@@ -40,16 +40,7 @@ def main() -> None:
         ['ty', 'check', f'--config-file={path}/ty.toml', *sources],
         ['pylint', f'--rcfile={path}/pylint.ini', *sources],
         ['pyrefly', 'check', f'--config={path}/pyrefly.toml'],
-        [
-            'pytest',
-            f'--config-file={path}/pytest.ini',
-            f'-m={marks}',
-            '--capture=no',
-            '--cov',
-            '--cov-branch',
-            '--cov-report=xml',
-            'tests',
-        ],
+        ['pytest', f'--config-file={path}/pytest.ini', f'-m={marks}', 'tests'],
     ]
 
     success = True
