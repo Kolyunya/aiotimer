@@ -3,7 +3,7 @@ from typing import Optional
 
 from ..error import (
     InvalidConfigurationError,
-    InvalidDurationError,
+    NegativeDurationError,
     TimerError,
 )
 from ..utility.time import ns2s, s2ns
@@ -105,4 +105,4 @@ class Interval:
     @classmethod
     def __validate_duration(cls, duration: float) -> None:
         if duration < 0:
-            raise InvalidDurationError
+            raise NegativeDurationError

@@ -1,4 +1,5 @@
 from .duration import Durations, DurationsFactory
+from .duration_iterator import DurationIterator
 from .factory.exponentially import exponentially
 from .factory.forever import forever
 from .factory.immediately_then import immediately_then
@@ -12,6 +13,7 @@ from .factory.thrice import thrice
 from .factory.twice import twice
 
 __all__ = [
+    'DurationIterator',
     'Durations',
     'DurationsFactory',
     'exponentially',

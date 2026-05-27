@@ -4,7 +4,7 @@ from pytest import mark, raises
 
 from aiotimer import MultiTimer
 from aiotimer.duration import once
-from aiotimer.error import InvalidDurationError
+from aiotimer.error import NegativeDurationError
 
 
 @mark.asyncio
@@ -13,7 +13,7 @@ async def test_can_not_prolong_duration_to_negative_number() -> None:
     timer = MultiTimer(once(42), Mock())
 
     # Act
-    with raises(InvalidDurationError) as error:
+    with raises(NegativeDurationError) as error:
         await timer.prolong(-142)
 
     # Assert

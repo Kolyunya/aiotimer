@@ -1,6 +1,6 @@
 from typing import Optional
 
-from ...error import InvalidConfigurationError, InvalidDurationError
+from ...error import InvalidConfigurationError, NegativeDurationError
 from ..duration import Durations, DurationsFactory
 
 
@@ -33,7 +33,7 @@ def exponentially(
 
 def __validate_base(base: int) -> None:
     if base <= 1:
-        raise InvalidDurationError('Exponent base must be greater than one')
+        raise NegativeDurationError('Exponent base must be greater than one')
 
 
 def __validate_limits(
@@ -52,4 +52,4 @@ def __validate_limits(
         raise InvalidConfigurationError('Interval count must be greater than one')
 
     if maximum_duration is not None and maximum_duration <= 1:
-        raise InvalidDurationError('Maximum duration must be greater than one')
+        raise NegativeDurationError('Maximum duration must be greater than one')

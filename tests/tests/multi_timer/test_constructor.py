@@ -8,7 +8,7 @@ from aiotimer.duration import never, once
 from aiotimer.error import (
     EmptyDurationIterableError,
     InvalidConfigurationError,
-    InvalidDurationError,
+    NegativeDurationError,
 )
 from aiotimer.event import ErrorEvent
 
@@ -72,5 +72,5 @@ async def test_all_durations_must_be_non_negative() -> None:
 
     event = on_error.call_args_list[0].args[0]
     assert isinstance(event, ErrorEvent)
-    assert isinstance(event.error, InvalidDurationError)
+    assert isinstance(event.error, NegativeDurationError)
     assert str(event.error) == 'The duration must be a positive number or zero'
