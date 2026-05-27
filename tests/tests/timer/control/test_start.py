@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 from pytest import mark
 
-from aiotimer import MultiTimer
+from aiotimer import Timer
 from aiotimer.duration import once
 
 
@@ -17,7 +17,7 @@ async def test_can_restart_sequential_timer_from_on_complete() -> None:
     Expected a total of 3 calls to `on_complete`.
     """
     # Arrange
-    timer: MultiTimer
+    timer: Timer
     complete = Mock()
 
     async def on_complete() -> None:
@@ -26,7 +26,7 @@ async def test_can_restart_sequential_timer_from_on_complete() -> None:
             await timer.reset()
             await timer.start()
 
-    timer = MultiTimer(once(0.1), on_complete)
+    timer = Timer(once(0.1), on_complete)
 
     # Act
     await timer.start()

@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, Mock
 
 from pytest import mark
 
-from aiotimer import MultiTimer
+from aiotimer import Timer
 from aiotimer.duration import thrice
 
 
@@ -12,7 +12,7 @@ from aiotimer.duration import thrice
 async def test_sync_callback_is_called_after_completion(await_callbacks: bool) -> None:
     # Arrange
     on_complete = Mock()
-    timer = MultiTimer(
+    timer = Timer(
         thrice(0.1),
         on_complete,
         await_callbacks=await_callbacks,
@@ -31,7 +31,7 @@ async def test_sync_callback_is_called_after_completion(await_callbacks: bool) -
 async def test_async_callback_is_awaited_after_completion(await_callbacks: bool) -> None:
     # Arrange
     on_complete = AsyncMock()
-    timer = MultiTimer(
+    timer = Timer(
         thrice(0.1),
         on_complete,
         await_callbacks=await_callbacks,

@@ -51,7 +51,7 @@ async def main() -> None:
   Then will print a message.
   """
 
-  timer = Timer(3, lambda: print('3 seconds passed'))
+  timer = Timer(once(3), lambda: print('3 seconds passed'))
   await timer.start()
 
   # Wait for the timer to complete.
@@ -67,7 +67,7 @@ if __name__ == '__main__':
 ```python
 from asyncio import run, sleep
 
-from aiotimer import MultiTimer
+from aiotimer import Timer
 from aiotimer.duration import thrice
 
 
@@ -78,7 +78,7 @@ async def main() -> None:
   Then will print the final message after a total of 3 seconds.
   """
 
-  timer = MultiTimer(
+  timer = Timer(
     thrice(1),
     on_timer_complete=lambda: print('3 seconds passed'),
     on_interval_complete=lambda: print('1 more second passed'),
@@ -106,7 +106,7 @@ This design is used as a defensive programming technique that helps catch any lo
 ![](.assets/state-diagram.png)
 
 ## Duration Factories
-[`Duration Factories`](sources/aiotimer/interval/factory) are responsible for generating durations for [`Multi Timers`](sources/aiotimer/multi_timer.py).  There are many built-in duration factories that should cover the majority of common use cases.
+[`Duration Factories`](sources/aiotimer/interval/factory) are responsible for generating durations for [`Multi Timers`](sources/aiotimer/timer.py).  There are many built-in duration factories that should cover the majority of common use cases.
 
 ```python
 from aiotimer.duration import *
@@ -188,24 +188,24 @@ All event handlers **must** comply with the following API contract. Non-complian
 
 ### Timer complete event
 This event is fired each time the last interval of a timer is complete. An `on_timer_complete` handler **_may_** optionally accept a [`TimerCompleteEvent`](sources/aiotimer/event/timer_complete_event.py) object. Events of this type have the following properties:
-* `timer: Timer|MultiTimer`
+* `timer: Timer`
 * `interval_count: int`
 
 ### Interval complete event
 This event is fired each time any interval of a timer is complete. An `on_interval_complete` handler **_may_** optionally accept an [`IntervalCompleteEvent`](sources/aiotimer/event/interval_complete_event.py) object. Events of this type have the following properties:
-* `timer: MultiTimer`
+* `timer: Timer`
 * `interval_number: int`
 * `interval_duration: float`
 
 ### Error event
 This event is fired each time any exception is propagated from any of the event handlers described above. Additionally, it is fired when an exception occurs inside a system coroutine of a timer. An `on_error` handler **_may_** optionally accept an [`ErrorEvent`](sources/aiotimer/event/error_event.py) object. Events of this type have the following properties:
-* `timer: Timer|MultiTimer`
+* `timer: Timer`
 * `error: Exception`
 
 ## Advanced usage
 
 ### Sync and Async callbacks
-Use the `await_callbacks` parameter of the `MultiTimer` constructor to control the way the callbacks are handled.
+Use the `await_callbacks` parameter of the `Timer` constructor to control the way the callbacks are handled.
 
 In the sync mode (`await_callbacks == True`) the next interval would not start until the `on_interval_complete` callback finishes execution.
 
@@ -224,7 +224,7 @@ At the same time, having the precision configured to an extremely low value (e.g
 Creating a custom duration factory is pretty straightforward. It is basically a callable that returns an `Iterable[float]` object.
 
 > This design is required to support the following features.
-> * Perpetually running `MultiTimer` which requires an infinite `Generator` for durations.
+> * Perpetually running `Timer` which requires an infinite `Generator` for durations.
 > * The `reset()` method which requires a new instance of the duration `Generator`.
 >
 > A factory allows timer to create a new instance of a duration generator after a reset.
@@ -232,7 +232,7 @@ Creating a custom duration factory is pretty straightforward. It is basically a 
 ```python
 from asyncio import run, sleep
 
-from aiotimer import MultiTimer
+from aiotimer import Timer
 from aiotimer.event import IntervalCompleteEvent, TimerCompleteEvent
 
 
@@ -242,7 +242,7 @@ async def main() -> None:
     def on_timer_complete() -> None:
         print(f'Timer complete after 6 seconds')
 
-    timer = MultiTimer(
+    timer = Timer(
         duration_factory,
         on_timer_complete,
     )

@@ -1,6 +1,7 @@
 from asyncio import run, sleep
 
 from aiotimer import Timer
+from aiotimer.duration import once
 from aiotimer.event import TimerCompleteEvent
 
 
@@ -12,7 +13,7 @@ async def main() -> None:
     async def on_timer_complete(event: TimerCompleteEvent) -> None:
         print(f'Timer is complete in {event.elapsed:.3f} seconds.')
 
-    timer = Timer(1.00, on_timer_complete)
+    timer = Timer(once(1.00), on_timer_complete)
 
     await timer.start()
     print('The timer is running.')

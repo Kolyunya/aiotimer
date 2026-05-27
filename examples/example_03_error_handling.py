@@ -1,6 +1,6 @@
 from asyncio import run, sleep
 
-from aiotimer import MultiTimer
+from aiotimer import Timer
 from aiotimer.duration import thrice
 from aiotimer.event import ErrorEvent
 
@@ -19,7 +19,7 @@ async def main() -> None:
     async def on_error(event: ErrorEvent) -> None:
         print(f'An exception was handled: {event.error!r}.')
 
-    timer = MultiTimer(
+    timer = Timer(
         thrice(1),
         on_timer_complete=on_complete,
         on_interval_complete=on_interval,

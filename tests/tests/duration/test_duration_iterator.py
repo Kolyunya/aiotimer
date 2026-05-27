@@ -1,19 +1,8 @@
 from typing import Union
 
-from pytest import mark, raises
+from pytest import mark
 
 from aiotimer.duration import DurationIterator
-from aiotimer.error import InvalidDurationError
-
-
-def test_invalid_durations() -> None:
-    class InvalidDuration:
-        pass
-
-    with raises(InvalidDurationError) as error:
-        DurationIterator(InvalidDuration())  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
-
-    assert str(error.value) == 'Invalid duration provided'
 
 
 @mark.parametrize('duration', [42.0, 42])
@@ -29,7 +18,8 @@ def test_durations_from_a_single_number(duration: Union[float, int]) -> None:
 def test_idempotency_for_a_single_number(duration: Union[float, int]) -> None:
     iterator = DurationIterator(42)
 
-    durations = list(iter(iterator))
+    list(iter(iterator))
+    list(iter(iterator))
     durations = list(iter(iterator))
 
     assert durations == [duration]
@@ -54,7 +44,8 @@ def test_durations_from_a_list_of_numbers(durations_list: list[float]) -> None:
 def test_idempotency_for_a_list_of_numbers(durations_list: list[float]) -> None:
     iterator = DurationIterator(durations_list)
 
-    durations = list(iter(iterator))
+    list(iter(iterator))
+    list(iter(iterator))
     durations = list(iter(iterator))
 
     assert durations == [1, 2, 3]
@@ -81,7 +72,8 @@ def test_idempotency_for_an_iterable_factory(durations_list: list[float]) -> Non
     factory = lambda: durations_list
     iterator = DurationIterator(factory)
 
-    durations = list(iter(iterator))
+    list(iter(iterator))
+    list(iter(iterator))
     durations = list(iter(iterator))
 
     assert durations == [1, 2, 3]

@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, Mock
 
 from pytest import mark
 
-from aiotimer import MultiTimer
+from aiotimer import Timer
 from aiotimer.duration import sequentially, thrice
 from aiotimer.event import IntervalCompleteEvent
 from tests.support.callback import EventData, assert_callback_awaited
@@ -14,7 +14,7 @@ from tests.support.callback import EventData, assert_callback_awaited
 async def test_sync_callback_is_called_after_interval_completion(await_callbacks: bool) -> None:
     # Arrange
     on_interval = Mock()
-    timer = MultiTimer(
+    timer = Timer(
         thrice(0.1),
         on_interval_complete=on_interval,
         await_callbacks=await_callbacks,
@@ -33,7 +33,7 @@ async def test_sync_callback_is_called_after_interval_completion(await_callbacks
 async def test_async_callback_is_awaited_after_interval_completion(await_callbacks: bool) -> None:
     # Arrange
     on_interval = AsyncMock()
-    timer = MultiTimer(
+    timer = Timer(
         thrice(0.1),
         on_interval_complete=on_interval,
         await_callbacks=await_callbacks,
@@ -52,7 +52,7 @@ async def test_async_callback_is_awaited_after_interval_completion(await_callbac
 async def test_interval_index_and_duration_are_passed_to_on_interval(await_callbacks: bool) -> None:
     # Arrange
     on_interval = AsyncMock()
-    timer = MultiTimer(
+    timer = Timer(
         sequentially(0.3, 0.2, 0.1),
         on_interval_complete=on_interval,
         await_callbacks=await_callbacks,

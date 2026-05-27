@@ -1,6 +1,6 @@
 from asyncio import run, sleep
 
-from aiotimer import MultiTimer
+from aiotimer import Timer
 from aiotimer.event import IntervalCompleteEvent, TimerCompleteEvent
 
 
@@ -17,7 +17,7 @@ async def main() -> None:
     async def on_interval_complete(event: IntervalCompleteEvent) -> None:
         print(f'Interval complete after {event.interval_duration} seconds')
 
-    timer = MultiTimer(
+    timer = Timer(
         duration_factory,
         on_timer_complete,
         on_interval_complete,

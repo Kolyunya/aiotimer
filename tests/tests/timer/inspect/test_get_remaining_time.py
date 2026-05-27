@@ -4,13 +4,13 @@ from unittest.mock import Mock
 
 from pytest import approx, mark
 
-from aiotimer import MultiTimer
+from aiotimer import Timer
 from aiotimer.duration import once, sequentially
 
 
 @mark.asyncio
 async def test_get_remaining_time_after_instantiation() -> None:
-    timer = MultiTimer(once(42), Mock())
+    timer = Timer(once(42), Mock())
 
     remaining = await timer.remaining
 
@@ -30,7 +30,7 @@ async def test_get_remaining_time_after_running_for_some_time(
         remaining_expected: float,
 ) -> None:
     # Arrange
-    timer = MultiTimer(sequentially(*intervals), Mock())
+    timer = Timer(sequentially(*intervals), Mock())
 
     # Act
     await timer.start()
@@ -45,7 +45,7 @@ async def test_get_remaining_time_after_running_for_some_time(
 async def test_remaining_time_must_not_be_negative() -> None:
     # Arrange
 
-    timer = MultiTimer(once(0.1), Mock())
+    timer = Timer(once(0.1), Mock())
 
     # Act
     await timer.start()
