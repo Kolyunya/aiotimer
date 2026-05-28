@@ -1,7 +1,7 @@
 from asyncio import run, sleep
 
 from aiotimer import Timer
-from aiotimer.duration import exponentially, immediately_then
+from aiotimer.duration import backoff, exponentially, immediately_then
 from aiotimer.event import ErrorEvent, IntervalCompleteEvent
 
 
@@ -28,7 +28,7 @@ async def main() -> None:
         print(event.error)
 
     timer = Timer(
-        immediately_then(exponentially(interval_count=3)),
+        backoff(retries=3),
         on_interval_complete=send_http_request,
         on_error=on_error,
     )

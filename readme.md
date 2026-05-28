@@ -123,10 +123,6 @@ twice(5)
 thrice(5)
 
 
-# Generates 1 interval between 5 and 10 seconds.
-randomly(5, 10)
-
-
 # Generates 3 intervals of 1, 2, and 3 seconds.
 sequentially(1, 2, 3)
 
@@ -139,29 +135,42 @@ exponentially(2, interval_count=5)
 exponentially(2, maximum_duration=16)
 
 
+# Generates 1 interval between 5 and 10 seconds.
+randomly(5, 10)
+
+
 # Generates 30 intervals of 1, 2, 3, 1, 2, 3, ... seconds.
-# Any IGF may be passed as the first argument.
+# Any other factory may be passed as the first argument.
 repeatedly(sequentially(1, 2, 3), 10)
 
 
 # Generates an infinite number of intervals of 1, 2, 3, 1, 2, 3, ... seconds.
-# Any IGF may be passed as the first argument.
+# Any other factory may be passed as the first argument.
 forever(sequentially(1, 2, 3))
 
 
 # Generates 3 intervals of 5±0.5 seconds (10% relative jitter).
-# Any IGF may be passed as the first argument.
+# Any other factory may be passed as the first argument.
 jittery(thrice(5), relative=0.1)
 
 
 # Generates 3 intervals of 5±0.5 seconds (0.5 second absolute jitter).
-# Any IGF may be passed as the first argument.
+# Any other factory may be passed as the first argument.
 jittery(thrice(5), absolute=0.5)
 
 
 # Generates 4 intervals of 0, 5, 5, and 5 seconds.
-# Any IGF may be passed as the first argument.
+# Any other factory may be passed as the first argument.
 immediately_then(thrice(5))
+
+
+# Generates a zero-second interval followed by 5 exponentially growing retries.
+# The default exponent base is 2, resulting in durations of 0, 1, 2, 4, 8, 16 seconds.
+backoff(retries=5)
+
+
+# The exponent base parameter is optional and may be reconfigured.
+backoff(retries=5, base=3)
 
 
 # Generates no intervals.

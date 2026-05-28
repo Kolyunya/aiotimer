@@ -1,5 +1,6 @@
 from .duration import Durations, DurationsFactory
 from .duration_iterator import DurationIterator
+from .factory.backoff import backoff
 from .factory.exponentially import exponentially
 from .factory.forever import forever
 from .factory.immediately_then import immediately_then
@@ -16,6 +17,7 @@ __all__ = [
     'DurationIterator',
     'Durations',
     'DurationsFactory',
+    'backoff',
     'exponentially',
     'forever',
     'immediately_then',
