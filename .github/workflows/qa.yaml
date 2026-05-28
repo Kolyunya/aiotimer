@@ -37,7 +37,7 @@ jobs:
 
             - name: Run tests
               run: |
-                  BEARTYPE=Yes python -m test --skip-slow=Yes
+                  BEARTYPE=Yes python -m test --skip-slow=No
 
             - name: Upload coverage reports to Codecov
               uses: codecov/codecov-action@v5
