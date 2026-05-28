@@ -47,14 +47,14 @@ if TYPE_CHECKING:
         OnIntervalComplete,
         OnTimerComplete,
     )
-    from .duration import DurationsFactory
+    from .duration import DurationFactory
 
 
 class Timer(TimerInterface):
 
     def __init__(
         self,
-        durations_factory: DurationsFactory,
+        duration_factory: DurationFactory,
         on_timer_complete: Optional[OnTimerComplete] = None,
         on_interval_complete: Optional[OnIntervalComplete] = None,
         on_error: Optional[OnError] = None,
@@ -65,7 +65,7 @@ class Timer(TimerInterface):
         self.__validate_event_handlers(on_timer_complete, on_interval_complete)
         self.__validate_precision(precision)
 
-        self.__durations_factory = durations_factory
+        self.__duration_factory = duration_factory
         self.__on_timer_complete = Callback(on_timer_complete)
         self.__on_interval_complete = Callback(on_interval_complete)
         self.__on_error = Callback(on_error)
@@ -209,7 +209,7 @@ class Timer(TimerInterface):
         )
 
     def __initialize_duration_iterator(self) -> None:
-        iterable = self.__durations_factory()
+        iterable = self.__duration_factory()
         iterator = iter(iterable)
 
         self.__duration_iterator = iterator

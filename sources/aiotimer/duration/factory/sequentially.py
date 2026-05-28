@@ -1,8 +1,8 @@
 from ...error import NegativeDurationError
-from ..duration import Durations, DurationsFactory
+from ..duration import DurationFactory, Durations
 
 
-def sequentially(*durations: float) -> DurationsFactory:
+def sequentially(*durations: float) -> DurationFactory:
     if len(durations) == 0:
         raise NegativeDurationError('Duration sequence must not be empty')
 

@@ -1,8 +1,8 @@
-from ..duration import DurationsFactory
+from ..duration import DurationFactory
 from .sequentially import sequentially
 
 
-def twice(duration: float) -> DurationsFactory:
+def twice(duration: float) -> DurationFactory:
     durations = (duration for _ in range(2))
     interval_factory = sequentially(*durations)
 

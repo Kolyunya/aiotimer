@@ -1,9 +1,9 @@
 from ...error import InvalidConfigurationError, NegativeDurationError
-from ..duration import Durations, DurationsFactory
+from ..duration import DurationFactory, Durations
 from .exponentially import exponentially
 
 
-def backoff(retries: int, base: int = 2) -> DurationsFactory:
+def backoff(retries: int, base: int = 2) -> DurationFactory:
     __validate_retries(retries)
     __validate_base(base)
 
@@ -11,8 +11,8 @@ def backoff(retries: int, base: int = 2) -> DurationsFactory:
         yield 0.0
 
         retries_factory = exponentially(base, retries)
-        retries_generator = retries_factory()
-        yield from retries_generator
+        retries_iterable = retries_factory()
+        yield from retries_iterable
 
     return factory
 

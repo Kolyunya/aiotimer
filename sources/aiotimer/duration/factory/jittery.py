@@ -3,14 +3,14 @@ from typing import Optional
 
 from ...error import InvalidConfigurationError
 from ...utility.boolean import coin_flip
-from ..duration import Durations, DurationsFactory
+from ..duration import DurationFactory, Durations
 
 
 def jittery(
-    durations: DurationsFactory,
+    durations: DurationFactory,
     relative: Optional[float] = None,
     absolute: Optional[float] = None,
-) -> DurationsFactory:
+) -> DurationFactory:
     __validate_jitter(relative, absolute)
 
     def factory() -> Durations:

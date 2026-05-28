@@ -1,13 +1,13 @@
 import random
 
 from ...error import NegativeDurationError
-from ..duration import Durations, DurationsFactory
+from ..duration import DurationFactory, Durations
 
 
 def randomly(
     minimum: float,
     maximum: float,
-) -> DurationsFactory:
+) -> DurationFactory:
     if minimum >= maximum:
         raise NegativeDurationError('The minimum duration must be less than the maximum duration')
 

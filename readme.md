@@ -106,7 +106,7 @@ This design is used as a defensive programming technique that helps catch any lo
 ![](.assets/state-diagram.png)
 
 ## Duration Factories
-[`Duration Factories`](sources/aiotimer/interval/factory) are responsible for generating durations for [`Multi Timers`](sources/aiotimer/timer.py).  There are many built-in duration factories that should cover the majority of common use cases.
+[`Duration Factories`](sources/aiotimer/duration/factory) are responsible for generating durations for [`Timers`](sources/aiotimer/timer.py). There are many built-in duration factories that should cover the majority of common use cases.
 
 ```python
 from aiotimer.duration import *
@@ -203,12 +203,14 @@ This event is fired each time the last interval of a timer is complete. An `on_t
 ### Interval complete event
 This event is fired each time any interval of a timer is complete. An `on_interval_complete` handler **_may_** optionally accept an [`IntervalCompleteEvent`](sources/aiotimer/event/interval_complete_event.py) object. Events of this type have the following properties:
 * `timer: Timer`
+* `interval_count: int`
 * `interval_number: int`
 * `interval_duration: float`
 
 ### Error event
 This event is fired each time any exception is propagated from any of the event handlers described above. Additionally, it is fired when an exception occurs inside a system coroutine of a timer. An `on_error` handler **_may_** optionally accept an [`ErrorEvent`](sources/aiotimer/event/error_event.py) object. Events of this type have the following properties:
 * `timer: Timer`
+* `interval_count: int`
 * `error: Exception`
 
 ## Advanced usage
@@ -229,36 +231,28 @@ For adequate accuracy, it is recommended to have the precision value configured 
 
 At the same time, having the precision configured to an extremely low value (e.g. `0.001`) may yield a high CPU load.
 
-### Custom duration factories
-Creating a custom duration factory is pretty straightforward. It is basically a callable that returns an `Iterable[float]` object.
+## Custom duration factories
+The first argument to the timer constructor is a [`Duration Factory`](sources/aiotimer/duration/duration.py). It is a callable that returns an `Iterable` of durations in seconds.
 
 > This design is required to support the following features.
-> * Perpetually running `Timer` which requires an infinite `Generator` for durations.
-> * The `reset()` method which requires a new instance of the duration `Generator`.
->
-> A factory allows timer to create a new instance of a duration generator after a reset.
+> * Perpetually running `Timer` which requires infinitely-iterable objects.
+> * The `reset()` functionality which requires a fresh instance of an iterable.
 
 ```python
 from asyncio import run, sleep
 
 from aiotimer import Timer
-from aiotimer.event import IntervalCompleteEvent, TimerCompleteEvent
 
 
 async def main() -> None:
-    duration_factory = lambda: [1, 2, 3]
+  # The simplest form of a custom Duration Factory.
+  duration_factory = lambda: [1, 2, 3]
 
-    def on_timer_complete() -> None:
-        print(f'Timer complete after 6 seconds')
+  timer = Timer(duration_factory, lambda: print('6 seconds passed'))
+  await timer.start()
 
-    timer = Timer(
-        duration_factory,
-        on_timer_complete,
-    )
-    await timer.start()
-
-    # Wait for the timer to complete.
-    await sleep(6 + 0.1)
+  # Wait for the timer to complete.
+  await sleep(6 + 1)
 
 
 if __name__ == '__main__':

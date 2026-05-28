@@ -7,8 +7,8 @@ from aiotimer.error import InvalidDurationError
 
 SingleDuration = float
 MultipleDurations = list[SingleDuration]
-DurationsFactory = Callable[[], Iterable[SingleDuration]]
-Durations = Union[SingleDuration, MultipleDurations, DurationsFactory]
+DurationFactory = Callable[[], Iterable[SingleDuration]]
+Durations = Union[SingleDuration, MultipleDurations, DurationFactory]
 
 
 class DurationIterator(Iterable[float]):
@@ -19,9 +19,9 @@ class DurationIterator(Iterable[float]):
         if isinstance(durations, (float, int)):
             self.__iterator_factory = self.__from_single_duration
         elif isinstance(durations, list):
-            self.__iterator_factory = self.__from_durations_list
+            self.__iterator_factory = self.__from_duration_list
         elif callable(durations):
-            self.__iterator_factory = self.__from_durations_factory
+            self.__iterator_factory = self.__from_duration_factory
         else:
             raise InvalidDurationError
 
@@ -38,14 +38,14 @@ class DurationIterator(Iterable[float]):
 
         return iterator
 
-    def __from_durations_list(self) -> Iterator[SingleDuration]:
+    def __from_duration_list(self) -> Iterator[SingleDuration]:
         durations = cast('MultipleDurations', self.__durations)
         iterator = iter(durations)
 
         return iterator
 
-    def __from_durations_factory(self) -> Iterator[SingleDuration]:
-        factory = cast('DurationsFactory', self.__durations)
+    def __from_duration_factory(self) -> Iterator[SingleDuration]:
+        factory = cast('DurationFactory', self.__durations)
         iterable = factory()
         iterator = iter(iterable)
 

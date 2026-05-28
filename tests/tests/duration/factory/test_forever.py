@@ -6,7 +6,7 @@ from aiotimer.duration import forever, never, sequentially
 from aiotimer.error import EmptyDurationIterableError
 
 
-def test_durations_generator_must_not_be_degenerate() -> None:
+def test_duration_iterable_must_not_be_degenerate() -> None:
     # Arrange
     factory = forever(never())
     iterator = iter(factory())

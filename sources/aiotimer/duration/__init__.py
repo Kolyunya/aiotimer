@@ -1,4 +1,4 @@
-from .duration import Durations, DurationsFactory
+from .duration import DurationFactory, Durations
 from .duration_iterator import DurationIterator
 from .factory.backoff import backoff
 from .factory.exponentially import exponentially
@@ -14,9 +14,9 @@ from .factory.thrice import thrice
 from .factory.twice import twice
 
 __all__ = [
+    'DurationFactory',
     'DurationIterator',
     'Durations',
-    'DurationsFactory',
     'backoff',
     'exponentially',
     'forever',

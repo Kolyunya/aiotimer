@@ -1,11 +1,11 @@
 from ...error import InvalidConfigurationError
-from ..duration import Durations, DurationsFactory
+from ..duration import DurationFactory, Durations
 
 
 def repeatedly(
-    durations: DurationsFactory,
+    durations: DurationFactory,
     count: int,
-) -> DurationsFactory:
+) -> DurationFactory:
     if count <= 0:
         raise InvalidConfigurationError('Repetitions count must be a positive number')
 

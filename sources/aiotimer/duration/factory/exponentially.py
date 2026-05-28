@@ -1,14 +1,14 @@
 from typing import Optional
 
 from ...error import InvalidConfigurationError, NegativeDurationError
-from ..duration import Durations, DurationsFactory
+from ..duration import DurationFactory, Durations
 
 
 def exponentially(
     base: int = 2,
     interval_count: Optional[int] = None,
     maximum_duration: Optional[float] = None,
-) -> DurationsFactory:
+) -> DurationFactory:
     __validate_base(base)
     __validate_limits(interval_count, maximum_duration)
 

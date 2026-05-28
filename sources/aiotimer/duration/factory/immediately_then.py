@@ -1,11 +1,11 @@
-from ..duration import Durations, DurationsFactory
+from ..duration import DurationFactory, Durations
 
 
-def immediately_then(durations: DurationsFactory) -> DurationsFactory:
+def immediately_then(duration_factory: DurationFactory) -> DurationFactory:
     def factory() -> Durations:
         yield 0
 
-        then_generator = durations()
-        yield from then_generator
+        durations = duration_factory()
+        yield from durations
 
     return factory

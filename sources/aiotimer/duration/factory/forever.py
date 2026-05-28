@@ -1,8 +1,8 @@
 from ...error import EmptyDurationIterableError
-from ..duration import Durations, DurationsFactory
+from ..duration import DurationFactory, Durations
 
 
-def forever(durations: DurationsFactory) -> DurationsFactory:
+def forever(durations: DurationFactory) -> DurationFactory:
     def factory() -> Durations:
         while True:
             duration_iterator = iter(durations())
