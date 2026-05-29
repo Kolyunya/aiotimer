@@ -1,7 +1,5 @@
 from os import getenv
 
-from beartype import BeartypeConf
-
 from .timer import Timer
 from .timer_interface import TimerInterface
 from .utility.boolean import parse_boolean
@@ -12,6 +10,7 @@ __all__ = [
 ]
 
 if parse_boolean(getenv('BEARTYPE', '')):
+    from beartype import BeartypeConf
     from beartype.claw import beartype_this_package
 
     beartype_this_package(conf=BeartypeConf(
