@@ -31,20 +31,20 @@ def test_base_must_be_greater_than_or_equal_to_two(base: int) -> None:
     assert str(error.value) == 'Exponent base must be greater than or equal to two'
 
 
-@mark.parametrize('interval_count', [-1, 0, 1])
-def test_interval_count_must_be_greater_than_or_equal_to_two(interval_count: int) -> None:
+@mark.parametrize('interval_count', [-1, 0])
+def test_interval_count_must_be_greater_than_or_equal_to_one(interval_count: int) -> None:
     with raises(InvalidConfigurationError) as error:
         exponentially(interval_count=interval_count)
 
-    assert str(error.value) == 'Interval count must be greater than or equal to two'
+    assert str(error.value) == 'Interval count must be greater than or equal to one'
 
 
-@mark.parametrize('maximum_duration', [-1, 0, 1])
-def test_maximum_duration_must_be_greater_than_or_equal_to_two(maximum_duration: float) -> None:
+@mark.parametrize('maximum_duration', [-1, 0])
+def test_maximum_duration_must_be_greater_than_or_equal_to_one(maximum_duration: float) -> None:
     with raises(InvalidConfigurationError) as error:
         exponentially(maximum_duration=maximum_duration)
 
-    assert str(error.value) == 'Maximum duration must be greater than or equal to two'
+    assert str(error.value) == 'Maximum duration must be greater than or equal to one'
 
 
 def test_exponentially_with_interval_count() -> None:
