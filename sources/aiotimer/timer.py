@@ -296,7 +296,7 @@ class Timer(TimerInterface):
             on_complete: Optional[OnTimerComplete],
             on_interval: Optional[OnIntervalComplete],
     ) -> None:
-        if not on_complete and not on_interval:
+        if on_complete is None and on_interval is None:
             raise MissingCallbackError
 
     @classmethod
