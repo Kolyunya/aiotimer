@@ -19,7 +19,7 @@ class Callback(Generic[EventType]):
         self.__has_parameters: Optional[bool] = None
         self.__is_asynchronous: Optional[bool] = None
 
-        if callback:
+        if callback is not None:
             self.__has_parameters = has_parameters(callback)
 
             # We do not know if it is asynchronous before we call it.
