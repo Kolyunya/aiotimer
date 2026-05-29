@@ -1,5 +1,5 @@
 from asyncio import run, sleep
-from time import monotonic
+from time import perf_counter
 
 
 async def main(seconds: int) -> None:
@@ -14,12 +14,12 @@ async def main(seconds: int) -> None:
     print('Running the timer...')
     print(f'Desired duration: {seconds:.3f} seconds.')
 
-    time_start = monotonic()
+    time_start = perf_counter()
 
     for _ in range(seconds):
         await sleep(1)
 
-    time_end = monotonic()
+    time_end = perf_counter()
     time_elapsed = time_end - time_start
 
     print(f'Actual duration: {time_elapsed:.3f} seconds.\n')
