@@ -129,7 +129,9 @@ This design is used as a defensive programming technique that helps catch any lo
 ![](.assets/state-diagram.png)
 
 ## Configuring durations
-The first parameter of the timer constructor is a [`Duration Factory`](sources/aiotimer/duration/factory). It is responsible for generating durations for the timers. A timer may have one or more time intervals of arbitrary durations. 
+The first parameter of the timer constructor is a [`Duration Factory`](sources/aiotimer/duration/factory). It is responsible for generating durations for the timers. A timer may have one or more time intervals of arbitrary durations.
+
+> All interval durations **_must_** be non-negative. Duration factory, producing a negative duration yields an undefined behavior.
 
 There are many built-in duration factories that should cover the majority of common use cases.
 

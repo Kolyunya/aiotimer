@@ -2,7 +2,6 @@ from asyncio import run, sleep
 
 from aiotimer import Timer
 from aiotimer.duration import once
-from aiotimer.event import TimerCompleteEvent
 
 
 async def main() -> None:
@@ -10,8 +9,8 @@ async def main() -> None:
     Demonstrate an example of a one-off timer usage.
     """
 
-    async def on_timer_complete(event: TimerCompleteEvent) -> None:
-        print(f'Timer is complete in {event.elapsed:.3f} seconds.')
+    async def on_timer_complete() -> None:
+        print('The timer is complete.')
 
     timer = Timer(once(1.00), on_timer_complete)
 

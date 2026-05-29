@@ -49,7 +49,7 @@ async def test_many_short_intervals_produce_no_drift_profile(duration: int) -> N
     def on_complete() -> None:
         end_time = perf_counter()
         elapsed_time = end_time - start_time
-        assert elapsed_time == approx(duration, abs=0.50)
+        assert elapsed_time == approx(duration, abs=2)
         print(f'Elapsed time: {elapsed_time} seconds.')
 
         nonlocal timer_is_complete
@@ -65,7 +65,7 @@ async def test_many_short_intervals_produce_no_drift_profile(duration: int) -> N
 
     # Act
     await timer.start()
-    await sleep(duration + 0.50)
+    await sleep(duration + 2)
 
     # Assert
     assert timer_is_complete

@@ -1,40 +1,30 @@
-from asyncio import sleep
-from unittest.mock import AsyncMock, Mock
+from asyncio import Event, sleep
+from unittest.mock import Mock
 
-from pytest import mark
+from pytest import approx, mark
 
 from aiotimer.callback import AsyncExecutor, Callback
+from tests.support import stopwatch
 
 
 @mark.asyncio
-async def test_calls_a_sync_callback() -> None:
+async def test_does_not_wait_for_callback_to_complete() -> None:
     # Arrange
-    callback = Mock()
+    callback_is_called = Event()
+
+    async def callback() -> None:
+        callback_is_called.set()
+        await sleep(1)
+
     executor = AsyncExecutor(
         error_handler=Mock(),
         error_factory=Mock(),
     )
 
     # Act
-    await executor(Callback(callback), Mock())
-    await sleep(0.1)
+    async with stopwatch() as time:
+        await executor(Callback(callback), Mock())
+        await callback_is_called.wait()
 
     # Assert
-    callback.assert_called_once()
-
-
-@mark.asyncio
-async def test_awaits_an_async_callback() -> None:
-    # Arrange
-    callback = AsyncMock()
-    executor = AsyncExecutor(
-        error_handler=Mock(),
-        error_factory=Mock(),
-    )
-
-    # Act
-    await executor(Callback(callback), Mock())
-    await sleep(0.1)
-
-    # Assert
-    callback.assert_awaited_once()
+    assert time.elapsed == approx(0, abs=0.1)

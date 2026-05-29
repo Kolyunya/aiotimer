@@ -18,7 +18,6 @@ async def main() -> None:
         timer_is_complete.set()
 
     async def on_interval_complete() -> None:
-        # A one-second-long event handler.
         await sleep(1)
 
     timer = Timer(

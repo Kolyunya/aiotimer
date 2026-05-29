@@ -6,6 +6,7 @@ from asyncio import (
     Queue,
     Task,
     create_task,
+    shield,
     sleep,
 )
 from collections.abc import Awaitable, Iterator
@@ -146,6 +147,39 @@ class Timer(TimerInterface):
         async with self.__lock:
             return type(self.__state)
 
+    def __initialize_executor(self, *, await_callbacks: bool) -> None:
+        executor_type = SyncExecutor if await_callbacks else AsyncExecutor
+        self.__executor = executor_type(
+            self.__on_error,
+            self.__make_error_event,
+        )
+
+    def __initialize_duration_iterator(self) -> None:
+        iterable = self.__duration_factory()
+        iterator = iter(iterable)
+
+        self.__duration_iterator = iterator
+
+    def __initialize_next_interval(self, *, reset: bool = False) -> bool:
+        success = False
+
+        try:
+            duration = next(self.__duration_iterator)
+
+            if reset:
+                number = 1
+            else:
+                number = self.__interval.number + 1
+
+            self.__interval = Interval(number, duration)
+
+            success = True
+
+        except StopIteration:
+            pass
+
+        return success
+
     async def __start_advancement(self) -> None:
         self.__interval.start()
 
@@ -179,7 +213,7 @@ class Timer(TimerInterface):
                             break
 
                 # The lock must be released before callback processing.
-                await self.__process_callbacks()
+                await self.__process_events()
 
                 await sleep(self.__precision)
 
@@ -187,76 +221,7 @@ class Timer(TimerInterface):
             await self.__invoke_error_event(error)
 
         finally:
-            await self.__process_callbacks()
-
-    async def __process_callbacks(self) -> None:
-        while not self.__callbacks.empty():
-            callback = await self.__callbacks.get()
-            await callback
-            self.__callbacks.task_done()
-
-    def __initialize_executor(self, *, await_callbacks: bool) -> None:
-        executor_type = SyncExecutor if await_callbacks else AsyncExecutor
-        self.__executor = executor_type(
-            self.__on_error,
-            self.__make_error_event,
-        )
-
-    def __initialize_duration_iterator(self) -> None:
-        iterable = self.__duration_factory()
-        iterator = iter(iterable)
-
-        self.__duration_iterator = iterator
-
-    def __initialize_next_interval(self, *, reset: bool = False) -> bool:
-        success = False
-
-        try:
-            duration = next(self.__duration_iterator)
-
-            if reset:
-                number = 1
-            else:
-                number = self.__interval.number + 1
-
-            self.__interval = Interval(number, duration)
-            if isinstance(self.__state, RunningState):
-                self.__interval.start()
-
-            success = True
-
-        except StopIteration:
-            pass
-
-        return success
-
-    async def __make_interval_complete_event(self) -> IntervalCompleteEvent:
-        event = IntervalCompleteEvent(
-            timer=self,
-            elapsed=self.__interval.elapsed,
-            interval_number=self.__interval.number,
-            interval_duration=self.__interval.duration,
-        )
-
-        return event
-
-    async def __make_timer_complete_event(self) -> TimerCompleteEvent:
-        event = TimerCompleteEvent(
-            timer=self,
-            elapsed=self.__interval.elapsed,
-            interval_count=self.__interval.number,
-        )
-
-        return event
-
-    async def __make_error_event(self, error: Exception) -> ErrorEvent:
-        event = ErrorEvent(
-            timer=self,
-            elapsed=self.__interval.elapsed,
-            error=error,
-        )
-
-        return event
+            await self.__process_events()
 
     async def __enqueue_interval_complete_event(self) -> None:
         if self.__on_interval_complete.is_missing:
@@ -285,6 +250,45 @@ class Timer(TimerInterface):
             # in case an error occurs inside the error handler.
             handle_errors=False,
         )
+
+    async def __make_interval_complete_event(self) -> IntervalCompleteEvent:
+        event = IntervalCompleteEvent(
+            timer=self,
+            interval_number=self.__interval.number,
+            interval_duration=self.__interval.duration,
+        )
+
+        return event
+
+    async def __make_timer_complete_event(self) -> TimerCompleteEvent:
+        event = TimerCompleteEvent(
+            timer=self,
+            interval_count=self.__interval.number,
+        )
+
+        return event
+
+    async def __make_error_event(self, error: Exception) -> ErrorEvent:
+        event = ErrorEvent(
+            timer=self,
+            error=error,
+        )
+
+        return event
+
+    async def __process_events(self) -> None:
+        # Event processing must be offloaded to a separate task in order to
+        # support stopping and resetting from the inside of event handlers.
+        # The task must also be shielded to protect it from the cancel-propagation
+        # from the `__advance()` task when it is canceled during stopping and resetting.
+
+        async def process_events() -> None:
+            while not self.__callbacks.empty():
+                callback = await self.__callbacks.get()
+                await callback
+                self.__callbacks.task_done()
+
+        await shield(create_task(process_events()))
 
     @classmethod
     def __validate_event_handlers(

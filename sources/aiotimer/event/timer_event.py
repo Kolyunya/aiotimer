@@ -10,5 +10,3 @@ EventType = TypeVar('EventType')
 class TimerEvent:
 
     timer: TimerInterface
-
-    elapsed: float

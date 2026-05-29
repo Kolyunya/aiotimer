@@ -4,7 +4,6 @@ from typing import Optional
 from ..error import (
     InvalidConfigurationError,
     NegativeDurationError,
-    TimerError,
 )
 from ..utility.time import ns2s, s2ns
 
@@ -32,13 +31,13 @@ class Interval:
         self.__advanced_at = None
 
     def advance(self) -> None:
-        if self.__advanced_at is None:
-            raise TimerError('Interval must be started before advancing')
-
         now = monotonic_ns()
 
-        elapsed = now - self.__advanced_at
-        self.__elapsed += elapsed
+        # Skip the first advancement iteration because
+        # `self.__advanced_at` is not initialized yet.
+        if self.__advanced_at is not None:
+            elapsed_ns = now - self.__advanced_at
+            self.__elapsed += elapsed_ns
 
         self.__advanced_at = now
 

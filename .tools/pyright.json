@@ -11,7 +11,7 @@
 
     "executionEnvironments": [
         {
-            "root": "../sources",
+            "root": "../examples",
             "extraPaths": [
                 ".."
             ]

@@ -29,7 +29,7 @@ async def main() -> None:
     print('The timer is running.')
 
     # Wait for the timer to complete.
-    await sleep(3 + 1)
+    await sleep(3 + 0.1)
 
 
 if __name__ == '__main__':

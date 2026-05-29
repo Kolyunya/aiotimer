@@ -6,7 +6,7 @@ from pytest import mark
 from aiotimer import Timer
 from aiotimer.duration import sequentially, thrice
 from aiotimer.event import IntervalCompleteEvent
-from tests.support.callback import EventData, assert_callback_awaited
+from tests.support import EventData, assert_callback_awaited
 
 
 @mark.asyncio

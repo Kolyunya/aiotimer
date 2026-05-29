@@ -4,10 +4,10 @@ from unittest.mock import AsyncMock, Mock
 from pytest import mark
 
 from aiotimer import Timer
-from aiotimer.duration import once, sequentially
+from aiotimer.duration import forever, once, sequentially
 from aiotimer.event import IntervalCompleteEvent, TimerCompleteEvent
 from aiotimer.state import InitialState
-from tests.support.callback import EventData, assert_callback_awaited
+from tests.support import EventData, assert_callback_awaited
 
 
 @mark.asyncio
@@ -54,6 +54,34 @@ async def test_can_reset_a_stopped_timer() -> None:
 
     # Assert
     assert state == InitialState
+
+
+@mark.asyncio
+@mark.parametrize('await_callbacks', [True, False])
+async def test_can_reset_from_on_interval_complete(await_callbacks: bool) -> None:
+    # Arrange
+    on_interval_complete = AsyncMock()
+    on_error = AsyncMock()
+
+    async def reset(event: IntervalCompleteEvent) -> None:
+        await on_interval_complete()
+        await event.timer.reset()
+
+    timer = Timer(
+        forever(once(0.1)),
+        on_interval_complete=reset,
+        on_error=on_error,
+        await_callbacks=await_callbacks,
+    )
+
+    # Act
+    await timer.start()
+    await sleep(1)
+
+    # Assert
+    assert await timer.state == InitialState
+    on_interval_complete.assert_awaited_once()
+    on_error.assert_not_awaited()
 
 
 @mark.asyncio

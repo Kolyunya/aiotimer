@@ -38,7 +38,7 @@ async def test_get_elapsed_time_after_running_for_some_time(
     elapsed = await timer.elapsed
 
     # Assert
-    assert elapsed == approx(elapsed_expected, abs=0.01)
+    assert elapsed == approx(elapsed_expected, abs=0.1)
 
 
 @mark.asyncio

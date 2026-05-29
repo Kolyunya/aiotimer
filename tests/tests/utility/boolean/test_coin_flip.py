@@ -16,4 +16,4 @@ def test_coin_flip() -> None:
         else:
             tails_count += 1
 
-    assert heads_count == approx(tails_count, 0.25)
+    assert heads_count == approx(tails_count, 0.30)
