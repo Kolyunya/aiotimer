@@ -71,7 +71,6 @@ class Timer(TimerInterface):
         self.__precision = precision
 
         self.__lock: Lock = Lock()
-
         self.__state: State = InitialState()
         self.__advance_task: Optional[Task[None]] = None
         self.__callbacks: Queue[Awaitable[None]] = Queue[Awaitable[None]]()
