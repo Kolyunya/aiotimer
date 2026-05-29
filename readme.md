@@ -7,7 +7,7 @@ An asynchronous timer with a human-friendly API and rich functionality.
 * State management with `start()`, `stop()`, and `reset()` methods.
 * On-the-fly adjustment of the duration with `set()`, `prolong()`, and `shorten()` methods.
 * Introspection with `elapsed`, `remaining`, and `state` properties.
-* Multi-interval configuration when a timer runs multiple times with a predefined schedule pattern.
+* Multi-interval configuration when a timer runs multiple times with a predefined configuration of durations.
 * Looping capabilities for continuously running timers.
 * Rich callback system enabling hooking into the timer lifecycle events.
 * Synchronous and asynchronous callback modes.
@@ -16,12 +16,16 @@ An asynchronous timer with a human-friendly API and rich functionality.
 * Zero third-party dependencies.
 
 ## Table of contents
-* [Basic usage](#basic-usage)
+* [Usage examples](#usage-examples)
   * [One-off timer](#one-off-timer)
   * [Multi-interval timer](#multi-interval-timer)
   * [Other usage examples](#other-usage-examples)
+* [Public API](#public-api)
+  * [Controlling the state](#controlling-the-state)
+  * [Duration modification](#duration-modification)
+  * [Introspection](#introspection)
 * [States and transitions](#states-and-transitions)
-* [Duration Factories](#duration-factories)
+* [Configuring durations](#configuring-durations)
 * [Event system](#event-system)
   * [Interval complete event](#interval-complete-event)
   * [Timer complete event](#timer-complete-event)
@@ -34,10 +38,11 @@ An asynchronous timer with a human-friendly API and rich functionality.
   ](#custom-duration-factories)
 * [Contributing](#contributing)
 
-## Basic usage
+## Usage examples
 
 ### One-off timer
 
+A timer may have just one time interval.
 ```python
 from asyncio import run, sleep
 
@@ -64,6 +69,7 @@ if __name__ == '__main__':
 
 ### Multi-interval timer
 
+A timer may have multiple time intervals of arbitrary durations.
 ```python
 from asyncio import run, sleep
 
@@ -96,6 +102,23 @@ if __name__ == '__main__':
 ### Other usage examples
 More usage examples are available [here](examples).
 
+## Public API
+
+### Controlling the state
+* `await timer.start()` starts the timer that is in the `Initial` or in the `Stopped` state.
+* `await timer.stop()` stops the timer that is in the `Running` state. The elapsed and remaining times for the current time interval as well as the current interval itself are **_preserved_**.
+* `await timer.reset()` resets the timer. The elapsed and remaining times for the current time interval as well as the current interval itself are **_discarded_**. The timer is reset to the initial state it had after instantiation.
+
+### Duration modification
+* `await timer.set(duration)` sets the duration of the currently running interval **_to_** `duration`. In case the elapsed time is greater than `duration`, the interval would complete immediately. 
+* `await timer.prolong(delta)` prolongs the duration of the currently running interval **_by_** `delta`.
+* `await timer.shorten(delta)` shortens the duration of the currently running interval **_by_** `delta`. In case the elapsed time is greater than the resulting duration after shortening, the interval would complete immediately. 
+
+### Introspection
+* `await timer.elapsed` returns the elapsed time for the currently running interval.
+* `await timer.remaining` returns the remaining time for the currently running interval.
+* `await timer.state` returns the type of the current state of the timer.
+
 ## States and transitions
 The timer class implements the [State Pattern](https://en.wikipedia.org/wiki/State_pattern). Methods that modify the timer state may only be called when the timer is in a supported state.
 
@@ -105,8 +128,10 @@ This design is used as a defensive programming technique that helps catch any lo
 
 ![](.assets/state-diagram.png)
 
-## Duration Factories
-[`Duration Factories`](sources/aiotimer/duration/factory) are responsible for generating durations for [`Timers`](sources/aiotimer/timer.py). There are many built-in duration factories that should cover the majority of common use cases.
+## Configuring durations
+The first parameter of the timer constructor is a [`Duration Factory`](sources/aiotimer/duration/factory). It is responsible for generating durations for the timers. A timer may have one or more time intervals of arbitrary durations. 
+
+There are many built-in duration factories that should cover the majority of common use cases.
 
 ```python
 from aiotimer.duration import *
@@ -181,6 +206,8 @@ never()
 > If you believe some type of duration factory is missing, feel free to submit an issue or a pull request.
 
 ## Event system
+There are several event handlers that may be configured for a timer through the constructor arguments.
+
 All event handlers **must** comply with the following API contract. Non-compliant event handlers result in undefined behavior.
 * Event handler **must** have either:
     * Zero parameters.
