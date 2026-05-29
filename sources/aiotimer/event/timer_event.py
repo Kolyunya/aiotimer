@@ -12,5 +12,3 @@ class TimerEvent:
     timer: TimerInterface
 
     elapsed: float
-
-    remaining: float

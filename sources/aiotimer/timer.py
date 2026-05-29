@@ -235,7 +235,6 @@ class Timer(TimerInterface):
         event = IntervalCompleteEvent(
             timer=self,
             elapsed=self.__interval.elapsed,
-            remaining=self.__interval.remaining,
             interval_number=self.__interval.number,
             interval_duration=self.__interval.duration,
         )
@@ -246,7 +245,6 @@ class Timer(TimerInterface):
         event = TimerCompleteEvent(
             timer=self,
             elapsed=self.__interval.elapsed,
-            remaining=self.__interval.remaining,
             interval_count=self.__interval.number,
         )
 
@@ -256,7 +254,6 @@ class Timer(TimerInterface):
         event = ErrorEvent(
             timer=self,
             elapsed=self.__interval.elapsed,
-            remaining=self.__interval.remaining,
             error=error,
         )
 
