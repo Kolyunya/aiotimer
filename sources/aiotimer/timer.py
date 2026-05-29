@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from asyncio import (
     CancelledError,
-    Event,
     Lock,
     Queue,
     Task,
@@ -72,7 +71,6 @@ class Timer(TimerInterface):
         self.__precision = precision
 
         self.__lock: Lock = Lock()
-        self.__modified: Event = Event()
 
         self.__state: State = InitialState()
         self.__advance_task: Optional[Task[None]] = None
@@ -118,21 +116,18 @@ class Timer(TimerInterface):
         async with self.__lock:
             self.__state.ensure_could_adjust()
             self.__interval.duration = duration
-            self.__modified.set()
 
     @override
     async def prolong(self, delta: float) -> None:
         async with self.__lock:
             self.__state.ensure_could_adjust()
             self.__interval.prolong(delta)
-            self.__modified.set()
 
     @override
     async def shorten(self, delta: float) -> None:
         async with self.__lock:
             self.__state.ensure_could_adjust()
             self.__interval.shorten(delta)
-            self.__modified.set()
 
     @property
     @override
