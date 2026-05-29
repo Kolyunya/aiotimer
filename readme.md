@@ -230,14 +230,12 @@ This event is fired each time the last interval of a timer is complete. An `on_t
 ### Interval complete event
 This event is fired each time any interval of a timer is complete. An `on_interval_complete` handler **_may_** optionally accept an [`IntervalCompleteEvent`](sources/aiotimer/event/interval_complete_event.py) object. Events of this type have the following properties:
 * `timer: Timer`
-* `interval_count: int`
 * `interval_number: int`
 * `interval_duration: float`
 
 ### Error event
 This event is fired each time any exception is propagated from any of the event handlers described above. Additionally, it is fired when an exception occurs inside a system coroutine of a timer. An `on_error` handler **_may_** optionally accept an [`ErrorEvent`](sources/aiotimer/event/error_event.py) object. Events of this type have the following properties:
 * `timer: Timer`
-* `interval_count: int`
 * `error: Exception`
 
 ## Advanced usage
