@@ -25,24 +25,32 @@ def test_idempotency_for_a_single_number(duration: Union[float, int]) -> None:
     assert durations == [duration]
 
 
-@mark.parametrize('durations_list', [
+@mark.parametrize('durations_collection', [
     [1.0, 2.0, 3.0],
     [1, 2, 3],
+    (1.0, 2.0, 3.0),
+    (1, 2, 3),
 ])
-def test_durations_from_a_list_of_numbers(durations_list: list[float]) -> None:
-    iterator = DurationIterator(durations_list)
+def test_durations_from_a_collection_of_numbers(
+    durations_collection: Union[list[float], tuple[float, ...]],
+) -> None:
+    iterator = DurationIterator(durations_collection)
 
     durations = list(iter(iterator))
 
     assert durations == [1, 2, 3]
 
 
-@mark.parametrize('durations_list', [
+@mark.parametrize('durations_collection', [
     [1.0, 2.0, 3.0],
     [1, 2, 3],
+    (1.0, 2.0, 3.0),
+    (1, 2, 3),
 ])
-def test_idempotency_for_a_list_of_numbers(durations_list: list[float]) -> None:
-    iterator = DurationIterator(durations_list)
+def test_idempotency_for_a_collection_of_numbers(
+        durations_collection: Union[list[float], tuple[float, ...]],
+) -> None:
+    iterator = DurationIterator(durations_collection)
 
     list(iter(iterator))
     list(iter(iterator))

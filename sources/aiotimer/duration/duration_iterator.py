@@ -6,7 +6,7 @@ from typing_extensions import override
 from aiotimer.error import InvalidDurationError
 
 SingleDuration = float
-MultipleDurations = list[SingleDuration]
+MultipleDurations = Union[list[SingleDuration], tuple[SingleDuration, ...]]
 DurationFactory = Callable[[], Iterable[SingleDuration]]
 Durations = Union[SingleDuration, MultipleDurations, DurationFactory]
 
@@ -18,7 +18,7 @@ class DurationIterator(Iterable[float]):
 
         if isinstance(durations, (float, int)):
             self.__iterator_factory = self.__from_single_duration
-        elif isinstance(durations, list):
+        elif isinstance(durations, (list, tuple)):
             self.__iterator_factory = self.__from_duration_list
         elif callable(durations):
             self.__iterator_factory = self.__from_duration_factory
