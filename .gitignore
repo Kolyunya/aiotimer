@@ -1,0 +1,16 @@
+# Virtual Environment
+/.venv
+
+# Pycharm
+/.idea/*
+!/.idea/runConfigurations
+
+# Setuptools
+/sources/*.egg-info
+
+# Python cache
+__pycache__
+
+# Test coverage
+/.coverage
+/coverage.xml

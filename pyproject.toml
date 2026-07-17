@@ -1,0 +1,39 @@
+[project]
+name = "aiotimer"
+description = "An asynchronous timer with a human-friendly API and rich functionality."
+version = "0.0.1"
+license = "Apache-2.0"
+requires-python = "~=3.9"
+
+dependencies = [
+    "typing-extensions ~=4.15",
+]
+
+[project.optional-dependencies]
+development = [
+    "beartype ~=0.22",
+    "flake8 ~=7.3",
+    "mypy ~=1.19",
+    "pylint ~=3.3",
+    "pyrefly ~=1.0",
+    "pyright ~=1.1",
+    "pytest ~=8.4",
+    "pytest_asyncio ~=1.2",
+    "pytest-cov ~=7.1",
+    "pytest_retry ~=1.7",
+    "ruff ~=0.15",
+    "ty ~=0.0.38",
+]
+
+[build-system]
+requires = ["setuptools>=68,<80", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "sources"}
+
+[tool.setuptools.packages.find]
+where = ["sources"]
+
+[tool.setuptools.package-data]
+"aiotimer" = ["py.typed"]

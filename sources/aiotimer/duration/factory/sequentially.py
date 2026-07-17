@@ -1,0 +1,15 @@
+from ...error import InvalidConfigurationError, NegativeDurationError
+from ..duration import DurationFactory, Durations
+
+
+def sequentially(*durations: float) -> DurationFactory:
+    if len(durations) == 0:
+        raise InvalidConfigurationError('Duration sequence must not be empty')
+
+    if any(duration < 0 for duration in durations):
+        raise NegativeDurationError
+
+    def factory() -> Durations:
+        yield from durations
+
+    return factory

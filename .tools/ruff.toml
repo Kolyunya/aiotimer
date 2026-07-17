@@ -1,0 +1,61 @@
+src = ['sources']
+
+[lint]
+select = [
+    'ALL',
+]
+ignore = [
+    'BLE001',
+    'D100',
+    'D101',
+    'D102',
+    'D103',
+    'D104',
+    'D105',
+    'D107',
+    'D200',
+    'D202',
+    'D203',     # Conflicts with `D211`.
+    'D212',     # Conflicts with `D213`.
+    'D413',
+    'E501',
+    'E731',
+    'EM101',
+    'PLR0913',
+    'PLR2004',
+    'PYI041',
+    'RET504',
+    'S101',
+    'S311',
+    'SIM108',
+    'SIM117',
+    'TID252',
+    'TRY003',
+    'UP007',    # TODO: Delete this line after Python 3.9 support is dropped.
+    'UP045',    # TODO: Delete this line after Python 3.9 support is dropped.
+]
+
+[lint.per-file-ignores]
+'examples/*' = [
+    'INP001',
+    'T201',
+]
+
+'tests/*' = [
+    'D103',
+    'D104',
+    'FBT001',
+    'PLR2004',
+    'PT013',
+    'T201',
+]
+
+'test.py' = [
+    'S603',
+    'T201',
+]
+
+[lint.flake8-quotes]
+inline-quotes = 'single'
+multiline-quotes = 'single'
+docstring-quotes = 'double'
