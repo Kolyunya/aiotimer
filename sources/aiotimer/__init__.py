@@ -1,4 +1,5 @@
 from os import getenv
+from warnings import warn
 
 from .timer import Timer
 from .timer_interface import TimerInterface
@@ -19,7 +20,5 @@ if parse_boolean(getenv('BEARTYPE', '')):
         ))
 
     except ImportError:
-        import logging
-
-        logger = logging.getLogger(__name__)
-        logger.warning('Beartype is not installed. Type checking is disabled.')
+        warning = 'Beartype is not installed. Type checking is disabled.'
+        warn(warning, stacklevel=2)
