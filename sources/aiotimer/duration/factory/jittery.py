@@ -1,8 +1,8 @@
 import random
 from typing import Optional
+from warnings import warn
 
-from ...error import InvalidConfigurationError
-from ...utility.boolean import coin_flip
+from ...error import InvalidConfigurationError, LogicError
 from ..duration import DurationFactory, Durations
 
 
@@ -12,25 +12,29 @@ def jittery(
     absolute: Optional[float] = None,
 ) -> DurationFactory:
     __validate_jitter(relative, absolute)
+    assert relative is not None or absolute is not None
 
     def factory() -> Durations:
         for duration in durations():
-            multiplier = 1 if coin_flip() else -1
 
             if relative is not None:
-                jitter_threshold = duration * relative
+                maximum_jitter = duration * relative
             elif absolute is not None:
-                jitter_threshold = absolute
+                maximum_jitter = absolute
             else:
-                raise InvalidConfigurationError('Exactly one type of jitter must be specified')
+                raise LogicError('Either `relative` or `absolute` is guaranteed to be specified')
 
-            the_jitter = random.uniform(0, jitter_threshold) * multiplier
-            jittery_duration = duration + the_jitter
+            assert relative is not None or absolute is not None
+            jitter = random.uniform(-1 * maximum_jitter, maximum_jitter)
+            jittered_duration = duration + jitter
 
-            if jittery_duration <= 0:
-                raise InvalidConfigurationError('Jittery duration is less than or equals zero')
+            if jittered_duration < 0:
+                jittered_duration = 0
 
-            yield jittery_duration
+                warning = 'A negative duration was clamped to zero.'
+                warn(warning, stacklevel=2)
+
+            yield jittered_duration
 
     return factory
 
@@ -47,7 +51,7 @@ def __validate_jitter(
         raise InvalidConfigurationError('Exactly one type of jitter must be specified')
 
     if relative is not None and relative < 0:
-        raise InvalidConfigurationError('Relative jitter can not be negative')
+        raise InvalidConfigurationError('Relative jitter must not be negative')
 
     if absolute is not None and absolute < 0:
-        raise InvalidConfigurationError('Absolute jitter can not be negative')
+        raise InvalidConfigurationError('Absolute jitter must not be negative')

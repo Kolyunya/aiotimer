@@ -4,6 +4,7 @@ from .duration_error import (
     InvalidDurationError,
     NegativeDurationError,
 )
+from .logic_error import LogicError
 from .precision_error import InvalidPrecisionError
 from .state_error import InvalidStateError, InvalidStateNameError
 from .timer_error import (
@@ -18,6 +19,7 @@ __all__ = [
     'InvalidPrecisionError',
     'InvalidStateError',
     'InvalidStateNameError',
+    'LogicError',
     'MissingCallbackError',
     'NegativeDurationError',
     'TimerError',

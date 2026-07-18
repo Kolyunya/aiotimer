@@ -1,21 +1,21 @@
-from pytest import approx, raises
+from pytest import approx, raises, warns
 
 from aiotimer.duration import jittery, once, repeatedly, thrice
 from aiotimer.error import InvalidConfigurationError
 
 
-def test_relative_jitter_can_not_be_negative() -> None:
+def test_relative_jitter_must_not_be_negative() -> None:
     with raises(InvalidConfigurationError) as error:
         jittery(thrice(10), relative=-1)
 
-    assert str(error.value) == 'Relative jitter can not be negative'
+    assert str(error.value) == 'Relative jitter must not be negative'
 
 
-def test_absolute_jitter_can_not_be_negative() -> None:
+def test_absolute_jitter_must_not_be_negative() -> None:
     with raises(InvalidConfigurationError) as error:
         jittery(thrice(10), absolute=-1)
 
-    assert str(error.value) == 'Absolute jitter can not be negative'
+    assert str(error.value) == 'Absolute jitter must not be negative'
 
 
 def test_can_not_specify_two_types_of_jitter() -> None:
@@ -32,15 +32,17 @@ def test_can_not_specify_zero_types_of_jitter() -> None:
     assert str(error.value) == 'Exactly one type of jitter must be specified'
 
 
-def test_jittery_duration_must_be_positive() -> None:
+def test_jittery_clamps_negative_durations_to_zero() -> None:
     # Arrange
     factory = jittery(repeatedly(once(1), 100), absolute=2)
 
     # Act
-    with raises(InvalidConfigurationError) as error:
-        list(factory())
+    with warns(UserWarning, match='A negative duration was clamped to zero'):
+        durations = list(factory())
 
-    assert str(error.value) == 'Jittery duration is less than or equals zero'
+    # Assert
+    assert all(duration >= 0 for duration in durations)
+    assert any(duration == 0 for duration in durations)
 
 
 def test_relative_jitter() -> None:
