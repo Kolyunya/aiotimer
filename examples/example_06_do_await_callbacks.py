@@ -22,8 +22,8 @@ async def main() -> None:
 
     timer = Timer(
         thrice(1),
-        on_timer_complete=on_timer_complete,
-        on_interval_complete=on_interval_complete,
+        on_timer_complete,
+        on_interval_complete,
         await_callbacks=True,
     )
 

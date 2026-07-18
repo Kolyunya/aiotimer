@@ -9,10 +9,10 @@ async def main() -> None:
     Demonstrate an example of a one-off timer usage.
     """
 
-    async def on_timer_complete() -> None:
+    async def on_complete() -> None:
         print('The timer is complete.')
 
-    timer = Timer(once(1.00), on_timer_complete)
+    timer = Timer(once(1.00), on_complete)
 
     await timer.start()
     print('The timer is running.')

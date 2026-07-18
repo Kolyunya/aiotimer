@@ -11,8 +11,8 @@ async def main() -> None:
 
     timer = Timer(
         repeatedly(once(1), 3),
-        on_timer_complete=lambda: print('The timer has ran for a total of 3 seconds.'),
-        on_interval_complete=lambda: print('The timer has ran for another second.'),
+        lambda: print('The timer has ran for a total of 3 seconds.'),
+        lambda: print('The timer has ran for another second.'),
     )
     await timer.start()
     print('The timer is running.')
