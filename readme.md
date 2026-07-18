@@ -86,8 +86,8 @@ async def main() -> None:
 
   timer = Timer(
     thrice(1),
-    on_timer_complete=lambda: print('3 seconds passed'),
-    on_interval_complete=lambda: print('1 more second passed'),
+    lambda: print('3 seconds passed'),
+    lambda: print('1 more second passed'),
   )
   await timer.start()
 
