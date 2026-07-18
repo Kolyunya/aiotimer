@@ -293,10 +293,10 @@ class Timer(TimerInterface):
     @classmethod
     def __validate_event_handlers(
             cls,
-            on_complete: Optional[OnTimerComplete],
-            on_interval: Optional[OnIntervalComplete],
+            on_timer_complete: Optional[OnTimerComplete],
+            on_interval_complete: Optional[OnIntervalComplete],
     ) -> None:
-        if on_complete is None and on_interval is None:
+        if on_timer_complete is None and on_interval_complete is None:
             raise MissingCallbackError
 
     @classmethod
