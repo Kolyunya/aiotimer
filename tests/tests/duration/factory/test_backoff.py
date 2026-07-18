@@ -1,4 +1,4 @@
-from pytest import mark, raises
+from pytest import approx, mark, raises
 
 from aiotimer.duration import backoff
 from aiotimer.error import InvalidConfigurationError
@@ -44,3 +44,18 @@ def test_scale_down() -> None:
     durations = list(factory())
 
     assert durations == [0.0, 0.1, 0.2, 0.4, 0.8, 1.6]
+
+
+def test_with_jitter() -> None:
+    factory = backoff(retries=5, jitter=0.1)
+
+    durations = list(factory())
+
+    assert len(durations) == 6
+    assert durations[0] == 0.0
+    assert durations[1] == approx(1, 0.1)
+    assert durations[2] == approx(2, 0.1)
+    assert durations[3] == approx(4, 0.1)
+    assert durations[4] == approx(8, 0.1)
+    assert durations[5] == approx(16, 0.1)
+    assert durations != [0, 1, 2, 4, 8, 16]

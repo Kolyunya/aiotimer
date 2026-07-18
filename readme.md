@@ -212,6 +212,10 @@ backoff(retries=3, base=3)
 backoff(retries=3, scale=0.1)
 
 
+# Adds a 10% jitter to retry intervals.
+backoff(retries=3, jitter=0.1)
+
+
 # Generates no intervals.
 # Used in the test suite for testing edge cases. 
 never()
