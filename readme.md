@@ -36,6 +36,7 @@ An asynchronous timer with a human-friendly API and rich functionality.
   * [Configuring precision](#configuring-precision) 
   * [Custom duration factories
   ](#custom-duration-factories)
+  * [Memory management](#memory-management)
 * [Contributing](#contributing)
 
 ## Usage examples
@@ -301,6 +302,11 @@ async def main() -> None:
 if __name__ == '__main__':
   run(main())
 ```
+
+### Memory management
+A timer in the `Running` state will never be garbage-collected, nor will event handlers registered with it. They are referenced by the event loop and live at least until the timer is stopped.
+
+Inherently infinitely-running timers must be stopped manually as soon as they are no longer needed. Failing to do so effectively results in a memory leak.
 
 ## Contributing
 
