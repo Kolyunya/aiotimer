@@ -13,10 +13,11 @@ from tests.support import EventData, assert_callback_awaited
 @mark.parametrize('await_callbacks', [True, False])
 async def test_sync_callback_is_called_after_interval_completion(await_callbacks: bool) -> None:
     # Arrange
-    on_interval = Mock()
+    on_interval_complete = Mock()
+
     timer = Timer(
         thrice(0.1),
-        on_interval_complete=on_interval,
+        on_interval_complete=on_interval_complete,
         await_callbacks=await_callbacks,
     )
 
@@ -25,17 +26,18 @@ async def test_sync_callback_is_called_after_interval_completion(await_callbacks
     await sleep(1)
 
     # Assert
-    assert on_interval.call_count == 3
+    assert on_interval_complete.call_count == 3
 
 
 @mark.asyncio
 @mark.parametrize('await_callbacks', [True, False])
 async def test_async_callback_is_awaited_after_interval_completion(await_callbacks: bool) -> None:
     # Arrange
-    on_interval = AsyncMock()
+    on_interval_complete = AsyncMock()
+
     timer = Timer(
         thrice(0.1),
-        on_interval_complete=on_interval,
+        on_interval_complete=on_interval_complete,
         await_callbacks=await_callbacks,
     )
 
@@ -44,17 +46,18 @@ async def test_async_callback_is_awaited_after_interval_completion(await_callbac
     await sleep(1)
 
     # Assert
-    assert on_interval.await_count == 3
+    assert on_interval_complete.await_count == 3
 
 
 @mark.asyncio
 @mark.parametrize('await_callbacks', [True, False])
 async def test_interval_index_and_duration_are_passed_to_on_interval(await_callbacks: bool) -> None:
     # Arrange
-    on_interval = AsyncMock()
+    on_interval_complete = AsyncMock()
+
     timer = Timer(
         sequentially(0.3, 0.2, 0.1),
-        on_interval_complete=on_interval,
+        on_interval_complete=on_interval_complete,
         await_callbacks=await_callbacks,
     )
 
@@ -63,7 +66,7 @@ async def test_interval_index_and_duration_are_passed_to_on_interval(await_callb
     await sleep(1)
 
     # Assert
-    assert_callback_awaited(on_interval, [
+    assert_callback_awaited(on_interval_complete, [
         EventData(IntervalCompleteEvent, {
             'timer': timer,
             'interval_number': 1,

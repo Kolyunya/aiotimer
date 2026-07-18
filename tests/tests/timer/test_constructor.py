@@ -57,11 +57,7 @@ async def test_all_durations_must_be_non_negative() -> None:
     intervals = lambda: [0.1, -0.1]
     on_error = Mock()
 
-    timer = Timer(
-        intervals,
-        on_timer_complete=Mock(),
-        on_error=on_error,
-    )
+    timer = Timer(intervals, Mock(), on_error=on_error)
 
     # Act
     await timer.start()

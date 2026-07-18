@@ -13,9 +13,9 @@ from tests.support import EventData, assert_callback_awaited
 @mark.asyncio
 async def test_callbacks_are_not_called_after_resetting() -> None:
     # Arrange
-    on_complete = Mock()
-    on_interval = Mock()
-    timer = Timer(once(0.1), on_complete, on_interval)
+    on_timer_complete = Mock()
+    on_interval_complete = Mock()
+    timer = Timer(once(0.1), on_timer_complete, on_interval_complete)
 
     # Act
     await timer.start()
@@ -23,8 +23,8 @@ async def test_callbacks_are_not_called_after_resetting() -> None:
     await sleep(1)
 
     # Assert
-    on_complete.assert_not_called()
-    on_interval.assert_not_called()
+    on_timer_complete.assert_not_called()
+    on_interval_complete.assert_not_called()
 
 
 @mark.asyncio
@@ -125,8 +125,8 @@ async def test_reset_resets_interval_number_and_duration() -> None:
 
     timer = Timer(
         sequentially(0.1, 0.2),
-        on_timer_complete=on_timer_complete,
-        on_interval_complete=on_interval_complete,
+        on_timer_complete,
+        on_interval_complete,
     )
 
     # Act

@@ -18,7 +18,7 @@ async def test_sync_on_error_is_called(await_callbacks: bool) -> None:
 
     timer = Timer(
         once(0.1),
-        on_timer_complete=on_complete,
+        on_complete,
         on_error=on_error,
         await_callbacks=await_callbacks,
     )
@@ -42,7 +42,7 @@ async def test_async_on_error_is_called(await_callbacks: bool) -> None:
 
     timer = Timer(
         once(0.1),
-        on_timer_complete=on_complete,
+        on_complete,
         on_error=on_error,
         await_callbacks=await_callbacks,
     )
@@ -68,7 +68,7 @@ async def test_no_infinite_loop_after_error_inside_error_handler(await_callbacks
     # Act
     timer = Timer(
         once(0.1),
-        on_timer_complete=on_complete,
+        on_complete,
         on_error=on_error,
         await_callbacks=await_callbacks,
     )

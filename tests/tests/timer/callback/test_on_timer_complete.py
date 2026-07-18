@@ -12,6 +12,7 @@ from aiotimer.duration import thrice
 async def test_sync_callback_is_called_after_completion(await_callbacks: bool) -> None:
     # Arrange
     on_complete = Mock()
+
     timer = Timer(
         thrice(0.1),
         on_complete,
@@ -31,6 +32,7 @@ async def test_sync_callback_is_called_after_completion(await_callbacks: bool) -
 async def test_async_callback_is_awaited_after_completion(await_callbacks: bool) -> None:
     # Arrange
     on_complete = AsyncMock()
+
     timer = Timer(
         thrice(0.1),
         on_complete,

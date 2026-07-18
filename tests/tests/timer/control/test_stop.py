@@ -12,9 +12,9 @@ from aiotimer.state import StoppedState
 @mark.asyncio
 async def test_callbacks_are_not_called_after_stopping() -> None:
     # Arrange
-    on_complete = Mock()
-    on_interval = Mock()
-    timer = Timer(once(0.1), on_complete, on_interval)
+    on_timer_complete = Mock()
+    on_interval_complete = Mock()
+    timer = Timer(once(0.1), on_timer_complete, on_interval_complete)
 
     # Act
     await timer.start()
@@ -22,8 +22,8 @@ async def test_callbacks_are_not_called_after_stopping() -> None:
     await sleep(1)
 
     # Assert
-    on_complete.assert_not_called()
-    on_interval.assert_not_called()
+    on_timer_complete.assert_not_called()
+    on_interval_complete.assert_not_called()
 
 
 @mark.asyncio
