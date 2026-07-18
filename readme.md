@@ -274,7 +274,7 @@ For adequate accuracy, it is recommended to have the precision value configured 
 
 At the same time, having the precision configured to an extremely low value (e.g. `0.001`) may yield a high CPU load.
 
-## Custom duration factories
+### Custom duration factories
 The first argument to the timer constructor is a [`Duration Factory`](sources/aiotimer/duration/duration.py). It is a callable that returns an `Iterable` of durations in seconds.
 
 > This design is required to support the following features.
