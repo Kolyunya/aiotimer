@@ -1,4 +1,5 @@
 from .callback_error import MissingCallbackError
+from .configuration_error import InvalidConfigurationError
 from .duration_error import (
     EmptyDurationIterableError,
     InvalidDurationError,
@@ -7,10 +8,7 @@ from .duration_error import (
 from .logic_error import LogicError
 from .precision_error import InvalidPrecisionError
 from .state_error import InvalidStateError, InvalidStateNameError
-from .timer_error import (
-    InvalidConfigurationError,
-    TimerError,
-)
+from .timer_error import TimerError
 
 __all__ = [
     'EmptyDurationIterableError',

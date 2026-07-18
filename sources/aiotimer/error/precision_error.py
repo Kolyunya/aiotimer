@@ -1,4 +1,4 @@
-from .timer_error import InvalidConfigurationError
+from .configuration_error import InvalidConfigurationError
 
 
 class InvalidPrecisionError(InvalidConfigurationError):
