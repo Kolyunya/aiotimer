@@ -38,6 +38,7 @@ from .event import (
 from .interval import Interval
 from .state import (
     CompleteState,
+    FailedState,
     InitialState,
     RunningState,
     State,
@@ -215,6 +216,7 @@ class Timer(TimerInterface):
 
         except Exception as error:
             await self.__enqueue_error_event(error)
+            self.__state = FailedState()
 
         finally:
             await self.__process_events()
