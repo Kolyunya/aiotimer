@@ -214,7 +214,7 @@ class Timer(TimerInterface):
                 await sleep(self.__precision)
 
         except Exception as error:
-            await self.__invoke_error_event(error)
+            await self.__enqueue_error_event(error)
 
         finally:
             await self.__process_events()
@@ -235,17 +235,9 @@ class Timer(TimerInterface):
         coroutine = self.__executor.execute(self.__on_timer_complete, event)
         await self.__callbacks.put(coroutine)
 
-    async def __invoke_error_event(self, error: Exception) -> None:
-        event = await self.__make_error_event(error)
-
-        await self.__executor.execute(
-            self.__on_error,
-            event,
-
-            # Disable error handling to prevent an infinite loop
-            # in case an error occurs inside the error handler.
-            handle_errors=False,
-        )
+    async def __enqueue_error_event(self, error: Exception) -> None:
+        coroutine = self.__executor.handle_error(error)
+        await self.__callbacks.put(coroutine)
 
     async def __make_interval_complete_event(self) -> IntervalCompleteEvent:
         event = IntervalCompleteEvent(

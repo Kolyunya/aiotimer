@@ -1,13 +1,15 @@
-from abc import abstractmethod
+from abc import ABC
 from asyncio import get_running_loop
 from collections.abc import Awaitable, Callable
+
+from typing_extensions import override
 
 from ..event import ErrorEvent, EventType
 from .callback import Callback
 from .executor_interface import ExecutorInterface
 
 
-class AbstractExecutor(ExecutorInterface):
+class AbstractExecutor(ExecutorInterface, ABC):
 
     def __init__(
         self,
@@ -17,29 +19,8 @@ class AbstractExecutor(ExecutorInterface):
         self.__error_handler = error_handler
         self.__error_factory = error_factory
 
-    @abstractmethod
-    async def execute(
-        self,
-        callback: Callback[EventType],
-        event: EventType,
-        *,
-        handle_errors: bool = True,
-    ) -> None:
-        pass
-
-    async def _execute(
-        self,
-        callback: Callback[EventType],
-        event: EventType,
-        *,
-        handle_errors: bool = True,
-    ) -> None:
-        try:
-            await callback(event)
-        except Exception as error:
-            await self._handle_error(error, handle_errors=handle_errors)
-
-    async def _handle_error(self, error: Exception, *, handle_errors: bool) -> None:
+    @override
+    async def handle_error(self, error: Exception, *, handle_errors: bool = True) -> None:
         if self.__error_handler.is_missing:
             self.__forward_error_to_event_loop(error, 'No error handler is provided')
             return
@@ -58,6 +39,18 @@ class AbstractExecutor(ExecutorInterface):
             # in case an error occurs inside the error handler.
             handle_errors=False,
         )
+
+    async def _execute(
+        self,
+        callback: Callback[EventType],
+        event: EventType,
+        *,
+        handle_errors: bool = True,
+    ) -> None:
+        try:
+            await callback(event)
+        except Exception as error:
+            await self.handle_error(error, handle_errors=handle_errors)
 
     def __forward_error_to_event_loop(self, exception: Exception, message: str) -> None:
         loop = get_running_loop()

@@ -15,3 +15,12 @@ class ExecutorInterface(ABC):
         handle_errors: bool = True,
     ) -> None:
         pass
+
+    @abstractmethod
+    async def handle_error(
+        self,
+        error: Exception,
+        *,
+        handle_errors: bool = True,
+    ) -> None:
+        pass
