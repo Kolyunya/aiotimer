@@ -1,8 +1,11 @@
+from typing_extensions import override
+
 from ..error.state_error import InvalidStateError, InvalidStateNameError
 
 
 class State:
 
+    @override
     def __str__(self) -> str:
         class_name = self.__class__.__name__
 

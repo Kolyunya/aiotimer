@@ -8,6 +8,7 @@
     "reportPrivateUsage": "error",
     "reportMissingParameterType": "error",
     "reportMissingTypeArgument": "error",
+    "reportImplicitOverride": "error",
 
     "executionEnvironments": [
         {
