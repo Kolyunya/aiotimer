@@ -202,20 +202,30 @@ immediately_then(thrice(5))
 
 
 # Generates a zero-second interval followed by 5 exponentially growing retries.
-# The default exponent base is 2, resulting in durations of 0, 1, 2, 4 seconds.
-backoff(retries=3)
+# Retry delays are powers of 2, each divided by 2 with a ±25% jitter applied.
+# Resulting durations are 0, 0.5±25%, 1±25%, 2±25%, 4±25%, and 8±25%.
+backoff()
 
 
-# Generates faster-growing retry intervals.
-backoff(retries=3, base=3)
+# Generates more retries.
+backoff(retries=10)
 
 
-# Generates scaled-down retry intervals.
-backoff(retries=3, scale=0.1)
+# Stops retry generation after reaching the maximum duration.
+# Jitter is excluded from the calculation.
+backoff(maximum_duration=60)
 
 
-# Adds a 10% jitter to retry intervals.
-backoff(retries=3, jitter=0.1)
+# Applies a faster exponential growth.
+backoff(base=3)
+
+
+# Applies a stronger down-scaling.
+backoff(scale=0.1)
+
+
+# Applies a lighter jitter.
+backoff(jitter=0.1)
 
 
 # Generates no intervals.
