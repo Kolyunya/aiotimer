@@ -3,7 +3,7 @@ from typing import Optional
 from pytest import mark, raises
 
 from aiotimer.duration import exponentially
-from aiotimer.error import InvalidConfigurationError
+from aiotimer.error import InvalidConfigurationError, InvalidDurationError
 
 
 @mark.parametrize(('interval_count', 'maximum_duration'), [
@@ -49,7 +49,7 @@ def test_interval_count_must_be_greater_than_zero(interval_count: int) -> None:
 
 @mark.parametrize('maximum_duration', [-1, 0])
 def test_maximum_duration_must_be_greater_than_zero(maximum_duration: float) -> None:
-    with raises(InvalidConfigurationError) as error:
+    with raises(InvalidDurationError) as error:
         exponentially(maximum_duration=maximum_duration)
 
     assert str(error.value) == 'Maximum duration must be greater than zero'

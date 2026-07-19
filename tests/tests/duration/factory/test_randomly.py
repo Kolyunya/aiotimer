@@ -1,7 +1,7 @@
 from pytest import approx, mark, raises
 
 from aiotimer.duration import randomly
-from aiotimer.error import InvalidConfigurationError
+from aiotimer.error import InvalidDurationError
 
 
 @mark.parametrize(('minimum', 'maximum'), [
@@ -12,7 +12,7 @@ def test_minimum_duration_must_be_less_than_maximum_duration(
         minimum: float,
         maximum: float,
 ) -> None:
-    with raises(InvalidConfigurationError) as error:
+    with raises(InvalidDurationError) as error:
         randomly(minimum, maximum)
 
     assert str(error.value) == 'The minimum duration must be less than the maximum duration'
@@ -26,7 +26,7 @@ def test_duration_boundaries_must_be_positive(
     minimum: float,
     maximum: float,
 ) -> None:
-    with raises(InvalidConfigurationError) as error:
+    with raises(InvalidDurationError) as error:
         randomly(minimum, maximum)
 
     assert str(error.value) == 'Duration boundaries must be positive'
