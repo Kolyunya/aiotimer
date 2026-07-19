@@ -3,7 +3,6 @@ from .sequentially import sequentially
 
 
 def once(duration: float) -> DurationFactory:
-    durations = (duration for _ in range(1))
-    interval_factory = sequentially(*durations)
+    interval_factory = sequentially(duration)
 
     return interval_factory
