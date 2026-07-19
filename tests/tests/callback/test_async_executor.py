@@ -23,7 +23,7 @@ async def test_does_not_wait_for_callback_to_complete() -> None:
 
     # Act
     async with stopwatch() as time:
-        await executor(Callback(callback), Mock())
+        await executor.execute(Callback(callback), Mock())
         await callback_is_called.wait()
 
     # Assert

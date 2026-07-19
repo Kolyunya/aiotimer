@@ -228,7 +228,7 @@ class Timer(TimerInterface):
             return
 
         event = await self.__make_interval_complete_event()
-        coroutine = self.__executor(self.__on_interval_complete, event)
+        coroutine = self.__executor.execute(self.__on_interval_complete, event)
         await self.__callbacks.put(coroutine)
 
     async def __enqueue_timer_complete_event(self) -> None:
@@ -236,13 +236,13 @@ class Timer(TimerInterface):
             return
 
         event = await self.__make_timer_complete_event()
-        coroutine = self.__executor(self.__on_timer_complete, event)
+        coroutine = self.__executor.execute(self.__on_timer_complete, event)
         await self.__callbacks.put(coroutine)
 
     async def __invoke_error_event(self, error: Exception) -> None:
         event = await self.__make_error_event(error)
 
-        await self.__executor(
+        await self.__executor.execute(
             self.__on_error,
             event,
 

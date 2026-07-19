@@ -20,34 +20,18 @@ class AsyncExecutor(Executor):
 
         self.__tasks: set[Task[None]] = set()
 
-    async def __call__(
+    @override
+    async def execute(
         self,
         callback: Callback[EventType],
         event: EventType,
         *,
         handle_errors: bool = True,
     ) -> None:
-        coroutine = self.__execute(
-            callback,
-            event,
-            handle_errors=handle_errors,
-        )
-
+        coroutine = self._execute(callback, event, handle_errors=handle_errors)
         task = create_task(coroutine)
         task.add_done_callback(self.__delete_task)
         self.__tasks.add(task)
-
-    async def __execute(
-        self,
-        callback: Callback[EventType],
-        event: EventType,
-        *,
-        handle_errors: bool,
-    ) -> None:
-        try:
-            await callback(event)
-        except Exception as error:
-            await self._handle_error(error, handle_errors=handle_errors)
 
     def __delete_task(self, task: Task[None]) -> None:
         self.__tasks.remove(task)

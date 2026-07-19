@@ -8,14 +8,11 @@ from .executor import Executor
 class SyncExecutor(Executor):
 
     @override
-    async def __call__(
+    async def execute(
         self,
         callback: Callback[EventType],
         event: EventType,
         *,
         handle_errors: bool = True,
     ) -> None:
-        try:
-            await callback(event)
-        except Exception as error:
-            await self._handle_error(error, handle_errors=handle_errors)
+        await self._execute(callback, event, handle_errors=handle_errors)
