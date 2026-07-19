@@ -278,7 +278,8 @@ class Timer(TimerInterface):
                 await callback
                 self.__callbacks.task_done()
 
-        await shield(create_task(process_events()))
+        if not self.__callbacks.empty():
+            await shield(create_task(process_events()))
 
     @classmethod
     def __validate_event_handlers(
