@@ -80,8 +80,7 @@ class Timer(TimerInterface):
         self.__initialize_duration_iterator()
 
         self.__interval: Interval
-        if not self.__initialize_next_interval(reset=True):
-            raise EmptyDurationIterableError
+        self.__initialize_next_interval(reset=True)
 
     @override
     async def start(self) -> None:
@@ -105,8 +104,7 @@ class Timer(TimerInterface):
             await self.__stop_advancement()
 
             self.__initialize_duration_iterator()
-            if not self.__initialize_next_interval(reset=True):
-                raise EmptyDurationIterableError
+            self.__initialize_next_interval(reset=True)
 
     @override
     async def set(self, duration: float) -> None:
@@ -174,6 +172,9 @@ class Timer(TimerInterface):
 
         except StopIteration:
             pass
+
+        if reset and not success:
+            raise EmptyDurationIterableError
 
         return success
 
