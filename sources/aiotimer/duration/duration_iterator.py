@@ -3,7 +3,7 @@ from typing import Union, cast
 
 from typing_extensions import override
 
-from aiotimer.error import InvalidDurationError
+from ..error import InvalidDurationError
 
 SingleDuration = float
 MultipleDurations = Union[list[SingleDuration], tuple[SingleDuration, ...]]
