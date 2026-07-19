@@ -30,6 +30,7 @@ ignore = [
     'S311',
     'SIM108',
     'SIM117',
+    'TC001',    # Beartype requires annotations to be resolvable at runtime.
     'TID252',
     'TRY003',
     'UP007',    # TODO: Delete this line after Python 3.9 support is dropped.

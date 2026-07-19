@@ -30,7 +30,7 @@ async def test_callback_is_set() -> None:
 async def test_sync_function_is_called_once() -> None:
     # Arrange
     event = Mock()
-    event_handler = Mock()
+    event_handler = Mock(return_value=None)
     callback = Callback[TimerEvent](event_handler)
 
     # Act
@@ -46,7 +46,7 @@ async def test_sync_function_is_called_thrice() -> None:
     event_1 = Mock()
     event_2 = Mock()
     event_3 = Mock()
-    event_handler = Mock()
+    event_handler = Mock(return_value=None)
     callback = Callback[TimerEvent](event_handler)
 
     # Act

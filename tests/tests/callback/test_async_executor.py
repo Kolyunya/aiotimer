@@ -17,7 +17,7 @@ async def test_does_not_wait_for_callback_to_complete() -> None:
         await sleep(1)
 
     executor = AsyncExecutor(
-        error_handler=Mock(),
+        error_handler=Mock(spec=Callback),
         error_factory=Mock(),
     )
 

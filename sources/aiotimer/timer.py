@@ -11,7 +11,7 @@ from asyncio import (
 )
 from collections.abc import Awaitable, Iterator
 from contextlib import suppress
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from typing_extensions import override
 
@@ -19,8 +19,12 @@ from .callback import (
     AsyncExecutor,
     Callback,
     Executor,
+    OnError,
+    OnIntervalComplete,
+    OnTimerComplete,
     SyncExecutor,
 )
+from .duration import DurationFactory
 from .error import (
     EmptyDurationIterableError,
     InvalidPrecisionError,
@@ -40,14 +44,6 @@ from .state import (
     StoppedState,
 )
 from .timer_interface import TimerInterface
-
-if TYPE_CHECKING:
-    from .callback import (
-        OnError,
-        OnIntervalComplete,
-        OnTimerComplete,
-    )
-    from .duration import DurationFactory
 
 
 class Timer(TimerInterface):

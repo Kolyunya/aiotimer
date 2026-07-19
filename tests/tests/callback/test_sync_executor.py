@@ -17,7 +17,7 @@ async def test_does_wait_for_callback_to_complete() -> None:
         callback_is_called.set()
 
     executor = SyncExecutor(
-        error_handler=Mock(),
+        error_handler=Mock(spec=Callback),
         error_factory=Mock(),
     )
 
