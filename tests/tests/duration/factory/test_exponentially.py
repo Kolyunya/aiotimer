@@ -63,8 +63,9 @@ def test_interval_count_limit() -> None:
     assert durations == [1, 2, 4, 8, 16]
 
 
-def test_maximum_duration_limit() -> None:
-    factory = exponentially(maximum_duration=16)
+@mark.parametrize('maximum_duration', [16, 31.999])
+def test_maximum_duration_limit(maximum_duration: float) -> None:
+    factory = exponentially(maximum_duration=maximum_duration)
 
     durations = list(factory())
 

@@ -156,12 +156,12 @@ thrice(5)
 sequentially(1, 2, 3)
 
 
-# Generates 5 intervals of 1, 2, and 4 seconds.
-exponentially(interval_count=3)
+# Generates 5 intervals of 1, 2, 4, 8, and 16 seconds.
+exponentially(interval_count=5)
 
 
 # Same as previous but limited by the duration instead.
-exponentially(maximum_duration=4)
+exponentially(maximum_duration=16)
 
 
 # Generates faster-growing intervals of 1, 3, and 9 seconds.
