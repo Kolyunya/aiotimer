@@ -33,7 +33,7 @@ async def test_sync_on_error_is_called(await_callbacks: bool) -> None:
 
 @mark.asyncio
 @mark.parametrize('await_callbacks', [True, False])
-async def test_async_on_error_is_called(await_callbacks: bool) -> None:
+async def test_async_on_error_is_awaited(await_callbacks: bool) -> None:
     # Arrange
     async def on_complete() -> None:
         raise RuntimeError

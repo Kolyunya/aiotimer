@@ -60,7 +60,7 @@ async def test_error_handler_is_invoked_when_provided(executor_type: ExecutorTyp
     # Assert
     assert len(loop_errors) == 0
     assert len(handled_errors) == 1
-    assert handled_errors[0] == callback_error
+    assert handled_errors[0] is callback_error
 
 
 @mark.asyncio

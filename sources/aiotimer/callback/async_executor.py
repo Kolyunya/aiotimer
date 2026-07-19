@@ -4,11 +4,11 @@ from collections.abc import Awaitable, Callable
 from typing_extensions import override
 
 from ..event import ErrorEvent, EventType
+from .abstract_executor import AbstractExecutor
 from .callback import Callback
-from .executor import Executor
 
 
-class AsyncExecutor(Executor):
+class AsyncExecutor(AbstractExecutor):
 
     @override
     def __init__(

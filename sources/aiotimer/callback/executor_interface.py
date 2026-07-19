@@ -1,13 +1,12 @@
-from typing_extensions import override
+from abc import ABC, abstractmethod
 
 from ..event import EventType
-from .abstract_executor import AbstractExecutor
 from .callback import Callback
 
 
-class SyncExecutor(AbstractExecutor):
+class ExecutorInterface(ABC):
 
-    @override
+    @abstractmethod
     async def execute(
         self,
         callback: Callback[EventType],
@@ -15,4 +14,4 @@ class SyncExecutor(AbstractExecutor):
         *,
         handle_errors: bool = True,
     ) -> None:
-        await self._execute(callback, event, handle_errors=handle_errors)
+        pass

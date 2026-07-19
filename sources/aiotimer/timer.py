@@ -18,7 +18,7 @@ from typing_extensions import override
 from .callback import (
     AsyncExecutor,
     Callback,
-    Executor,
+    ExecutorInterface,
     OnError,
     OnIntervalComplete,
     OnTimerComplete,
@@ -72,7 +72,7 @@ class Timer(TimerInterface):
         self.__advance_task: Optional[Task[None]] = None
         self.__callbacks: Queue[Awaitable[None]] = Queue[Awaitable[None]]()
 
-        self.__executor: Executor
+        self.__executor: ExecutorInterface
         self.__initialize_executor(await_callbacks=await_callbacks)
 
         self.__duration_iterator: Iterator[float]
