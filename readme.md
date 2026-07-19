@@ -33,7 +33,7 @@ An asynchronous timer with a human-friendly API and rich functionality.
 * [Advanced usage](#advanced-usage)
   * [Sync and Async callbacks
 ](#sync-and-async-callbacks)
-  * [Configuring precision](#configuring-precision) 
+  * [Configuring precision](#configuring-precision)
   * [Custom duration factories
   ](#custom-duration-factories)
   * [Memory management](#memory-management)
@@ -112,9 +112,9 @@ More usage examples are available [here](examples).
 * `await timer.reset()` resets the timer. The elapsed and remaining times for the current time interval as well as the current interval itself are **_discarded_**. The timer is reset to the initial state it had after instantiation.
 
 ### Duration modification
-* `await timer.set(duration)` sets the duration of the currently running interval **_to_** `duration`. In case the elapsed time is greater than `duration`, the interval would complete immediately. 
+* `await timer.set(duration)` sets the duration of the currently running interval **_to_** `duration`. In case the elapsed time is greater than `duration`, the interval would complete immediately.
 * `await timer.prolong(delta)` prolongs the duration of the currently running interval **_by_** `delta`.
-* `await timer.shorten(delta)` shortens the duration of the currently running interval **_by_** `delta`. In case the elapsed time is greater than the resulting duration after shortening, the interval would complete immediately. 
+* `await timer.shorten(delta)` shortens the duration of the currently running interval **_by_** `delta`. In case the elapsed time is greater than the resulting duration after shortening, the interval would complete immediately.
 
 ### Introspection
 * `await timer.elapsed` returns the elapsed time for the currently running interval.
@@ -229,7 +229,7 @@ backoff(jitter=0.1)
 
 
 # Generates no intervals.
-# Used in the test suite for testing edge cases. 
+# Used in the test suite for testing edge cases.
 never()
 ```
 
@@ -250,7 +250,7 @@ All event handlers **must** comply with the following API contract. Non-complian
 
 > All event objects have a `timer` property that references the timer object that fired the event.
 
-> Any public method of a timer object may be safely called from any event handler. The internal timer architecture prevents any race conditions and deadlocks from occurring. 
+> Any public method of a timer object may be safely called from any event handler. The internal timer architecture prevents any race conditions and deadlocks from occurring.
 
 ### Timer complete event
 This event is fired each time the last interval of a timer is complete. An `on_timer_complete` handler **_may_** optionally accept a [`TimerCompleteEvent`](sources/aiotimer/event/timer_complete_event.py) object. Events of this type have the following properties:
