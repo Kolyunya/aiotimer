@@ -1,9 +1,9 @@
 from typing_extensions import override
 
-from .state import State
+from .abstract_state import AbstractState
 
 
-class StoppedState(State):
+class StoppedState(AbstractState):
 
     @override
     def ensure_could_start(self) -> None:

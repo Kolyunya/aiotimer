@@ -1,9 +1,9 @@
 from typing_extensions import override
 
-from .state import State
+from .abstract_state import AbstractState
 
 
-class CompleteState(State):
+class CompleteState(AbstractState):
 
     @override
     def ensure_could_reset(self) -> None:

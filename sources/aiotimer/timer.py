@@ -41,7 +41,7 @@ from .state import (
     FailedState,
     InitialState,
     RunningState,
-    State,
+    StateInterface,
     StoppedState,
 )
 from .timer_interface import TimerInterface
@@ -69,7 +69,7 @@ class Timer(TimerInterface):
         self.__precision = precision
 
         self.__lock: Lock = Lock()
-        self.__state: State = InitialState()
+        self.__state: StateInterface = InitialState()
         self.__advance_task: Optional[Task[None]] = None
         self.__callbacks: Queue[Awaitable[None]] = Queue[Awaitable[None]]()
 
@@ -140,7 +140,7 @@ class Timer(TimerInterface):
 
     @property
     @override
-    async def state(self) -> type[State]:
+    async def state(self) -> type[StateInterface]:
         async with self.__lock:
             return type(self.__state)
 

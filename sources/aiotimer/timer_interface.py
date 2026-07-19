@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from .state import State
+from .state import StateInterface
 
 
 class TimerInterface(ABC):
@@ -45,5 +43,5 @@ class TimerInterface(ABC):
 
     @property
     @abstractmethod
-    async def state(self) -> type[State]:
+    async def state(self) -> type[StateInterface]:
         pass
