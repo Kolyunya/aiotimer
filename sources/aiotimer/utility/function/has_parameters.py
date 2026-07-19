@@ -2,7 +2,6 @@ from collections.abc import Callable
 from inspect import signature
 from sys import version_info
 from typing import Any
-from unittest.mock import Mock
 
 from ...error import TimerError
 
@@ -50,8 +49,11 @@ def has_parameters(the_callable: Callable[..., Any]) -> bool:
 
     # Remove the following block after the support for Python 3.10 is dropped.
     # Mock objects break when passed to `inspect.signature()` only in Python 3.10.
-    if version_info[:2] == (3, 10) and isinstance(the_callable, Mock):
-        return True
+    if version_info[:2] == (3, 10):
+        from unittest.mock import Mock
+
+        if isinstance(the_callable, Mock):
+            return True
 
     try:
         the_signature = signature(the_callable)
