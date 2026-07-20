@@ -3,13 +3,11 @@ from __future__ import annotations
 from asyncio import (
     CancelledError,
     Lock,
-    Queue,
     Task,
     create_task,
-    shield,
     sleep,
 )
-from collections.abc import Awaitable, Coroutine, Iterator
+from collections.abc import Coroutine, Iterator
 from contextlib import suppress
 from typing import Any, Optional
 
@@ -51,6 +49,7 @@ from .utility.asyncio.error.handler import (
     ErrorHandler,
     ErrorHandlerInterface,
 )
+from .utility.asyncio.job.queue import JobQueue
 
 
 class Timer(TimerInterface):
@@ -77,7 +76,7 @@ class Timer(TimerInterface):
         self.__lock: Lock = Lock()
         self.__state: StateInterface = InitialState()
         self.__advance_task: Optional[Task[None]] = None
-        self.__callbacks: Queue[Awaitable[None]] = Queue[Awaitable[None]]()
+        self.__callbacks = JobQueue()
 
         self.__error_handler: ErrorHandlerInterface
         self.__initialize_error_handler()
@@ -225,7 +224,7 @@ class Timer(TimerInterface):
                             break
 
                 # The lock must be released before callback processing.
-                await self.__process_events()
+                await self.__callbacks.process()
 
                 await sleep(self.__precision)
 
@@ -234,7 +233,7 @@ class Timer(TimerInterface):
             self.__state = FailedState()
 
         finally:
-            await self.__process_events()
+            await self.__callbacks.process()
 
     async def __enqueue_interval_complete_callback(self) -> None:
         if self.__on_interval_complete.is_missing:
@@ -261,7 +260,7 @@ class Timer(TimerInterface):
 
     async def __enqueue_callback(self, callback: Coroutine[Any, Any, None], *, bubble_errors: bool = False) -> None:
         callback = self.__executor.execute(callback, bubble_errors=bubble_errors)
-        await self.__callbacks.put(callback)
+        await self.__callbacks.push(callback)
 
     async def __make_interval_complete_event(self) -> IntervalCompleteEvent:
         event = IntervalCompleteEvent(
@@ -287,21 +286,6 @@ class Timer(TimerInterface):
         )
 
         return event
-
-    async def __process_events(self) -> None:
-        # Event processing must be offloaded to a separate task in order to
-        # support stopping and resetting from the inside of event handlers.
-        # The task must also be shielded to protect it from the cancel-propagation
-        # from the `__advance()` task when it is canceled during stopping and resetting.
-
-        async def process_events() -> None:
-            while not self.__callbacks.empty():
-                callback = await self.__callbacks.get()
-                await callback
-                self.__callbacks.task_done()
-
-        if not self.__callbacks.empty():
-            await shield(create_task(process_events()))
 
     @classmethod
     def __validate_event_handlers(
