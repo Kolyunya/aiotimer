@@ -5,7 +5,7 @@ from pytest import mark
 
 from aiotimer import Timer
 from aiotimer.duration import forever, once, sequentially
-from aiotimer.event import IntervalCompleteEvent, TimerCompleteEvent
+from aiotimer.event import ErrorEvent, IntervalCompleteEvent, TimerCompleteEvent
 from aiotimer.state import InitialState
 from tests.support import EventData, assert_callback_awaited
 
@@ -82,6 +82,64 @@ async def test_can_reset_from_on_interval_complete(await_callbacks: bool) -> Non
     assert await timer.state == InitialState
     on_interval_complete.assert_awaited_once()
     on_error.assert_not_awaited()
+
+
+@mark.asyncio
+@mark.parametrize('await_callbacks', [True, False])
+async def test_can_reset_from_on_timer_complete(await_callbacks: bool) -> None:
+    # Arrange
+    on_timer_complete = AsyncMock()
+    on_error = AsyncMock()
+
+    async def reset(event: TimerCompleteEvent) -> None:
+        await on_timer_complete()
+        await event.timer.reset()
+
+    timer = Timer(
+        once(0.1),
+        on_timer_complete=reset,
+        on_error=on_error,
+        await_callbacks=await_callbacks,
+    )
+
+    # Act
+    await timer.start()
+    await sleep(1)
+
+    state = timer.state
+
+    # Assert
+    assert state == InitialState
+    on_timer_complete.assert_awaited_once()
+    on_error.assert_not_awaited()
+
+
+@mark.asyncio
+@mark.parametrize('await_callbacks', [True, False])
+async def test_can_reset_from_on_error(await_callbacks: bool) -> None:
+    # Arrange
+    on_error = AsyncMock()
+
+    async def reset(event: ErrorEvent) -> None:
+        await on_error()
+        await event.timer.reset()
+
+    timer = Timer(
+        once(0.1),
+        Mock(side_effect=RuntimeError()),
+        on_error=reset,
+        await_callbacks=await_callbacks,
+    )
+
+    # Act
+    await timer.start()
+    await sleep(1)
+
+    state = timer.state
+
+    # Assert
+    assert state == InitialState
+    on_error.assert_awaited_once()
 
 
 @mark.asyncio

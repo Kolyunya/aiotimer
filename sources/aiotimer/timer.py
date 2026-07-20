@@ -9,20 +9,17 @@ from asyncio import (
     shield,
     sleep,
 )
-from collections.abc import Awaitable, Iterator
+from collections.abc import Awaitable, Coroutine, Iterator
 from contextlib import suppress
-from typing import Optional
+from typing import Any, Optional
 
 from typing_extensions import override
 
 from .callback import (
-    AsyncExecutor,
     Callback,
-    ExecutorInterface,
     OnError,
     OnIntervalComplete,
     OnTimerComplete,
-    SyncExecutor,
 )
 from .duration import DurationFactory
 from .error import (
@@ -45,6 +42,15 @@ from .state import (
     StoppedState,
 )
 from .timer_interface import TimerInterface
+from .utility.asyncio.coroutine.executor import (
+    AsyncExecutor,
+    ExecutorInterface,
+    SyncExecutor,
+)
+from .utility.asyncio.error.handler import (
+    ErrorHandler,
+    ErrorHandlerInterface,
+)
 
 
 class Timer(TimerInterface):
@@ -72,6 +78,9 @@ class Timer(TimerInterface):
         self.__state: StateInterface = InitialState()
         self.__advance_task: Optional[Task[None]] = None
         self.__callbacks: Queue[Awaitable[None]] = Queue[Awaitable[None]]()
+
+        self.__error_handler: ErrorHandlerInterface
+        self.__initialize_error_handler()
 
         self.__executor: ExecutorInterface
         self.__initialize_executor(await_callbacks=await_callbacks)
@@ -142,12 +151,20 @@ class Timer(TimerInterface):
         async with self.__lock:
             return type(self.__state)
 
+    def __initialize_error_handler(self) -> None:
+        if self.__on_error.is_missing:
+            self.__error_handler = ErrorHandler(None)
+
+        else:
+            async def handle_error(error: Exception) -> None:
+                event = await self.__make_error_event(error)
+                await self.__on_error(event)
+
+            self.__error_handler = ErrorHandler(handle_error)
+
     def __initialize_executor(self, *, await_callbacks: bool) -> None:
         executor_type = SyncExecutor if await_callbacks else AsyncExecutor
-        self.__executor = executor_type(
-            self.__on_error,
-            self.__make_error_event,
-        )
+        self.__executor = executor_type(self.__error_handler)
 
     def __initialize_duration_iterator(self) -> None:
         iterable = self.__duration_factory()
@@ -203,11 +220,11 @@ class Timer(TimerInterface):
                     self.__interval.advance()
 
                     if self.__interval.is_complete:
-                        await self.__enqueue_interval_complete_event()
+                        await self.__enqueue_interval_complete_callback()
 
                         if not self.__initialize_next_interval():
                             self.__state = CompleteState()
-                            await self.__enqueue_timer_complete_event()
+                            await self.__enqueue_timer_complete_callback()
                             break
 
                 # The lock must be released before callback processing.
@@ -216,31 +233,38 @@ class Timer(TimerInterface):
                 await sleep(self.__precision)
 
         except Exception as error:
-            await self.__enqueue_error_event(error)
+            await self.__enqueue_error_callback(error)
             self.__state = FailedState()
 
         finally:
             await self.__process_events()
 
-    async def __enqueue_interval_complete_event(self) -> None:
+    async def __enqueue_interval_complete_callback(self) -> None:
         if self.__on_interval_complete.is_missing:
             return
 
         event = await self.__make_interval_complete_event()
-        coroutine = self.__executor.execute(self.__on_interval_complete, event)
-        await self.__callbacks.put(coroutine)
+        callback = self.__on_interval_complete(event)
+        await self.__enqueue_callback(callback)
 
-    async def __enqueue_timer_complete_event(self) -> None:
+    async def __enqueue_timer_complete_callback(self) -> None:
         if self.__on_timer_complete.is_missing:
             return
 
         event = await self.__make_timer_complete_event()
-        coroutine = self.__executor.execute(self.__on_timer_complete, event)
-        await self.__callbacks.put(coroutine)
+        callback = self.__on_timer_complete(event)
+        await self.__enqueue_callback(callback)
 
-    async def __enqueue_error_event(self, error: Exception) -> None:
-        coroutine = self.__executor.handle_error(error)
-        await self.__callbacks.put(coroutine)
+    async def __enqueue_error_callback(self, error: Exception) -> None:
+        callback = self.__error_handler.handle(error)
+
+        # Enable error-bubbling to the event loop.
+        # Failing to do so results in an infinite loop inside a failing error handler.
+        await self.__enqueue_callback(callback, bubble_errors=True)
+
+    async def __enqueue_callback(self, callback: Coroutine[Any, Any, None], *, bubble_errors: bool = False) -> None:
+        callback = self.__executor.execute(callback, bubble_errors=bubble_errors)
+        await self.__callbacks.put(callback)
 
     async def __make_interval_complete_event(self) -> IntervalCompleteEvent:
         event = IntervalCompleteEvent(

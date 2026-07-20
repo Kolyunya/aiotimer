@@ -7,58 +7,28 @@ from pytest import mark
 from aiotimer import Timer
 from aiotimer.event import ErrorEvent
 from aiotimer.state import FailedState
-from tests.support import watch_loop_errors
+from tests.support import watch_bubbled_errors
 
 
 @mark.asyncio
 @mark.parametrize('await_callbacks', [True, False])
-async def test_error_is_forwarded_to_event_loop_when_no_error_handler_is_provided(
-    await_callbacks: bool,
-) -> None:
+async def test_error_is_handled_when_handler_is_provided(await_callbacks: bool) -> None:
     # Arrange
-    loop_errors = watch_loop_errors()
-    internal_error = RuntimeError()
-
-    def duration_factory() -> Iterator[float]:
-        yield 0
-        raise internal_error
-
-    timer = Timer(
-        duration_factory,
-        Mock(),
-        await_callbacks=await_callbacks,
-    )
-
-    # Act
-    await timer.start()
-    await sleep(0.1)
-
-    # Assert
-    assert len(loop_errors) == 1
-    assert loop_errors[0]['exception'] is internal_error
-    assert loop_errors[0]['message'] == 'No error handler is provided'
-    assert await timer.state is FailedState
-
-
-@mark.asyncio
-@mark.parametrize('await_callbacks', [True, False])
-async def test_error_handler_is_invoked_when_provided(await_callbacks: bool) -> None:
-    # Arrange
-    loop_errors = watch_loop_errors()
+    bubbled_errors = watch_bubbled_errors()
     handled_errors: list[Exception] = []
-    internal_error = RuntimeError()
+    error = RuntimeError()
 
     def duration_factory() -> Iterator[float]:
         yield 0
-        raise internal_error
+        raise error
 
-    def on_error(event: ErrorEvent) -> None:
+    def error_handler(event: ErrorEvent) -> None:
         handled_errors.append(event.error)
 
     timer = Timer(
         duration_factory,
         Mock(),
-        on_error=on_error,
+        on_error=error_handler,
         await_callbacks=await_callbacks,
     )
 
@@ -67,32 +37,26 @@ async def test_error_handler_is_invoked_when_provided(await_callbacks: bool) -> 
     await sleep(0.1)
 
     # Assert
-    assert len(loop_errors) == 0
+    assert len(bubbled_errors) == 0
     assert len(handled_errors) == 1
-    assert handled_errors[0] is internal_error
+    assert handled_errors[0] is error
     assert await timer.state is FailedState
 
 
 @mark.asyncio
 @mark.parametrize('await_callbacks', [True, False])
-async def test_error_raised_by_error_handler_is_forwarded_to_event_loop(
-    await_callbacks: bool,
-) -> None:
+async def test_error_is_bubbled_when_handler_is_missing(await_callbacks: bool) -> None:
     # Arrange
-    loop_errors = watch_loop_errors()
-    error_handler_error = RuntimeError()
+    loop_errors = watch_bubbled_errors()
+    error = RuntimeError('Bubbled error')
 
     def duration_factory() -> Iterator[float]:
         yield 0
-        raise RuntimeError
-
-    def on_error() -> None:
-        raise error_handler_error
+        raise error
 
     timer = Timer(
         duration_factory,
         Mock(),
-        on_error=on_error,
         await_callbacks=await_callbacks,
     )
 
@@ -102,6 +66,44 @@ async def test_error_raised_by_error_handler_is_forwarded_to_event_loop(
 
     # Assert
     assert len(loop_errors) == 1
-    assert loop_errors[0]['exception'] is error_handler_error
-    assert loop_errors[0]['message'] == 'Error handler is disabled'
+    assert loop_errors[0]['exception'] is error
+    assert loop_errors[0]['message'] == 'Bubbled error'
+    assert await timer.state is FailedState
+
+
+@mark.asyncio
+@mark.parametrize('await_callbacks', [True, False])
+async def test_failed_handler_bubbles_both_errors(
+    await_callbacks: bool,
+) -> None:
+    # Arrange
+    bubbled_errors = watch_bubbled_errors()
+    initial_error = RuntimeError('Initial error')
+    handler_error = RuntimeError('Handler error')
+
+    def duration_factory() -> Iterator[float]:
+        yield 0
+        raise initial_error
+
+    def error_handler() -> None:
+        raise handler_error
+
+    timer = Timer(
+        duration_factory,
+        Mock(),
+        on_error=error_handler,
+        await_callbacks=await_callbacks,
+    )
+
+    # Act
+    await timer.start()
+    await sleep(0.1)
+
+    # Assert
+    assert len(bubbled_errors) == 2
+    assert len(bubbled_errors) == 2
+    assert bubbled_errors[0]['exception'] is initial_error
+    assert bubbled_errors[0]['message'] == 'Initial error'
+    assert bubbled_errors[1]['exception'] is handler_error
+    assert bubbled_errors[1]['message'] == 'Handler error'
     assert await timer.state is FailedState
