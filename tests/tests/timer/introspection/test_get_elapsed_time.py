@@ -12,7 +12,7 @@ from aiotimer.duration import once, sequentially
 async def test_get_elapsed_time_after_instantiation() -> None:
     timer = Timer(once(42), Mock())
 
-    elapsed = await timer.elapsed
+    elapsed = timer.elapsed
 
     assert elapsed == 0
 
@@ -35,7 +35,8 @@ async def test_get_elapsed_time_after_running_for_some_time(
     # Act
     await timer.start()
     await sleep(sleep_for)
-    elapsed = await timer.elapsed
+
+    elapsed = timer.elapsed
 
     # Assert
     assert elapsed == approx(elapsed_expected, abs=0.1)
@@ -50,7 +51,8 @@ async def test_elapsed_time_must_not_be_greater_than_duration() -> None:
     # Act
     await timer.start()
     await sleep(1)
-    elapsed = await timer.elapsed
+
+    elapsed = timer.elapsed
 
     # Assert
     assert elapsed == approx(0.1)

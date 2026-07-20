@@ -135,21 +135,18 @@ class Timer(TimerInterface):
 
     @property
     @override
-    async def remaining(self) -> float:
-        async with self.__lock:
-            return self.__interval.remaining
+    def remaining(self) -> float:
+        return self.__interval.remaining
 
     @property
     @override
-    async def elapsed(self) -> float:
-        async with self.__lock:
-            return self.__interval.elapsed
+    def elapsed(self) -> float:
+        return self.__interval.elapsed
 
     @property
     @override
-    async def state(self) -> type[StateInterface]:
-        async with self.__lock:
-            return type(self.__state)
+    def state(self) -> type[StateInterface]:
+        return type(self.__state)
 
     def __initialize_error_handler(self) -> None:
         if self.__on_error.is_missing:

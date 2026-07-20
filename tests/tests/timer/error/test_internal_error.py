@@ -40,7 +40,7 @@ async def test_error_is_handled_when_handler_is_provided(await_callbacks: bool) 
     assert len(bubbled_errors) == 0
     assert len(handled_errors) == 1
     assert handled_errors[0] is error
-    assert await timer.state is FailedState
+    assert timer.state is FailedState
 
 
 @mark.asyncio
@@ -68,7 +68,7 @@ async def test_error_is_bubbled_when_handler_is_missing(await_callbacks: bool) -
     assert len(loop_errors) == 1
     assert loop_errors[0]['exception'] is error
     assert loop_errors[0]['message'] == 'Bubbled error'
-    assert await timer.state is FailedState
+    assert timer.state is FailedState
 
 
 @mark.asyncio
@@ -106,4 +106,4 @@ async def test_failed_handler_bubbles_both_errors(
     assert bubbled_errors[0]['message'] == 'Initial error'
     assert bubbled_errors[1]['exception'] is handler_error
     assert bubbled_errors[1]['message'] == 'Handler error'
-    assert await timer.state is FailedState
+    assert timer.state is FailedState

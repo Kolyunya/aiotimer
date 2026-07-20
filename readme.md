@@ -117,9 +117,9 @@ More usage examples are available [here](examples).
 * `await timer.shorten(delta)` shortens the duration of the currently running interval **_by_** `delta`. In case the elapsed time is greater than the resulting duration after shortening, the interval would complete immediately.
 
 ### Introspection
-* `await timer.elapsed` returns the elapsed time for the currently running interval.
-* `await timer.remaining` returns the remaining time for the currently running interval.
-* `await timer.state` returns the type of the current state of the timer.
+* `timer.elapsed` returns the elapsed time for the currently running interval.
+* `timer.remaining` returns the remaining time for the currently running interval.
+* `timer.state` returns the type of the current state of the timer.
 
 ## States and transitions
 The timer class implements the [State Pattern](https://en.wikipedia.org/wiki/State_pattern). Methods that modify the timer state may only be called when the timer is in a supported state.

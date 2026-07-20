@@ -33,15 +33,15 @@ class TimerInterface(ABC):
 
     @property
     @abstractmethod
-    async def remaining(self) -> float:
+    def remaining(self) -> float:
         pass
 
     @property
     @abstractmethod
-    async def elapsed(self) -> float:
+    def elapsed(self) -> float:
         pass
 
     @property
     @abstractmethod
-    async def state(self) -> type[StateInterface]:
+    def state(self) -> type[StateInterface]:
         pass

@@ -35,7 +35,8 @@ async def test_can_reset_a_running_timer() -> None:
     # Act
     await timer.start()
     await timer.reset()
-    state = await timer.state
+
+    state = timer.state
 
     # Assert
     assert state == InitialState
@@ -50,7 +51,8 @@ async def test_can_reset_a_stopped_timer() -> None:
     await timer.start()
     await timer.stop()
     await timer.reset()
-    state = await timer.state
+
+    state = timer.state
 
     # Assert
     assert state == InitialState
@@ -78,8 +80,10 @@ async def test_can_reset_from_on_interval_complete(await_callbacks: bool) -> Non
     await timer.start()
     await sleep(1)
 
+    state = timer.state
+
     # Assert
-    assert await timer.state == InitialState
+    assert state == InitialState
     on_interval_complete.assert_awaited_once()
     on_error.assert_not_awaited()
 
@@ -151,7 +155,8 @@ async def test_reset_resets_time_left() -> None:
     await timer.start()
     await sleep(1)
     await timer.reset()
-    time_left = await timer.remaining
+
+    time_left = timer.remaining
 
     # Assert
     assert time_left == 42
@@ -166,7 +171,8 @@ async def test_time_left_is_not_decreasing_when_timer_is_reset() -> None:
     await timer.start()
     await timer.reset()
     await sleep(1)
-    time_left = await timer.remaining
+
+    time_left = timer.remaining
 
     # Assert
     assert time_left == 42

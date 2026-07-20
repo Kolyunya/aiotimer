@@ -14,7 +14,7 @@ async def test_see_initial_state_after_instantiation() -> None:
     timer = Timer(once(1), Mock())
 
     # Act
-    state = await timer.state
+    state = timer.state
 
     # Assert
     assert state == InitialState
@@ -27,7 +27,8 @@ async def test_see_running_state_after_starting() -> None:
 
     # Act
     await timer.start()
-    state = await timer.state
+
+    state = timer.state
 
     # Assert
     assert state == RunningState
@@ -41,7 +42,8 @@ async def test_see_stopped_state_after_stopping() -> None:
     # Act
     await timer.start()
     await timer.stop()
-    state = await timer.state
+
+    state = timer.state
 
     # Assert
     assert state == StoppedState
@@ -55,7 +57,8 @@ async def test_complete_state_after_completion() -> None:
     # Act
     await timer.start()
     await sleep(1)
-    state = await timer.state
+
+    state = timer.state
 
     # Assert
     assert state == CompleteState
@@ -69,7 +72,8 @@ async def test_see_initial_state_after_starting_and_resetting() -> None:
     # Act
     await timer.start()
     await timer.reset()
-    state = await timer.state
+
+    state = timer.state
 
     # Assert
     assert state == InitialState
@@ -84,7 +88,8 @@ async def test_see_initial_state_after_completion_and_resetting() -> None:
     await timer.start()
     await sleep(1)
     await timer.reset()
-    state = await timer.state
+
+    state = timer.state
 
     # Assert
     assert state == InitialState

@@ -35,7 +35,8 @@ async def test_stop_does_not_reset_time_left() -> None:
     await timer.start()
     await sleep(1)
     await timer.stop()
-    time_left = await timer.remaining
+
+    time_left = timer.remaining
 
     # Assert
     assert time_left == approx(41, abs=0.1)
@@ -50,7 +51,8 @@ async def test_time_left_is_not_decreasing_when_timer_is_stopped() -> None:
     await timer.start()
     await timer.stop()
     await sleep(1)
-    time_left = await timer.remaining
+
+    time_left = timer.remaining
 
     # Assert
     assert time_left == approx(42, abs=0.001)
@@ -78,7 +80,9 @@ async def test_can_stop_from_on_interval_complete(await_callbacks: bool) -> None
     await timer.start()
     await sleep(1)
 
+    state = timer.state
+
     # Assert
-    assert await timer.state == StoppedState
+    assert state == StoppedState
     on_interval_complete.assert_awaited_once()
     on_error.assert_not_awaited()

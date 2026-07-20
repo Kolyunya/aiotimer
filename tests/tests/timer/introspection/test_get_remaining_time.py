@@ -12,7 +12,7 @@ from aiotimer.duration import once, sequentially
 async def test_get_remaining_time_after_instantiation() -> None:
     timer = Timer(once(42), Mock())
 
-    remaining = await timer.remaining
+    remaining = timer.remaining
 
     assert remaining == 42
 
@@ -35,7 +35,8 @@ async def test_get_remaining_time_after_running_for_some_time(
     # Act
     await timer.start()
     await sleep(sleep_for)
-    remaining = await timer.remaining
+
+    remaining = timer.remaining
 
     # Assert
     assert remaining == approx(remaining_expected, abs=0.05)
@@ -50,7 +51,8 @@ async def test_remaining_time_must_not_be_negative() -> None:
     # Act
     await timer.start()
     await sleep(1)
-    remaining = await timer.remaining
+
+    remaining = timer.remaining
 
     # Assert
     assert remaining == 0
