@@ -1,8 +1,9 @@
 from typing import Optional
 
 from ...error import InvalidConfigurationError, InvalidDurationError
-from ..duration import DurationFactory, Durations
+from ..duration import DurationFactory
 from .exponentially import exponentially
+from .immediately_then import immediately_then
 from .jittery import jittery
 
 
@@ -18,25 +19,11 @@ def backoff(
     if retries is None and maximum_duration is None:
         retries = 5
 
-    exponentially_factory = exponentially(
-        base=base,
-        scale=scale,
-        interval_count=retries,
-        maximum_duration=maximum_duration,
-    )
+    _exponentially = exponentially(base, scale, retries, maximum_duration)
+    _jittery = jittery(_exponentially, jitter)
+    _backoff = immediately_then(_jittery)
 
-    jittery_factory = jittery(
-        durations=exponentially_factory,
-        relative=jitter,
-    )
-
-    def factory() -> Durations:
-        yield 0.0
-
-        retries_iterable = jittery_factory()
-        yield from retries_iterable
-
-    return factory
+    return _backoff
 
 
 def __validate_limits(

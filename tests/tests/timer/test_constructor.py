@@ -4,7 +4,7 @@ from unittest.mock import Mock
 from pytest import mark, raises
 
 from aiotimer import Timer
-from aiotimer.duration import never, once
+from aiotimer.duration import Durations, never, once, sequentially
 from aiotimer.error import (
     EmptyDurationIterableError,
     InvalidConfigurationError,
@@ -48,7 +48,7 @@ async def test_first_duration_must_be_non_negative() -> None:
         Timer(intervals, Mock())
 
     # Assert
-    assert str(error.value) == 'The duration must be a positive number or zero'
+    assert str(error.value) == 'Duration must be a positive number or zero'
 
 
 @mark.asyncio
@@ -69,4 +69,23 @@ async def test_all_durations_must_be_non_negative() -> None:
     event = on_error.call_args_list[0].args[0]
     assert isinstance(event, ErrorEvent)
     assert isinstance(event.error, NegativeDurationError)
-    assert str(event.error) == 'The duration must be a positive number or zero'
+    assert str(event.error) == 'Duration must be a positive number or zero'
+
+
+@mark.asyncio
+@mark.parametrize('durations', [
+    42,
+    [42],
+    (42,),
+    once(42),
+    sequentially(42),
+])
+async def test_can_pass_different_types_of_durations(durations: Durations) -> None:
+    # Arrange
+    timer = Timer(durations, Mock())
+
+    # Act
+    remaining = timer.remaining
+
+    # Assert
+    assert remaining == 42

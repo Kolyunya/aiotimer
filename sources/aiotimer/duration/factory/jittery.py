@@ -3,19 +3,21 @@ from typing import Optional
 from warnings import warn
 
 from ...error import InvalidConfigurationError, LogicError
-from ..duration import DurationFactory, Durations
+from ..duration import DurationFactory, DurationIterable, Durations
+from ..duration_adapter import DurationAdapter
 
 
 def jittery(
-    durations: DurationFactory,
+    durations: Durations,
     relative: Optional[float] = None,
     absolute: Optional[float] = None,
 ) -> DurationFactory:
     __validate_jitter(relative, absolute)
-    assert relative is not None or absolute is not None
 
-    def factory() -> Durations:
-        for duration in durations():
+    adapter = DurationAdapter(durations)
+
+    def factory() -> DurationIterable:
+        for duration in adapter:
 
             if relative is not None:
                 maximum_jitter = duration * relative
@@ -24,7 +26,6 @@ def jittery(
             else:
                 raise LogicError('Either `relative` or `absolute` is guaranteed to be specified')
 
-            assert relative is not None or absolute is not None
             jitter = random.uniform(-1 * maximum_jitter, maximum_jitter)
             jittered_duration = duration + jitter
 

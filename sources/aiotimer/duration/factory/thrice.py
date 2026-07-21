@@ -1,9 +1,8 @@
-from ..duration import DurationFactory
-from .sequentially import sequentially
+from ..duration import DurationFactory, Durations
+from .repeatedly import repeatedly
 
 
-def thrice(duration: float) -> DurationFactory:
-    durations = (duration for _ in range(3))
-    interval_factory = sequentially(*durations)
+def thrice(durations: Durations) -> DurationFactory:
+    factory = repeatedly(durations, 3)
 
-    return interval_factory
+    return factory

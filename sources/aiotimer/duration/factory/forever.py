@@ -1,21 +1,20 @@
 from ...error import EmptyDurationIterableError
-from ..duration import DurationFactory, Durations
+from ..duration import DurationFactory, DurationIterable, Durations
+from ..duration_adapter import DurationAdapter
 
 
-def forever(durations: DurationFactory) -> DurationFactory:
-    def factory() -> Durations:
+def forever(durations: Durations) -> DurationFactory:
+    adapter = DurationAdapter(durations)
+
+    def factory() -> DurationIterable:
         while True:
-            duration_iterator = iter(durations())
-            duration_count = 0
+            empty_durations = True
 
-            try:
-                while True:
-                    duration = next(duration_iterator)
-                    duration_count += 1
-                    yield duration
+            for duration in adapter:
+                empty_durations = False
+                yield duration
 
-            except StopIteration as exception:
-                if duration_count == 0:
-                    raise EmptyDurationIterableError from exception
+            if empty_durations:
+                raise EmptyDurationIterableError
 
     return factory

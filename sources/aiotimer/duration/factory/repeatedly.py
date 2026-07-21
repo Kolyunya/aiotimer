@@ -1,16 +1,16 @@
 from ...error import InvalidConfigurationError
-from ..duration import DurationFactory, Durations
+from ..duration import DurationFactory, DurationIterable, Durations
+from ..duration_adapter import DurationAdapter
 
 
-def repeatedly(
-    durations: DurationFactory,
-    count: int,
-) -> DurationFactory:
+def repeatedly(durations: Durations, count: int) -> DurationFactory:
     if count <= 0:
         raise InvalidConfigurationError('Repetitions count must be a positive number')
 
-    def factory() -> Durations:
-        for _ in range(count):
-            yield from durations()
+    adapter = DurationAdapter(durations)
+
+    def factory() -> DurationIterable:
+        for _iteration in range(count):
+            yield from adapter
 
     return factory

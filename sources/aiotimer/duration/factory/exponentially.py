@@ -1,7 +1,7 @@
 from typing import Optional
 
 from ...error import InvalidConfigurationError, InvalidDurationError
-from ..duration import DurationFactory, Durations
+from ..duration import DurationFactory, DurationIterable
 
 
 def exponentially(
@@ -14,7 +14,7 @@ def exponentially(
     __validate_scale(scale)
     __validate_limits(interval_count, maximum_duration)
 
-    def factory() -> Durations:
+    def factory() -> DurationIterable:
         interval_numer = 0
 
         while True:

@@ -1,5 +1,12 @@
-from .duration import DurationFactory, Durations
-from .duration_iterator import DurationIterator
+from .duration import (
+    Duration,
+    DurationFactory,
+    DurationIterable,
+    DurationIterator,
+    Durations,
+    DurationSequence,
+)
+from .duration_adapter import DurationAdapter
 from .factory.backoff import backoff
 from .factory.exponentially import exponentially
 from .factory.forever import forever
@@ -14,8 +21,12 @@ from .factory.thrice import thrice
 from .factory.twice import twice
 
 __all__ = [
+    'Duration',
+    'DurationAdapter',
     'DurationFactory',
+    'DurationIterable',
     'DurationIterator',
+    'DurationSequence',
     'Durations',
     'backoff',
     'exponentially',

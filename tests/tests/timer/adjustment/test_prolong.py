@@ -17,7 +17,7 @@ async def test_can_not_prolong_duration_to_negative_number() -> None:
         await timer.prolong(-142)
 
     # Assert
-    assert str(error.value) == 'The duration must be a positive number or zero'
+    assert str(error.value) == 'Duration must be a positive number or zero'
 
 
 @mark.asyncio

@@ -19,7 +19,7 @@ from .callback import (
     OnIntervalComplete,
     OnTimerComplete,
 )
-from .duration import DurationFactory
+from .duration import DurationAdapter, Durations
 from .error import (
     EmptyDurationIterableError,
     InvalidPrecisionError,
@@ -56,7 +56,7 @@ class Timer(TimerInterface):
 
     def __init__(
         self,
-        duration_factory: DurationFactory,
+        durations: Durations,
         on_timer_complete: Optional[OnTimerComplete] = None,
         on_interval_complete: Optional[OnIntervalComplete] = None,
         on_error: Optional[OnError] = None,
@@ -67,7 +67,7 @@ class Timer(TimerInterface):
         self.__validate_event_handlers(on_timer_complete, on_interval_complete)
         self.__validate_precision(precision)
 
-        self.__duration_factory = duration_factory
+        self.__duration_adapter = DurationAdapter(durations)
         self.__on_timer_complete = Callback(on_timer_complete)
         self.__on_interval_complete = Callback(on_interval_complete)
         self.__on_error = Callback(on_error)
@@ -163,10 +163,7 @@ class Timer(TimerInterface):
         self.__executor = executor_type(self.__error_handler)
 
     def __initialize_duration_iterator(self) -> None:
-        iterable = self.__duration_factory()
-        iterator = iter(iterable)
-
-        self.__duration_iterator = iterator
+        self.__duration_iterator = iter(self.__duration_adapter)
 
     def __initialize_next_interval(self, *, reset: bool = False) -> bool:
         success = False

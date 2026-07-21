@@ -7,7 +7,7 @@ class NegativeDurationError(InvalidConfigurationError):
 
     def __init__(self, message: Optional[str] = None) -> None:
         if not message:
-            message = 'The duration must be a positive number or zero'
+            message = 'Duration must be a positive number or zero'
 
         super().__init__(message)
 

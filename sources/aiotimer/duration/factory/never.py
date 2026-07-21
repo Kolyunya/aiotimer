@@ -1,8 +1,8 @@
-from ..duration import DurationFactory, Durations
+from ..duration import DurationFactory, DurationIterable
 
 
 def never() -> DurationFactory:
-    def factory() -> Durations:
+    def factory() -> DurationIterable:
         yield from []
 
     return factory

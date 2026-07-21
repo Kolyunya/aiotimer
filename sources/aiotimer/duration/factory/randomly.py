@@ -1,7 +1,7 @@
 import random
 
 from ...error import InvalidDurationError
-from ..duration import DurationFactory, Durations
+from ..duration import DurationFactory, DurationIterable
 
 
 def randomly(
@@ -14,7 +14,7 @@ def randomly(
     if minimum <= 0 or maximum <= 0:
         raise InvalidDurationError('Duration boundaries must be positive')
 
-    def factory() -> Durations:
+    def factory() -> DurationIterable:
         duration = random.uniform(minimum, maximum)
         yield duration
 

@@ -1,15 +1,19 @@
-from ...error import InvalidConfigurationError, NegativeDurationError
-from ..duration import DurationFactory, Durations
+from ...error import InvalidConfigurationError
+from ..duration import DurationFactory, DurationIterable, Durations
+from ..duration_adapter import DurationAdapter
 
 
-def sequentially(*durations: float) -> DurationFactory:
+def sequentially(*durations: Durations) -> DurationFactory:
     if len(durations) == 0:
-        raise InvalidConfigurationError('Duration sequence must not be empty')
+        raise InvalidConfigurationError('Durations must not be empty')
 
-    if any(duration < 0 for duration in durations):
-        raise NegativeDurationError
+    adapters = [
+        DurationAdapter(durations_item)
+        for durations_item in durations
+    ]
 
-    def factory() -> Durations:
-        yield from durations
+    def factory() -> DurationIterable:
+        for adapter in adapters:
+            yield from adapter
 
     return factory
