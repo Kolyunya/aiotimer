@@ -52,7 +52,7 @@ def __validate_jitter(
         raise InvalidConfigurationError('Exactly one type of jitter must be specified')
 
     if relative is not None and relative < 0:
-        raise InvalidConfigurationError('Relative jitter must not be negative')
+        raise InvalidConfigurationError('Relative jitter must be a positive number or zero')
 
     if absolute is not None and absolute < 0:
-        raise InvalidConfigurationError('Absolute jitter must not be negative')
+        raise InvalidConfigurationError('Absolute jitter must be a positive number or zero')

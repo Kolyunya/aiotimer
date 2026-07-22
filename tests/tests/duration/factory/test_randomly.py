@@ -15,7 +15,7 @@ def test_minimum_duration_must_be_less_than_maximum_duration(
     with raises(InvalidDurationError) as error:
         randomly(minimum, maximum)
 
-    assert str(error.value) == 'The minimum duration must be less than the maximum duration'
+    assert str(error.value) == 'Minimum duration must be less than maximum duration'
 
 
 @mark.parametrize(('minimum', 'maximum'), [
@@ -29,7 +29,7 @@ def test_duration_boundaries_must_be_positive(
     with raises(InvalidDurationError) as error:
         randomly(minimum, maximum)
 
-    assert str(error.value) == 'Duration boundaries must be positive'
+    assert str(error.value) == 'Duration boundaries must be positive numbers'
 
 
 def test_randomly() -> None:

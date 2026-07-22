@@ -8,7 +8,7 @@ from aiotimer.duration.factory import once
 
 
 @mark.asyncio
-async def test_can_restart_sequential_timer_from_on_complete() -> None:
+async def test_can_restart_timer_from_on_timer_complete() -> None:
     """
     Attempt to restart a timer from a completion handler.
 

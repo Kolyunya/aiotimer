@@ -6,7 +6,7 @@ from aiotimer.duration.factory import forever, never, sequentially
 from aiotimer.error import EmptyDurationIterableError
 
 
-def test_duration_iterable_must_not_be_degenerate() -> None:
+def test_duration_iterable_must_not_be_empty() -> None:
     # Arrange
     factory = forever(never())
     iterator = iter(factory())
@@ -16,7 +16,7 @@ def test_duration_iterable_must_not_be_degenerate() -> None:
         next(iterator)
 
     # Assert
-    assert str(error.value) == 'Duration iterable must have at least one value'
+    assert str(error.value) == 'Duration iterable must not be empty'
 
 
 def test_forever() -> None:

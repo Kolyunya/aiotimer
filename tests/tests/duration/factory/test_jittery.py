@@ -1,33 +1,35 @@
-from pytest import approx, raises, warns
+from typing import Optional
+
+from pytest import approx, mark, raises, warns
 
 from aiotimer.duration.factory import jittery, once, repeatedly, thrice
 from aiotimer.error import InvalidConfigurationError
 
 
-def test_relative_jitter_must_not_be_negative() -> None:
+def test_relative_jitter_must_be_positive_or_zero() -> None:
     with raises(InvalidConfigurationError) as error:
         jittery(thrice(10), relative=-1)
 
-    assert str(error.value) == 'Relative jitter must not be negative'
+    assert str(error.value) == 'Relative jitter must be a positive number or zero'
 
 
-def test_absolute_jitter_must_not_be_negative() -> None:
+def test_absolute_jitter_must_be_positive_or_zero() -> None:
     with raises(InvalidConfigurationError) as error:
         jittery(thrice(10), absolute=-1)
 
-    assert str(error.value) == 'Absolute jitter must not be negative'
+    assert str(error.value) == 'Absolute jitter must be a positive number or zero'
 
 
-def test_can_not_specify_two_types_of_jitter() -> None:
+@mark.parametrize(('relative', 'absolute'), [
+    (None, None),
+    (1, 1),
+])
+def test_exactly_one_type_of_jitter_must_be_specified(
+    relative: Optional[float],
+    absolute: Optional[float],
+) -> None:
     with raises(InvalidConfigurationError) as error:
-        jittery(thrice(10), 1, 1)
-
-    assert str(error.value) == 'Exactly one type of jitter must be specified'
-
-
-def test_can_not_specify_zero_types_of_jitter() -> None:
-    with raises(InvalidConfigurationError) as error:
-        jittery(thrice(10), None, None)
+        jittery(thrice(10), relative=relative, absolute=absolute)
 
     assert str(error.value) == 'Exactly one type of jitter must be specified'
 
@@ -49,12 +51,12 @@ def test_relative_jitter() -> None:
     base_factory = repeatedly(once(10), 42)
     jittery_factory = jittery(base_factory, relative=0.1)
 
-    intervals = 0
+    duration_count = 0
     positive_jitter_generated = False
     negative_jitter_generated = False
 
     for duration in jittery_factory():
-        intervals += 1
+        duration_count += 1
 
         if duration > 10:
             positive_jitter_generated = True
@@ -64,7 +66,7 @@ def test_relative_jitter() -> None:
         assert duration != 10
         assert duration == approx(10, rel=0.1)
 
-    assert intervals == 42
+    assert duration_count == 42
     assert positive_jitter_generated
     assert negative_jitter_generated
 
@@ -73,12 +75,12 @@ def test_absolute_jitter() -> None:
     base_factory = repeatedly(once(10), 42)
     jittery_factory = jittery(base_factory, absolute=1)
 
-    intervals = 0
+    duration_count = 0
     positive_jitter_generated = False
     negative_jitter_generated = False
 
     for duration in jittery_factory():
-        intervals += 1
+        duration_count += 1
 
         if duration > 10:
             positive_jitter_generated = True
@@ -88,6 +90,6 @@ def test_absolute_jitter() -> None:
         assert duration != 10
         assert duration == approx(10, abs=1)
 
-    assert intervals == 42
+    assert duration_count == 42
     assert positive_jitter_generated
     assert negative_jitter_generated

@@ -42,7 +42,7 @@ async def test_one_long_interval_produces_no_drift(duration: int) -> None:
 @mark.asyncio
 @mark.slow
 @mark.parametrize('duration', [60, 60 * 3, 60 * 5])
-async def test_many_short_intervals_produce_no_drift_profile(duration: int) -> None:
+async def test_many_short_intervals_produce_no_drift(duration: int) -> None:
     # Arrange
     timer_is_complete = False
 

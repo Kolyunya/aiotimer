@@ -31,11 +31,11 @@ def __validate_limits(
     maximum_duration: Optional[float],
 ) -> None:
     if retries is not None and maximum_duration is not None:
-        message = 'Only one of `retries` and `maximum_duration` may be specified'
+        message = 'At most one of `retries` and `maximum_duration` may be specified'
         raise InvalidConfigurationError(message)
 
     if retries is not None and retries <= 0:
-        raise InvalidConfigurationError('Retries count must be greater than zero')
+        raise InvalidConfigurationError('Retries count must be a positive number')
 
     if maximum_duration is not None and maximum_duration <= 0:
-        raise InvalidDurationError('Maximum duration must be greater than zero')
+        raise InvalidDurationError('Maximum duration must be a positive number')

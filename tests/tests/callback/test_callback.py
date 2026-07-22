@@ -27,7 +27,7 @@ async def test_callback_is_set() -> None:
 
 
 @mark.asyncio
-async def test_sync_function_is_called_once() -> None:
+async def test_sync_callback_is_called_once() -> None:
     # Arrange
     event = Mock()
     event_handler = Mock(return_value=None)
@@ -41,7 +41,7 @@ async def test_sync_function_is_called_once() -> None:
 
 
 @mark.asyncio
-async def test_sync_function_is_called_thrice() -> None:
+async def test_sync_callback_is_called_thrice() -> None:
     # Arrange
     event_1 = Mock()
     event_2 = Mock()
@@ -64,7 +64,7 @@ async def test_sync_function_is_called_thrice() -> None:
 
 
 @mark.asyncio
-async def test_async_function_is_awaited_once() -> None:
+async def test_async_callback_is_awaited_once() -> None:
     # Arrange
     event = Mock()
     event_handler = AsyncMock()
@@ -78,7 +78,7 @@ async def test_async_function_is_awaited_once() -> None:
 
 
 @mark.asyncio
-async def test_async_function_is_awaited_thrice() -> None:
+async def test_async_callback_is_awaited_thrice() -> None:
     # Arrange
     event_1 = Mock()
     event_2 = Mock()

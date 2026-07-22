@@ -9,7 +9,7 @@ from aiotimer.error import InvalidStateError
 
 
 @mark.asyncio
-async def test_could_not_run_while_running() -> None:
+async def test_can_not_start_while_running() -> None:
     # Arrange
     timer = Timer(once(42), Mock())
 
@@ -24,7 +24,7 @@ async def test_could_not_run_while_running() -> None:
 
 
 @mark.asyncio
-async def test_could_not_run_after_completion() -> None:
+async def test_can_not_start_after_timer_completion() -> None:
     # Arrange
     timer = Timer(once(0.1), Mock())
 
@@ -40,7 +40,7 @@ async def test_could_not_run_after_completion() -> None:
 
 
 @mark.asyncio
-async def test_can_not_stop_while_in_the_initial_state() -> None:
+async def test_can_not_stop_while_in_initial_state() -> None:
     # Arrange
     timer = Timer(once(42), Mock())
 
@@ -52,7 +52,7 @@ async def test_can_not_stop_while_in_the_initial_state() -> None:
 
 
 @mark.asyncio
-async def test_could_not_stop_after_completion() -> None:
+async def test_can_not_stop_after_timer_completion() -> None:
     # Arrange
     timer = Timer(once(0.1), Mock())
 

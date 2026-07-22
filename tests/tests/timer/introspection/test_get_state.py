@@ -50,7 +50,7 @@ async def test_see_stopped_state_after_stopping() -> None:
 
 
 @mark.asyncio
-async def test_complete_state_after_completion() -> None:
+async def test_see_complete_state_after_timer_completion() -> None:
     # Arrange
     timer = Timer(once(0.1), Mock())
 

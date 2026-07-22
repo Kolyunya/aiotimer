@@ -28,7 +28,7 @@ async def test_callbacks_are_not_called_after_resetting() -> None:
 
 
 @mark.asyncio
-async def test_can_reset_a_running_timer() -> None:
+async def test_can_reset_running_timer() -> None:
     # Arrange
     timer = Timer(once(42), Mock())
 
@@ -43,7 +43,7 @@ async def test_can_reset_a_running_timer() -> None:
 
 
 @mark.asyncio
-async def test_can_reset_a_stopped_timer() -> None:
+async def test_can_reset_stopped_timer() -> None:
     # Arrange
     timer = Timer(once(42), Mock())
 
@@ -147,7 +147,7 @@ async def test_can_reset_from_on_error(await_callbacks: bool) -> None:
 
 
 @mark.asyncio
-async def test_reset_resets_time_left() -> None:
+async def test_reset_resets_remaining_time() -> None:
     # Arrange
     timer = Timer(once(42), Mock())
 
@@ -156,14 +156,14 @@ async def test_reset_resets_time_left() -> None:
     await sleep(1)
     await timer.reset()
 
-    time_left = timer.remaining
+    remaining = timer.remaining
 
     # Assert
-    assert time_left == 42
+    assert remaining == 42
 
 
 @mark.asyncio
-async def test_time_left_is_not_decreasing_when_timer_is_reset() -> None:
+async def test_remaining_time_is_not_decreasing_when_timer_is_reset() -> None:
     # Arrange
     timer = Timer(once(42), Mock())
 
@@ -172,10 +172,10 @@ async def test_time_left_is_not_decreasing_when_timer_is_reset() -> None:
     await timer.reset()
     await sleep(1)
 
-    time_left = timer.remaining
+    remaining = timer.remaining
 
     # Assert
-    assert time_left == 42
+    assert remaining == 42
 
 
 @mark.asyncio

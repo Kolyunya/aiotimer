@@ -10,7 +10,7 @@ from aiotimer.error import InvalidConfigurationError, InvalidDurationError
     (None, None),
     (10, 60),
 ])
-def test_exactly_one_of_interval_count_or_maximum_duration_must_be_specified(
+def test_exactly_one_of_interval_count_and_maximum_duration_must_be_specified(
     interval_count: Optional[int],
     maximum_duration: Optional[float],
 ) -> None:
@@ -32,27 +32,27 @@ def test_base_must_be_greater_than_one(base: float) -> None:
 
 
 @mark.parametrize('scale', [-1, 0])
-def test_scale_must_be_greater_than_zero(scale: float) -> None:
+def test_scale_must_be_positive(scale: float) -> None:
     with raises(InvalidConfigurationError) as error:
         exponentially(scale=scale, interval_count=10)
 
-    assert str(error.value) == 'Exponent scale must be greater than zero'
+    assert str(error.value) == 'Exponent scale must be a positive number'
 
 
 @mark.parametrize('interval_count', [-1, 0])
-def test_interval_count_must_be_greater_than_zero(interval_count: int) -> None:
+def test_interval_count_must_be_positive(interval_count: int) -> None:
     with raises(InvalidConfigurationError) as error:
         exponentially(interval_count=interval_count)
 
-    assert str(error.value) == 'Interval count must be greater than zero'
+    assert str(error.value) == 'Interval count must be a positive number'
 
 
 @mark.parametrize('maximum_duration', [-1, 0])
-def test_maximum_duration_must_be_greater_than_zero(maximum_duration: float) -> None:
+def test_maximum_duration_must_be_positive(maximum_duration: float) -> None:
     with raises(InvalidDurationError) as error:
         exponentially(maximum_duration=maximum_duration)
 
-    assert str(error.value) == 'Maximum duration must be greater than zero'
+    assert str(error.value) == 'Maximum duration must be a positive number'
 
 
 def test_interval_count_limit() -> None:

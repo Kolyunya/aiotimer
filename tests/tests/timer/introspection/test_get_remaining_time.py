@@ -18,19 +18,19 @@ async def test_get_remaining_time_after_instantiation() -> None:
 
 
 @mark.asyncio
-@mark.parametrize(('intervals', 'sleep_for', 'remaining_expected'), [
+@mark.parametrize(('durations', 'sleep_for', 'remaining_expected'), [
     ([1.0], 0.0, 1.0),
     ([1.0], 0.1, 0.9),
     ([0.1, 0.2], 0.2, 0.1),
     ([0.1, 0.2, 0.3], 0.4, 0.2),
 ])
 async def test_get_remaining_time_after_running_for_some_time(
-        intervals: Iterable[float],
+        durations: Iterable[float],
         sleep_for: float,
         remaining_expected: float,
 ) -> None:
     # Arrange
-    timer = Timer(sequentially(*intervals), Mock())
+    timer = Timer(sequentially(*durations), Mock())
 
     # Act
     await timer.start()

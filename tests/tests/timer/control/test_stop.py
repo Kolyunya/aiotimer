@@ -27,7 +27,7 @@ async def test_callbacks_are_not_called_after_stopping() -> None:
 
 
 @mark.asyncio
-async def test_stop_does_not_reset_time_left() -> None:
+async def test_stop_does_not_reset_remaining_time() -> None:
     # Arrange
     timer = Timer(once(42), Mock())
 
@@ -36,14 +36,14 @@ async def test_stop_does_not_reset_time_left() -> None:
     await sleep(1)
     await timer.stop()
 
-    time_left = timer.remaining
+    remaining = timer.remaining
 
     # Assert
-    assert time_left == approx(41, abs=0.1)
+    assert remaining == approx(41, abs=0.1)
 
 
 @mark.asyncio
-async def test_time_left_is_not_decreasing_when_timer_is_stopped() -> None:
+async def test_remaining_time_is_not_decreasing_when_timer_is_stopped() -> None:
     # Arrange
     timer = Timer(once(42), Mock())
 
@@ -52,10 +52,10 @@ async def test_time_left_is_not_decreasing_when_timer_is_stopped() -> None:
     await timer.stop()
     await sleep(1)
 
-    time_left = timer.remaining
+    remaining = timer.remaining
 
     # Assert
-    assert time_left == approx(42, abs=0.001)
+    assert remaining == approx(42, abs=0.001)
 
 
 @mark.asyncio

@@ -11,7 +11,9 @@ from tests.support import EventData, assert_callback_awaited
 
 @mark.asyncio
 @mark.parametrize('await_callbacks', [True, False])
-async def test_sync_callback_is_called_after_interval_completion(await_callbacks: bool) -> None:
+async def test_sync_callback_is_called_after_interval_completion(
+    await_callbacks: bool,
+) -> None:
     # Arrange
     on_interval_complete = Mock()
 
@@ -31,7 +33,9 @@ async def test_sync_callback_is_called_after_interval_completion(await_callbacks
 
 @mark.asyncio
 @mark.parametrize('await_callbacks', [True, False])
-async def test_async_callback_is_awaited_after_interval_completion(await_callbacks: bool) -> None:
+async def test_async_callback_is_awaited_after_interval_completion(
+    await_callbacks: bool,
+) -> None:
     # Arrange
     on_interval_complete = AsyncMock()
 
@@ -51,7 +55,9 @@ async def test_async_callback_is_awaited_after_interval_completion(await_callbac
 
 @mark.asyncio
 @mark.parametrize('await_callbacks', [True, False])
-async def test_interval_index_and_duration_are_passed_to_on_interval(await_callbacks: bool) -> None:
+async def test_interval_number_and_duration_are_passed_to_on_interval_complete(
+    await_callbacks: bool,
+) -> None:
     # Arrange
     on_interval_complete = AsyncMock()
 

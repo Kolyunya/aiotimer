@@ -4,27 +4,27 @@ from aiotimer.duration.factory import backoff
 from aiotimer.error import InvalidConfigurationError
 
 
-def test_only_one_of_retries_or_maximum_duration_may_be_specified() -> None:
+def test_at_most_one_of_retries_and_maximum_duration_may_be_specified() -> None:
     with raises(InvalidConfigurationError) as error:
         backoff(retries=5, maximum_duration=60)
 
-    assert str(error.value) == 'Only one of `retries` and `maximum_duration` may be specified'
+    assert str(error.value) == 'At most one of `retries` and `maximum_duration` may be specified'
 
 
 @mark.parametrize('retries', [-1, 0])
-def test_retries_must_be_greater_than_zero(retries: int) -> None:
+def test_retries_must_be_positive(retries: int) -> None:
     with raises(InvalidConfigurationError) as error:
         backoff(retries=retries)
 
-    assert str(error.value) == 'Retries count must be greater than zero'
+    assert str(error.value) == 'Retries count must be a positive number'
 
 
 @mark.parametrize('maximum_duration', [-1, 0])
-def test_maximum_duration_must_be_greater_than_zero(maximum_duration: int) -> None:
+def test_maximum_duration_must_be_positive(maximum_duration: int) -> None:
     with raises(InvalidConfigurationError) as error:
         backoff(maximum_duration=maximum_duration)
 
-    assert str(error.value) == 'Maximum duration must be greater than zero'
+    assert str(error.value) == 'Maximum duration must be a positive number'
 
 
 @mark.parametrize('base', [-1, 0, 1])
@@ -36,19 +36,19 @@ def test_base_must_be_greater_than_one(base: int) -> None:
 
 
 @mark.parametrize('scale', [-1, 0])
-def test_scale_must_be_greater_than_zero(scale: int) -> None:
+def test_scale_must_be_positive(scale: int) -> None:
     with raises(InvalidConfigurationError) as error:
         backoff(scale=scale)
 
-    assert str(error.value) == 'Exponent scale must be greater than zero'
+    assert str(error.value) == 'Exponent scale must be a positive number'
 
 
 @mark.parametrize('jitter', [-1, -0.1])
-def test_jitter_must_not_be_negative(jitter: float) -> None:
+def test_jitter_must_be_positive_or_zero(jitter: float) -> None:
     with raises(InvalidConfigurationError) as error:
         backoff(jitter=jitter)
 
-    assert str(error.value) == 'Relative jitter must not be negative'
+    assert str(error.value) == 'Relative jitter must be a positive number or zero'
 
 
 def test_default_configuration() -> None:
@@ -104,7 +104,7 @@ def test_with_jitter() -> None:
     assert durations != [0, 1, 2, 4, 8, 16]
 
 
-def test_retries_count() -> None:
+def test_retries_limit() -> None:
     factory = backoff(retries=3, base=2, scale=1, jitter=0)
 
     durations = list(factory())
@@ -113,7 +113,7 @@ def test_retries_count() -> None:
 
 
 @mark.parametrize('maximum_duration', [16, 31.999])
-def test_maximum_duration(maximum_duration: float) -> None:
+def test_maximum_duration_limit(maximum_duration: float) -> None:
     factory = backoff(maximum_duration=maximum_duration, base=2, scale=1, jitter=0)
 
     durations = list(factory())

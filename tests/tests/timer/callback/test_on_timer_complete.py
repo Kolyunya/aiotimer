@@ -9,7 +9,9 @@ from aiotimer.duration.factory import thrice
 
 @mark.asyncio
 @mark.parametrize('await_callbacks', [True, False])
-async def test_sync_callback_is_called_after_completion(await_callbacks: bool) -> None:
+async def test_sync_callback_is_called_after_timer_completion(
+    await_callbacks: bool,
+) -> None:
     # Arrange
     on_complete = Mock()
 
@@ -29,7 +31,9 @@ async def test_sync_callback_is_called_after_completion(await_callbacks: bool) -
 
 @mark.asyncio
 @mark.parametrize('await_callbacks', [True, False])
-async def test_async_callback_is_awaited_after_completion(await_callbacks: bool) -> None:
+async def test_async_callback_is_awaited_after_timer_completion(
+    await_callbacks: bool,
+) -> None:
     # Arrange
     on_complete = AsyncMock()
 

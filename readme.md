@@ -273,13 +273,13 @@ Timer(thrice(100 * milliseconds))
 ## Event system
 There are several event handlers that may be configured for a timer through the constructor arguments.
 
-All event handlers **must** comply with the following API contract. Non-compliant event handlers result in undefined behavior.
-* Event handler **must** have either:
+All event handlers **_must_** comply with the following API contract. Non-compliant event handlers result in undefined behavior.
+* Event handler **_must_** have either:
     * Zero parameters.
     * Exactly one positional parameter accepting the corresponding event object type.
-* An event handler's signature **must not** be modified at runtime after registration with the timer object.
-* Event handler **should not** return any values because they will be ignored and discarded by the timer.
-* Event handler **may** be either:
+* An event handler's signature **_must not_** be modified at runtime after registration with the timer object.
+* Event handler **_should not_** return any values because they will be ignored and discarded by the timer.
+* Event handler **_may_** be either:
   * Synchronous callable.
   * Asynchronous callable.
 

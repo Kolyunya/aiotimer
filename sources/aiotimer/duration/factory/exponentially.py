@@ -40,7 +40,7 @@ def __validate_base(base: float) -> None:
 
 def __validate_scale(scale: float) -> None:
     if scale <= 0:
-        raise InvalidConfigurationError('Exponent scale must be greater than zero')
+        raise InvalidConfigurationError('Exponent scale must be a positive number')
 
 
 def __validate_limits(
@@ -56,7 +56,7 @@ def __validate_limits(
         raise InvalidConfigurationError(message)
 
     if interval_count is not None and interval_count <= 0:
-        raise InvalidConfigurationError('Interval count must be greater than zero')
+        raise InvalidConfigurationError('Interval count must be a positive number')
 
     if maximum_duration is not None and maximum_duration <= 0:
-        raise InvalidDurationError('Maximum duration must be greater than zero')
+        raise InvalidDurationError('Maximum duration must be a positive number')

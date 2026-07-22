@@ -5,7 +5,7 @@ from pytest import mark, raises
 
 from aiotimer import Timer
 from aiotimer.duration.factory import once
-from aiotimer.error import InvalidConfigurationError
+from aiotimer.error import NegativeDurationError
 
 
 @mark.asyncio
@@ -14,7 +14,7 @@ async def test_can_not_set_duration_to_negative_number() -> None:
     timer = Timer(once(42), Mock())
 
     # Act
-    with raises(InvalidConfigurationError) as error:
+    with raises(NegativeDurationError) as error:
         await timer.set(-1)
 
     # Assert

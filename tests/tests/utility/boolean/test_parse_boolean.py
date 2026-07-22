@@ -13,7 +13,7 @@ from aiotimer.utility.boolean import parse_boolean
     'false',
     'False',
 ])
-def test_false(string: str) -> None:
+def test_parses_as_false(string: str) -> None:
     boolean = parse_boolean(string)
 
     assert boolean is False
@@ -28,7 +28,7 @@ def test_false(string: str) -> None:
     'true',
     'True',
 ])
-def test_true(string: str) -> None:
+def test_parses_as_true(string: str) -> None:
     boolean = parse_boolean(string)
 
     assert boolean is True

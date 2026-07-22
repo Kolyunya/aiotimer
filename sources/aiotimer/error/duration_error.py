@@ -25,6 +25,6 @@ class EmptyDurationIterableError(InvalidConfigurationError):
 
     def __init__(self, message: Optional[str] = None) -> None:
         if not message:
-            message = 'Duration iterable must have at least one value'
+            message = 'Duration iterable must not be empty'
 
         super().__init__(message)

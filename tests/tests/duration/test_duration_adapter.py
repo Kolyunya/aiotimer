@@ -92,7 +92,7 @@ def test_idempotency_from_duration_factory(factory: DurationFactory) -> None:
     [-1, 1],
     [1, -1],
 ])
-def test_durations_must_not_be_negative(durations: Durations) -> None:
+def test_durations_must_be_positive_or_zero(durations: Durations) -> None:
     with raises(NegativeDurationError, match='Duration must be a positive number or zero'):
         DurationAdapter(durations)
 

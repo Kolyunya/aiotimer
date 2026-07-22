@@ -20,7 +20,7 @@ def test_s2ns(seconds: float, nano_seconds_expected: int) -> None:
     (0.000_000_000_501, 1),
     (0.000_000_000_900, 1),
 ])
-def test_s2ns_rounds_to_closes_integer(seconds: float, nano_seconds_expected: int) -> None:
+def test_s2ns_rounds_to_closest_integer(seconds: float, nano_seconds_expected: int) -> None:
     nano_seconds = s2ns(seconds)
 
     assert nano_seconds == nano_seconds_expected
