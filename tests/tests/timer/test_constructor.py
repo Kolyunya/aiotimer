@@ -15,38 +15,26 @@ from aiotimer.event import ErrorEvent
 
 
 @mark.asyncio
-async def test_intervals_must_not_be_empty() -> None:
+@mark.parametrize('durations', [
+    [],
+    never(),
+])
+async def test_durations_must_not_be_empty(durations: Durations) -> None:
     with raises(EmptyDurationIterableError) as error:
-        Timer(never(), Mock())
+        Timer(durations, Mock())
 
     assert str(error.value) == 'Duration iterable must not be empty'
 
 
 @mark.asyncio
-async def test_at_least_one_callback_must_be_specified() -> None:
-    with raises(InvalidConfigurationError) as error:
-        Timer(once(42))
-
-    assert str(error.value) == 'At least one of the `on_interval_complete` and `on_timer_complete` callbacks must be specified'
-
-
-@mark.asyncio
-@mark.parametrize('precision', [-1, 0])
-async def test_precision_must_be_positive(precision: float) -> None:
-    with raises(InvalidConfigurationError) as error:
-        Timer(once(42), Mock(), precision=precision)
-
-    assert str(error.value) == 'Precision must be a positive number'
-
-
-@mark.asyncio
-async def test_first_duration_must_be_positive_or_zero() -> None:
-    # Arrange
-    intervals = lambda: [-0.1]
-
+@mark.parametrize('durations', [
+    [-1, 1],
+    (-1, 1),
+])
+async def test_first_duration_must_be_positive_or_zero(durations: Durations) -> None:
     # Act
     with raises(NegativeDurationError) as error:
-        Timer(intervals, Mock())
+        Timer(durations, Mock())
 
     # Assert
     assert str(error.value) == 'Duration must be a positive number or zero'
@@ -55,10 +43,10 @@ async def test_first_duration_must_be_positive_or_zero() -> None:
 @mark.asyncio
 async def test_all_durations_must_be_positive_or_zero() -> None:
     # Arrange
-    intervals = lambda: [0.1, -0.1]
+    durations = lambda: [0.1, -0.1]
     on_error = Mock()
 
-    timer = Timer(intervals, Mock(), on_error=on_error)
+    timer = Timer(durations, Mock(), on_error=on_error)
 
     # Act
     await timer.start()
@@ -81,7 +69,7 @@ async def test_all_durations_must_be_positive_or_zero() -> None:
     once(42),
     sequentially(42),
 ])
-async def test_can_pass_different_types_of_durations(durations: Durations) -> None:
+async def test_can_pass_durations_in_different_forms(durations: Durations) -> None:
     # Arrange
     timer = Timer(durations, Mock())
 
@@ -90,3 +78,20 @@ async def test_can_pass_different_types_of_durations(durations: Durations) -> No
 
     # Assert
     assert remaining == 42
+
+
+@mark.asyncio
+async def test_at_least_one_callback_must_be_specified() -> None:
+    with raises(InvalidConfigurationError) as error:
+        Timer(once(42))
+
+    assert str(error.value) == 'At least one of the `on_interval_complete` and `on_timer_complete` callbacks must be specified'
+
+
+@mark.asyncio
+@mark.parametrize('precision', [-1, 0])
+async def test_precision_must_be_positive(precision: float) -> None:
+    with raises(InvalidConfigurationError) as error:
+        Timer(once(42), Mock(), precision=precision)
+
+    assert str(error.value) == 'Precision must be a positive number'

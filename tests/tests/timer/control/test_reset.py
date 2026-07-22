@@ -179,7 +179,8 @@ async def test_remaining_time_is_not_decreasing_when_timer_is_reset() -> None:
 
 
 @mark.asyncio
-async def test_reset_resets_interval_number_and_duration() -> None:
+@mark.parametrize('await_callbacks', [True, False])
+async def test_reset_resets_interval_number_and_duration(await_callbacks: bool) -> None:
     # Arrange
     async def on_timer_complete(event: TimerCompleteEvent) -> None:
         await event.timer.reset()
@@ -191,6 +192,7 @@ async def test_reset_resets_interval_number_and_duration() -> None:
         sequentially(0.1, 0.2),
         on_timer_complete,
         on_interval_complete,
+        await_callbacks=await_callbacks,
     )
 
     # Act

@@ -8,7 +8,8 @@ from aiotimer.duration.factory import once
 
 
 @mark.asyncio
-async def test_can_restart_timer_from_on_timer_complete() -> None:
+@mark.parametrize('await_callbacks', [True, False])
+async def test_can_restart_timer_from_on_timer_complete(await_callbacks: bool) -> None:
     """
     Attempt to restart a timer from a completion handler.
 
@@ -26,7 +27,7 @@ async def test_can_restart_timer_from_on_timer_complete() -> None:
             await timer.reset()
             await timer.start()
 
-    timer = Timer(once(0.1), on_complete)
+    timer = Timer(once(0.1), on_complete, await_callbacks=await_callbacks)
 
     # Act
     await timer.start()
