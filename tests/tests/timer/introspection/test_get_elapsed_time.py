@@ -5,7 +5,7 @@ from unittest.mock import Mock
 from pytest import approx, mark
 
 from aiotimer import Timer
-from aiotimer.duration import once, sequentially
+from aiotimer.duration.factory import once, sequentially
 
 
 @mark.asyncio

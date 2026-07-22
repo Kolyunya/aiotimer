@@ -1,4 +1,4 @@
-from aiotimer.duration import never
+from aiotimer.duration.factory import never
 
 
 def test_never() -> None:

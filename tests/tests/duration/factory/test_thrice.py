@@ -1,4 +1,4 @@
-from aiotimer.duration import thrice
+from aiotimer.duration.factory import thrice
 
 
 def test_thrice() -> None:

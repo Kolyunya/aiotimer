@@ -4,7 +4,7 @@ from _pytest.python_api import approx
 from pytest import mark
 
 from aiotimer import Timer
-from aiotimer.duration import once, repeatedly
+from aiotimer.duration.factory import once, repeatedly
 from tests.support import stopwatch
 
 

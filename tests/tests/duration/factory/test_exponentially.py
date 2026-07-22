@@ -2,7 +2,7 @@ from typing import Optional
 
 from pytest import mark, raises
 
-from aiotimer.duration import exponentially
+from aiotimer.duration.factory import exponentially
 from aiotimer.error import InvalidConfigurationError, InvalidDurationError
 
 

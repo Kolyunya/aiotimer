@@ -1,6 +1,6 @@
 from pytest import mark, raises
 
-from aiotimer.duration import once, repeatedly, sequentially
+from aiotimer.duration.factory import once, repeatedly, sequentially
 from aiotimer.error import InvalidConfigurationError
 
 

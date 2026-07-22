@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, Mock
 from pytest import approx, mark
 
 from aiotimer import Timer
-from aiotimer.duration import forever, once
+from aiotimer.duration.factory import forever, once
 from aiotimer.event import IntervalCompleteEvent
 from aiotimer.state import StoppedState
 

@@ -3,7 +3,7 @@ from asyncio import Event, run, sleep
 from tests.support import stopwatch
 
 from aiotimer import Timer
-from aiotimer.duration import thrice
+from aiotimer.duration.factory import thrice
 
 
 async def main() -> None:

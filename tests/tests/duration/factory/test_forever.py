@@ -2,7 +2,7 @@ from itertools import islice
 
 from pytest import raises
 
-from aiotimer.duration import forever, never, sequentially
+from aiotimer.duration.factory import forever, never, sequentially
 from aiotimer.error import EmptyDurationIterableError
 
 

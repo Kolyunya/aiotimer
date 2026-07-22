@@ -1,7 +1,7 @@
 from asyncio import run, sleep
 
 from aiotimer import Timer
-from aiotimer.duration import thrice
+from aiotimer.duration.factory import thrice
 from aiotimer.event import ErrorEvent
 
 

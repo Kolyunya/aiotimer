@@ -1,7 +1,7 @@
 from asyncio import run, sleep
 
 from aiotimer import Timer
-from aiotimer.duration import backoff
+from aiotimer.duration.factory import backoff
 from aiotimer.event import ErrorEvent, IntervalCompleteEvent
 
 

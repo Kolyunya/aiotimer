@@ -1,6 +1,6 @@
 from pytest import raises
 
-from aiotimer.duration import sequentially
+from aiotimer.duration.factory import sequentially
 from aiotimer.error import InvalidConfigurationError
 
 

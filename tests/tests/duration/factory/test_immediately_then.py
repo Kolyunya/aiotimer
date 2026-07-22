@@ -1,4 +1,4 @@
-from aiotimer.duration import immediately_then, once, repeatedly
+from aiotimer.duration.factory import immediately_then, once, repeatedly
 
 
 def test_immediately_then_once() -> None:

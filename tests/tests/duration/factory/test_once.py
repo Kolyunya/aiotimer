@@ -1,4 +1,4 @@
-from aiotimer.duration import once
+from aiotimer.duration.factory import once
 
 
 def test_once() -> None:

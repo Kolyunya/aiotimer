@@ -1,6 +1,6 @@
 from pytest import approx, mark, raises
 
-from aiotimer.duration import randomly
+from aiotimer.duration.factory import randomly
 from aiotimer.error import InvalidDurationError
 
 

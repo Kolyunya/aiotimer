@@ -4,7 +4,7 @@ from time import perf_counter
 from pytest import approx, mark
 
 from aiotimer import Timer
-from aiotimer.duration import once, repeatedly
+from aiotimer.duration.factory import once, repeatedly
 
 
 @mark.slow

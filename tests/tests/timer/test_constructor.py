@@ -4,7 +4,8 @@ from unittest.mock import Mock
 from pytest import mark, raises
 
 from aiotimer import Timer
-from aiotimer.duration import Durations, never, once, sequentially
+from aiotimer.duration import Durations
+from aiotimer.duration.factory import never, once, sequentially
 from aiotimer.error import (
     EmptyDurationIterableError,
     InvalidConfigurationError,

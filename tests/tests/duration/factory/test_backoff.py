@@ -1,6 +1,6 @@
 from pytest import approx, mark, raises
 
-from aiotimer.duration import backoff
+from aiotimer.duration.factory import backoff
 from aiotimer.error import InvalidConfigurationError
 
 

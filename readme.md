@@ -50,7 +50,7 @@ A timer may have just one time interval.
 from asyncio import run, sleep
 
 from aiotimer import Timer
-from aiotimer.duration import once
+from aiotimer.duration.factory import once
 
 
 async def main() -> None:
@@ -77,7 +77,7 @@ A timer may have multiple time intervals of arbitrary durations.
 from asyncio import run, sleep
 
 from aiotimer import Timer
-from aiotimer.duration import thrice
+from aiotimer.duration.factory import thrice
 
 
 async def main() -> None:
@@ -139,7 +139,7 @@ The first parameter of the timer constructor is a [`Duration Factory`](sources/a
 There are many built-in duration factories that should cover the majority of common use cases.
 
 ```python
-from aiotimer.duration import *
+from aiotimer.duration.factory import *
 
 # Generates 1 interval of 5 seconds.
 once(5)

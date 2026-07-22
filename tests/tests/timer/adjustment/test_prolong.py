@@ -3,7 +3,7 @@ from unittest.mock import Mock
 from pytest import mark, raises
 
 from aiotimer import Timer
-from aiotimer.duration import once
+from aiotimer.duration.factory import once
 from aiotimer.error import NegativeDurationError
 
 

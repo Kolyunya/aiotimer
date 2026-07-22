@@ -1,6 +1,6 @@
 from pytest import approx, raises, warns
 
-from aiotimer.duration import jittery, once, repeatedly, thrice
+from aiotimer.duration.factory import jittery, once, repeatedly, thrice
 from aiotimer.error import InvalidConfigurationError
 
 
