@@ -26,6 +26,7 @@ An asynchronous timer with a human-friendly API and rich functionality.
   * [Introspection](#introspection)
 * [States and transitions](#states-and-transitions)
 * [Configuring durations](#configuring-durations)
+  * [Duration multipliers](#duration-multipliers)
 * [Event system](#event-system)
   * [Interval complete event](#interval-complete-event)
   * [Timer complete event](#timer-complete-event)
@@ -234,6 +235,40 @@ never()
 ```
 
 > If you believe some type of duration factory is missing, feel free to submit an issue or a pull request.
+
+### Duration multipliers
+A timer always expects durations to be passed in seconds (`float` or `int`). To express durations in other time units conveniently, the library ships a set of [duration multipliers](sources/aiotimer/duration/multiplier) — plain numeric constants that scale duration values into seconds.
+
+```python
+from aiotimer.duration.multiplier import *
+
+
+millisecond, milliseconds  # 0.001
+second, seconds            # 1
+minute, minutes            # 60
+hour, hours                # 3600
+day, days                  # 86400
+week, weeks                # 604800
+month, months              # 2592000 (30 days)
+year, years                # 31536000 (365 days)
+```
+
+Each multiplier is available in both a singular and a plural form. The two are interchangeable. You may pick whichever reads more naturally.
+
+```python
+from aiotimer import Timer
+from aiotimer.duration.factory import thrice
+from aiotimer.duration.multiplier import hour, milliseconds, minutes, seconds
+
+# A single 5-minute interval.
+Timer(5 * minutes)
+
+# Three intervals of 30 seconds, 5 minutes, and 1 hour.
+Timer([30 * seconds, 5 * minutes, 1 * hour])
+
+# Three 100-millisecond intervals.
+Timer(thrice(100 * milliseconds))
+```
 
 ## Event system
 There are several event handlers that may be configured for a timer through the constructor arguments.
