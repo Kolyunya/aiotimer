@@ -1,6 +1,16 @@
-from pytest import mark
+from pytest import mark, raises
 
 from aiotimer.utility.boolean import parse_boolean
+
+
+@mark.parametrize('string', [
+    'yup',
+    'nope',
+    'maybe',
+])
+def test_unknow_values_raise_error(string: str) -> None:
+    with raises(ValueError, match='Invalid boolean value'):
+        parse_boolean(string)
 
 
 @mark.parametrize('string', [

@@ -2,19 +2,20 @@ def parse_boolean(string: str) -> bool:
     """
     Parse a string representation of a boolean value.
 
-    This function converts various string representations of boolean values
-    to their corresponding boolean equivalents. It provides flexible
-    parsing for common truthy values while maintaining case-insensitivity.
+    This function converts an explicit set of string representations of
+    boolean values to their corresponding boolean equivalents, matching
+    case-insensitively. Any string outside these sets is rejected.
 
     Args:
-        string: The string to parse. Common truthy values include:
-                'true', 'yes', 'y', '1' (case-insensitive)
+        string: The string to parse. Recognized values (case-insensitive):
+                truthy: 'true', 'yes', 'y', '1'
+                falsy:  'false', 'no', 'n', '0', '' (empty string)
 
     Returns:
-        bool: True if the string matches any truthy value, False otherwise.
+        bool: True for a truthy value, False for a falsy value.
 
     Raises:
-        TypeError: If input is not a string.
+        ValueError: If the string is not a recognized truthy or falsy value.
 
     Example:
         >>> # Parse various boolean representations.
@@ -22,11 +23,12 @@ def parse_boolean(string: str) -> bool:
         >>> parse_boolean('YES')     # Returns True
         >>> parse_boolean('false')   # Returns False
         >>> parse_boolean('no')      # Returns False
+        >>> parse_boolean('maybe')   # Raises ValueError
 
     Note:
-        Only explicit truthy values return True. All other values
-        (including empty string, 'false', 'no', '0', etc.) return False.
-        This follows the principle of explicit positivity.
+        Only explicitly recognized values are accepted. Unlike a permissive
+        parser, unrecognized input raises ValueError rather than silently
+        defaulting to True or False.
     """
 
     truthy = [
@@ -36,7 +38,21 @@ def parse_boolean(string: str) -> bool:
         '1',
     ]
 
+    falsy = [
+        'false',
+        'no',
+        'n',
+        '0',
+        '',
+    ]
+
     string = string.lower()
-    is_truthy = string in truthy
+
+    if string in truthy:
+        is_truthy = True
+    elif string in falsy:
+        is_truthy = False
+    else:
+        raise ValueError('Invalid boolean value')
 
     return is_truthy
