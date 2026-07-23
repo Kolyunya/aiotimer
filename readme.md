@@ -26,6 +26,9 @@ An asynchronous timer with a human-friendly API and rich functionality.
   * [Introspection](#-introspection)
 * [States and transitions](#-states-and-transitions)
 * [Configuring durations](#-configuring-durations)
+  * [Single duration](#-single-duration)
+  * [Sequence of durations](#-sequence-of-durations)
+  * [Duration factory](#-duration-factory)
   * [Duration multipliers](#-duration-multipliers)
 * [Event system](#-event-system)
   * [Interval complete event](#-interval-complete-event)
@@ -50,7 +53,6 @@ A timer may have just one time interval.
 from asyncio import run, sleep
 
 from aiotimer import Timer
-from aiotimer.duration.factory import once
 
 
 async def main() -> None:
@@ -59,7 +61,7 @@ async def main() -> None:
   Then will print a message.
   """
 
-  timer = Timer(once(3), lambda: print('3 seconds passed'))
+  timer = Timer(3, lambda: print('3 seconds passed'))
   await timer.start()
 
   # Wait for the timer to complete.
@@ -78,6 +80,7 @@ from asyncio import run, sleep
 
 from aiotimer import Timer
 from aiotimer.duration.factory import thrice
+from aiotimer.duration.multiplier import second
 
 
 async def main() -> None:
@@ -88,7 +91,7 @@ async def main() -> None:
   """
 
   timer = Timer(
-    thrice(1),
+    thrice(1 * second),
     lambda: print('3 seconds passed'),
     lambda: print('1 more second passed'),
   )
@@ -150,14 +153,60 @@ This design is used as a defensive programming technique that helps catch any lo
 </div>
 
 ## [🔝](#table-of-contents) Configuring durations
-The first parameter of the timer constructor is a [`Duration Factory`](sources/aiotimer/duration/factory). It is responsible for generating durations for the timers. A timer may have one or more time intervals of arbitrary durations.
+The first parameter of the timer constructor defines its interval durations. A timer may have one or more time intervals of arbitrary durations, all measured in seconds. The parameter accepts three different forms, from the simplest to the most powerful:
 
-> All interval durations **_must_** be non-negative. Duration factory, producing a negative duration yields an undefined behavior.
+* [A single duration](#-single-duration) — for one-off timers with a single interval.
+* [A sequence of durations](#-sequence-of-durations) — for timers with a fixed, known set of intervals.
+* [A duration factory](#-duration-factory) — for complex duration generation logic.
 
-There are many built-in duration factories that should cover the majority of common use cases.
+> All interval durations **_must_** be positive numbers or zeroes, regardless of the form used. A negative duration yields an undefined behavior.
+
+> Duration objects **_must not_** be modified after they are passed to a timer, regardless of the form used. Modifying them yields an undefined behavior.
+
+### [🔝](#table-of-contents) Single duration
+This is the simplest duration form for one-off timers. Any integer or floating-point number configures a timer with exactly one interval of the given duration in seconds.
+
+```python
+from aiotimer import Timer
+
+
+# A one-off timer with a single 5-second interval.
+Timer(5, lambda: print('Timer complete'))
+```
+
+### [🔝](#table-of-contents) Sequence of durations
+This is the most convenient duration form when the set of intervals is static and known upfront. Any [`Sequence`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence) of durations (e.g. a list or a tuple) configures a multi-interval timer.
+
+```python
+from aiotimer import Timer
+
+
+# Three intervals of 1, 2, and 3 seconds.
+Timer(
+  [1, 2, 3],
+  lambda: print('Timer complete'),
+  lambda: print('Interval complete'),
+)
+
+
+# Same as previous, but using a tuple.
+Timer(
+  (1, 2, 3),
+  lambda: print('Timer complete'),
+  lambda: print('Interval complete'),
+)
+```
+
+> A duration sequence **_must not_** be empty. An empty sequence raises an [`EmptyDurationIterableError`](sources/aiotimer/error/duration_error.py).
+
+### [🔝](#table-of-contents) Duration factory
+This is the most powerful form of durations. A [`Duration Factory`](sources/aiotimer/duration/factory) is a callable that returns an `Iterable` of durations. It powers more complex duration generation logic as well as infinitely-running timers.
+
+The library is shipped with an extensive catalog of built-in duration factories that should cover the majority of common use cases. Also see [Custom duration factories](#-custom-duration-factories) for implementing your own factory.
 
 ```python
 from aiotimer.duration.factory import *
+
 
 # Generates 1 interval of 5 seconds.
 once(5)
@@ -171,8 +220,30 @@ twice(5)
 thrice(5)
 
 
+# Generates 10 intervals of 5 seconds each.
+repeatedly(5, 10)
+
+
 # Generates 3 intervals of 1, 2, and 3 seconds.
 sequentially(1, 2, 3)
+
+
+# Generates an infinite number of 5-second intervals.
+forever(5)
+
+
+# Generates 1 interval between 5 and 10 seconds.
+randomly(5, 10)
+
+
+# Generates 3 intervals of 5±0.5 seconds (10% relative jitter).
+# Any other factory may be passed as the first argument.
+jittery(thrice(5), relative=0.1)
+
+
+# Generates 3 intervals of 5±0.5 seconds (0.5 second absolute jitter).
+# Any other factory may be passed as the first argument.
+jittery(thrice(5), absolute=0.5)
 
 
 # Generates 5 intervals of 1, 2, 4, 8, and 16 seconds.
@@ -189,35 +260,6 @@ exponentially(base=3, interval_count=3)
 
 # Generates scaled-down intervals of 0.1, 0.2, and 0.4 seconds.
 exponentially(scale=0.1, interval_count=3)
-
-
-# Generates 1 interval between 5 and 10 seconds.
-randomly(5, 10)
-
-
-# Generates 30 intervals of 1, 2, 3, 1, 2, 3, ... seconds.
-# Any other factory may be passed as the first argument.
-repeatedly(sequentially(1, 2, 3), 10)
-
-
-# Generates an infinite number of intervals of 1, 2, 3, 1, 2, 3, ... seconds.
-# Any other factory may be passed as the first argument.
-forever(sequentially(1, 2, 3))
-
-
-# Generates 3 intervals of 5±0.5 seconds (10% relative jitter).
-# Any other factory may be passed as the first argument.
-jittery(thrice(5), relative=0.1)
-
-
-# Generates 3 intervals of 5±0.5 seconds (0.5 second absolute jitter).
-# Any other factory may be passed as the first argument.
-jittery(thrice(5), absolute=0.5)
-
-
-# Generates 4 intervals of 0, 5, 5, and 5 seconds.
-# Any other factory may be passed as the first argument.
-immediately_then(thrice(5))
 
 
 # Generates a zero-second interval followed by 5 exponentially growing retries.
@@ -247,12 +289,42 @@ backoff(scale=0.1)
 backoff(jitter=0.1)
 
 
-# Generates no intervals.
-# Used in the test suite for testing edge cases.
-never()
+# Generates 4 intervals of 0, 5, 5, and 5 seconds.
+# Any other factory may be passed as the first argument.
+immediately_then(thrice(5))
 ```
 
 > If you believe some type of duration factory is missing, feel free to submit an issue or a pull request.
+
+All factories that wrap another duration source (`once`, `twice`, `thrice`, `repeatedly`, `sequentially`, `forever`, `jittery`, `immediately_then`) accept all three forms of durations. This enables a very powerful mechanism of factory composition. A few examples are listed below.
+
+```python
+from aiotimer.duration.factory import *
+
+
+# Generates 9 intervals with a repeating pattern of 1, 2, and 3 seconds.
+thrice([1, 2, 3])
+
+
+# Generates 10 intervals between 5 and 10 seconds each.
+repeatedly(randomly(5, 10), 10)
+
+
+# Generates a random interval followed by an exponential sequence.
+sequentially(
+  randomly(0.1, 0.2),
+  exponentially(interval_count=10),
+)
+
+
+# Generates 10 exponentially-growing intervals with a 10% jitter applied to them.
+jittery(exponentially(interval_count=10), relative=0.1)
+
+
+# Generates an infinite number of intervals of 1, 2, 3, 1, 2, 3, ... seconds.
+# Any other factory may be passed as the first argument.
+forever(sequentially(1, 2, 3))
+```
 
 ### [🔝](#table-of-contents) Duration multipliers
 A timer always expects durations to be passed in seconds (`float` or `int`). To express durations in other time units conveniently, the library ships a set of [duration multipliers](sources/aiotimer/duration/multiplier) — plain numeric constants that scale duration values into seconds.
@@ -352,11 +424,9 @@ For adequate accuracy, it is recommended to have the precision value configured 
 At the same time, having the precision configured to an extremely low value (e.g. `0.001`) may yield a high CPU load.
 
 ### [🔝](#table-of-contents) Custom duration factories
-The first argument to the timer constructor is a [`Duration Factory`](sources/aiotimer/duration/duration.py). It is a callable that returns an `Iterable` of durations in seconds.
+A [`Duration Factory`](sources/aiotimer/duration/duration.py) is one of the three forms the timer constructor accepts for its first argument (see [Configuring durations](#-configuring-durations)). It is a callable that returns an `Iterable` of durations.
 
-> This design is required to support the following features.
-> * Perpetually running `Timer` which requires infinitely-iterable objects.
-> * The `reset()` functionality which requires a fresh instance of an iterable.
+In case the [built-in factories](#-duration-factory) do not cover your usage scenarios, you can construct your custom one. The simplest custom duration factory is a `lambda` returning a list of durations.
 
 ```python
 from asyncio import run, sleep
@@ -365,10 +435,13 @@ from aiotimer import Timer
 
 
 async def main() -> None:
-  # The simplest form of a custom Duration Factory.
   duration_factory = lambda: [1, 2, 3]
 
-  timer = Timer(duration_factory, lambda: print('6 seconds passed'))
+  timer = Timer(
+    duration_factory,
+    lambda: print('6 seconds passed'),
+  )
+
   await timer.start()
 
   # Wait for the timer to complete.
