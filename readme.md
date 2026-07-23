@@ -16,34 +16,34 @@ An asynchronous timer with a human-friendly API and rich functionality.
 * Zero production dependencies except for [`typing-extensions`](https://github.com/python/typing_extensions) by Python core team.
 
 ## Table of contents
-* [Usage examples](#usage-examples)
-  * [One-off timer](#one-off-timer)
-  * [Multi-interval timer](#multi-interval-timer)
-  * [Other usage examples](#other-usage-examples)
-* [Public API](#public-api)
-  * [Controlling the state](#controlling-the-state)
-  * [Duration modification](#duration-modification)
-  * [Introspection](#introspection)
-* [States and transitions](#states-and-transitions)
-* [Configuring durations](#configuring-durations)
-  * [Duration multipliers](#duration-multipliers)
-* [Event system](#event-system)
-  * [Interval complete event](#interval-complete-event)
-  * [Timer complete event](#timer-complete-event)
-  * [Error event](#error-event)
-* [Advanced usage](#advanced-usage)
+* [Usage examples](#-usage-examples)
+  * [One-off timer](#-one-off-timer)
+  * [Multi-interval timer](#-multi-interval-timer)
+  * [Other usage examples](#-other-usage-examples)
+* [Public API](#-public-api)
+  * [Controlling the state](#-controlling-the-state)
+  * [Duration modification](#-duration-modification)
+  * [Introspection](#-introspection)
+* [States and transitions](#-states-and-transitions)
+* [Configuring durations](#-configuring-durations)
+  * [Duration multipliers](#-duration-multipliers)
+* [Event system](#-event-system)
+  * [Interval complete event](#-interval-complete-event)
+  * [Timer complete event](#-timer-complete-event)
+  * [Error event](#-error-event)
+* [Advanced usage](#-advanced-usage)
   * [Sync and Async callbacks
-](#sync-and-async-callbacks)
-  * [Configuring precision](#configuring-precision)
+](#-sync-and-async-callbacks)
+  * [Configuring precision](#-configuring-precision)
   * [Custom duration factories
-  ](#custom-duration-factories)
-  * [Memory management](#memory-management)
-  * [Runtime type checking](#runtime-type-checking)
-* [Contributing](#contributing)
+  ](#-custom-duration-factories)
+  * [Memory management](#-memory-management)
+  * [Runtime type checking](#-runtime-type-checking)
+* [Contributing](#-contributing)
 
-## Usage examples
+## [🔝](#table-of-contents) Usage examples
 
-### One-off timer
+### [🔝](#table-of-contents) One-off timer
 
 A timer may have just one time interval.
 ```python
@@ -70,7 +70,7 @@ if __name__ == '__main__':
   run(main())
 ```
 
-### Multi-interval timer
+### [🔝](#table-of-contents) Multi-interval timer
 
 A timer may have multiple time intervals of arbitrary durations.
 ```python
@@ -102,27 +102,39 @@ if __name__ == '__main__':
   run(main())
 ```
 
-### Other usage examples
+### [🔝](#table-of-contents) Other usage examples
 More usage examples are available [here](examples).
 
-## Public API
+<div align="right">
 
-### Controlling the state
+**[🔝 Back to top](#table-of-contents)**
+
+</div>
+
+## [🔝](#table-of-contents) Public API
+
+### [🔝](#table-of-contents) Controlling the state
 * `await timer.start()` starts the timer that is in the `Initial` or in the `Stopped` state.
 * `await timer.stop()` stops the timer that is in the `Running` state. The elapsed and remaining times for the current time interval as well as the current interval itself are **_preserved_**.
 * `await timer.reset()` resets the timer. The elapsed and remaining times for the current time interval as well as the current interval itself are **_discarded_**. The timer is reset to the initial state it had after instantiation.
 
-### Duration modification
+### [🔝](#table-of-contents) Duration modification
 * `await timer.set(duration)` sets the duration of the currently running interval **_to_** `duration`. In case the elapsed time is greater than `duration`, the interval would complete immediately.
 * `await timer.prolong(delta)` prolongs the duration of the currently running interval **_by_** `delta`.
 * `await timer.shorten(delta)` shortens the duration of the currently running interval **_by_** `delta`. In case the elapsed time is greater than the resulting duration after shortening, the interval would complete immediately.
 
-### Introspection
+### [🔝](#table-of-contents) Introspection
 * `timer.elapsed` returns the elapsed time for the currently running interval.
 * `timer.remaining` returns the remaining time for the currently running interval.
 * `timer.state` returns the type of the current state of the timer.
 
-## States and transitions
+<div align="right">
+
+**[🔝 Back to top](#table-of-contents)**
+
+</div>
+
+## [🔝](#table-of-contents) States and transitions
 The timer class implements the [State Pattern](https://en.wikipedia.org/wiki/State_pattern). Methods that modify the timer state may only be called when the timer is in a supported state.
 
 Any transition not listed in the diagram will raise an [`InvalidStateError`](sources/aiotimer/error/state_error.py). For example, you cannot `reset()` a timer while it is in the `InitialState`, and you cannot `run()` a timer that is in the `CompleteState`.
@@ -131,7 +143,13 @@ This design is used as a defensive programming technique that helps catch any lo
 
 ![](.assets/state-diagram.png)
 
-## Configuring durations
+<div align="right">
+
+**[🔝 Back to top](#table-of-contents)**
+
+</div>
+
+## [🔝](#table-of-contents) Configuring durations
 The first parameter of the timer constructor is a [`Duration Factory`](sources/aiotimer/duration/factory). It is responsible for generating durations for the timers. A timer may have one or more time intervals of arbitrary durations.
 
 > All interval durations **_must_** be non-negative. Duration factory, producing a negative duration yields an undefined behavior.
@@ -236,7 +254,7 @@ never()
 
 > If you believe some type of duration factory is missing, feel free to submit an issue or a pull request.
 
-### Duration multipliers
+### [🔝](#table-of-contents) Duration multipliers
 A timer always expects durations to be passed in seconds (`float` or `int`). To express durations in other time units conveniently, the library ships a set of [duration multipliers](sources/aiotimer/duration/multiplier) — plain numeric constants that scale duration values into seconds.
 
 ```python
@@ -270,7 +288,13 @@ Timer([30 * seconds, 5 * minutes, 1 * hour])
 Timer(thrice(100 * milliseconds))
 ```
 
-## Event system
+<div align="right">
+
+**[🔝 Back to top](#table-of-contents)**
+
+</div>
+
+## [🔝](#table-of-contents) Event system
 There are several event handlers that may be configured for a timer through the constructor arguments.
 
 All event handlers **_must_** comply with the following API contract. Non-compliant event handlers result in undefined behavior.
@@ -287,41 +311,47 @@ All event handlers **_must_** comply with the following API contract. Non-compli
 
 > Any public method of a timer object may be safely called from any event handler. The internal timer architecture prevents any race conditions and deadlocks from occurring.
 
-### Timer complete event
+### [🔝](#table-of-contents) Timer complete event
 This event is fired each time the last interval of a timer is complete. An `on_timer_complete` handler **_may_** optionally accept a [`TimerCompleteEvent`](sources/aiotimer/event/timer_complete_event.py) object. Events of this type have the following properties:
 * `timer: Timer`
 * `interval_count: int`
 
-### Interval complete event
+### [🔝](#table-of-contents) Interval complete event
 This event is fired each time any interval of a timer is complete. An `on_interval_complete` handler **_may_** optionally accept an [`IntervalCompleteEvent`](sources/aiotimer/event/interval_complete_event.py) object. Events of this type have the following properties:
 * `timer: Timer`
 * `interval_number: int`
 * `interval_duration: float`
 
-### Error event
+### [🔝](#table-of-contents) Error event
 This event is fired each time any exception is propagated from any of the event handlers described above. Additionally, it is fired when an exception occurs inside a system coroutine of a timer. An `on_error` handler **_may_** optionally accept an [`ErrorEvent`](sources/aiotimer/event/error_event.py) object. Events of this type have the following properties:
 * `timer: Timer`
 * `error: Exception`
 
-## Advanced usage
+<div align="right">
 
-### Sync and Async callbacks
+**[🔝 Back to top](#table-of-contents)**
+
+</div>
+
+## [🔝](#table-of-contents) Advanced usage
+
+### [🔝](#table-of-contents) Sync and Async callbacks
 Use the `await_callbacks` parameter of the `Timer` constructor to control the way the callbacks are handled.
 
 In the sync mode (`await_callbacks == True`) the next interval would not start until the `on_interval_complete` callback finishes execution.
 
 In the async mode (`await_callbacks == False`) the next interval would start immediately after the previous one completes.
 
-> Both modes support `def`, `async def` as well as any other types of [compatible callables](#event-system). It's perfectly fine to use `def` in the async mode and `async def` in sync mode.
+> Both modes support `def`, `async def` as well as any other types of [compatible callables](#-event-system). It's perfectly fine to use `def` in the async mode and `async def` in sync mode.
 
-### Configuring precision
+### [🔝](#table-of-contents) Configuring precision
 The timer class has a configurable `precision: float` parameter. It represents the amount of seconds a timer would idle between its system ticks.
 
 For adequate accuracy, it is recommended to have the precision value configured significantly (at least several times) smaller than the shortest interval the timer would have.
 
 At the same time, having the precision configured to an extremely low value (e.g. `0.001`) may yield a high CPU load.
 
-### Custom duration factories
+### [🔝](#table-of-contents) Custom duration factories
 The first argument to the timer constructor is a [`Duration Factory`](sources/aiotimer/duration/duration.py). It is a callable that returns an `Iterable` of durations in seconds.
 
 > This design is required to support the following features.
@@ -349,12 +379,12 @@ if __name__ == '__main__':
   run(main())
 ```
 
-### Memory management
+### [🔝](#table-of-contents) Memory management
 A timer in the `Running` state will never be garbage-collected, nor will event handlers registered with it. They are referenced by the event loop and live at least until the timer is stopped.
 
 Inherently infinitely-running timers must be stopped manually as soon as they are no longer needed. Failing to do so effectively results in a memory leak.
 
-### Runtime type checking
+### [🔝](#table-of-contents) Runtime type checking
 The library supports optional runtime type checking of its whole codebase powered by [`beartype`](https://beartype.readthedocs.io/).
 
 To enable it, install `beartype` and set the `BEARTYPE` environment variable to any truthy value (e.g. `Yes`, `True`, `1`) before importing the library.
@@ -368,9 +398,15 @@ BEARTYPE=Yes python main.py
 
 In case the variable is set but `beartype` is not installed, the library emits a warning and runs normally, just with type checking disabled.
 
-## Contributing
+<div align="right">
 
-### Configuring the development environment
+**[🔝 Back to top](#table-of-contents)**
+
+</div>
+
+## [🔝](#table-of-contents) Contributing
+
+### [🔝](#table-of-contents) Configuring the development environment
 ```bash
 # Create and activate a virtual environment.
 python -m venv .
@@ -385,3 +421,9 @@ BEARTYPE=Yes python -m test --skip-slow=No
 ```
 
 Additionally, convenient `Quick QA` and `Full QA` run configuration are provided for `PyCharm` users.
+
+<div align="right">
+
+**[🔝 Back to top](#table-of-contents)**
+
+</div>
