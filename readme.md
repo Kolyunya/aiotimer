@@ -5,15 +5,15 @@
 An asynchronous timer with a human-friendly API and rich functionality.
 
 * State management with `start()`, `stop()`, and `reset()` methods.
-* On-the-fly adjustment of the duration with `set()`, `prolong()`, and `shorten()` methods.
+* On-the-fly duration adjustment with `prolong()`, `shorten()`, and `set()` methods.
 * Introspection with `elapsed`, `remaining`, and `state` properties.
-* Multi-interval configuration when a timer runs multiple times with a predefined configuration of durations.
-* Looping capabilities for continuously running timers.
+* Multi-interval timer configurations.
+* Continuously running timers.
 * Rich callback system enabling hooking into the timer lifecycle events.
-* Synchronous and asynchronous callback modes.
+* Synchronous and asynchronous callback execution modes.
 * Concurrency-safe architecture designed to prevent race conditions and deadlocks.
 * Support for a wide range of Python versions from `3.9` onward.
-* Zero production dependencies except for [`typing-extensions`](https://github.com/python/typing_extensions) by Python core team.
+* Zero production dependencies except for [`typing-extensions`](https://github.com/python/typing_extensions) by the Python core team.
 
 ## Table of contents
 * [Usage examples](#-usage-examples)
@@ -35,11 +35,9 @@ An asynchronous timer with a human-friendly API and rich functionality.
   * [Timer complete event](#-timer-complete-event)
   * [Error event](#-error-event)
 * [Advanced usage](#-advanced-usage)
-  * [Sync and Async callbacks
-](#-sync-and-async-callbacks)
+  * [Sync and Async callbacks](#-sync-and-async-callbacks)
   * [Configuring precision](#-configuring-precision)
-  * [Custom duration factories
-  ](#-custom-duration-factories)
+  * [Custom duration factories](#-custom-duration-factories)
   * [Memory management](#-memory-management)
   * [Runtime type checking](#-runtime-type-checking)
 * [Contributing](#-contributing)
@@ -140,7 +138,7 @@ More usage examples are available [here](examples).
 ## [🔝](#table-of-contents) States and transitions
 The timer class implements the [State Pattern](https://en.wikipedia.org/wiki/State_pattern). Methods that modify the timer state may only be called when the timer is in a supported state.
 
-Any transition not listed in the diagram will raise an [`InvalidStateError`](sources/aiotimer/error/state_error.py). For example, you cannot `reset()` a timer while it is in the `InitialState`, and you cannot `run()` a timer that is in the `CompleteState`.
+Any transition not listed in the diagram will raise an [`InvalidStateError`](sources/aiotimer/error/state_error.py). For example, you cannot `reset()` a timer while it is in the `InitialState`, and you cannot `start()` a timer that is in the `CompleteState`.
 
 This design is used as a defensive programming technique that helps catch any logic errors in the code early and simplifies the debugging process.
 
@@ -383,16 +381,16 @@ All event handlers **_must_** comply with the following API contract. Non-compli
 
 > Any public method of a timer object may be safely called from any event handler. The internal timer architecture prevents any race conditions and deadlocks from occurring.
 
-### [🔝](#table-of-contents) Timer complete event
-This event is fired each time the last interval of a timer is complete. An `on_timer_complete` handler **_may_** optionally accept a [`TimerCompleteEvent`](sources/aiotimer/event/timer_complete_event.py) object. Events of this type have the following properties:
-* `timer: Timer`
-* `interval_count: int`
-
 ### [🔝](#table-of-contents) Interval complete event
 This event is fired each time any interval of a timer is complete. An `on_interval_complete` handler **_may_** optionally accept an [`IntervalCompleteEvent`](sources/aiotimer/event/interval_complete_event.py) object. Events of this type have the following properties:
 * `timer: Timer`
 * `interval_number: int`
 * `interval_duration: float`
+
+### [🔝](#table-of-contents) Timer complete event
+This event is fired each time the last interval of a timer is complete. An `on_timer_complete` handler **_may_** optionally accept a [`TimerCompleteEvent`](sources/aiotimer/event/timer_complete_event.py) object. Events of this type have the following properties:
+* `timer: Timer`
+* `interval_count: int`
 
 ### [🔝](#table-of-contents) Error event
 This event is fired each time any exception is propagated from any of the event handlers described above. Additionally, it is fired when an exception occurs inside a system coroutine of a timer. An `on_error` handler **_may_** optionally accept an [`ErrorEvent`](sources/aiotimer/event/error_event.py) object. Events of this type have the following properties:
@@ -417,7 +415,7 @@ In the async mode (`await_callbacks == False`) the next interval would start imm
 > Both modes support `def`, `async def` as well as any other types of [compatible callables](#-event-system). It's perfectly fine to use `def` in the async mode and `async def` in sync mode.
 
 ### [🔝](#table-of-contents) Configuring precision
-The timer class has a configurable `precision: float` parameter. It represents the amount of seconds a timer would idle between its system ticks.
+The timer class has a configurable `precision: float` parameter. It represents the number of seconds a timer would idle between its system ticks.
 
 For adequate accuracy, it is recommended to have the precision value configured significantly (at least several times) smaller than the shortest interval the timer would have.
 
@@ -493,7 +491,7 @@ pip install --editable ".[development]"
 BEARTYPE=Yes python -m test --skip-slow=No
 ```
 
-Additionally, convenient `Quick QA` and `Full QA` run configuration are provided for `PyCharm` users.
+Additionally, convenient `Quick QA` and `Full QA` run configurations are provided for `PyCharm` users.
 
 <div align="right">
 
